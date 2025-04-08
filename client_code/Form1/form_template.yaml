@@ -5,6 +5,26 @@ components:
     name: canvas_1
     properties: {height: 404.3333435058594}
     type: Canvas
+  - components:
+    - event_bindings: {click: add_square_click}
+      layout_properties: {}
+      name: add_square
+      properties: {text: Add Square}
+      type: Button
+    - event_bindings: {click: add_circle_click}
+      layout_properties: {}
+      name: add_circle
+      properties: {text: Add Circle}
+      type: Button
+    - event_bindings: {click: add_card_click}
+      layout_properties: {}
+      name: add_card
+      properties: {text: Add Card}
+      type: Button
+    layout_properties: {grid_position: 'JAJXQF,NVCOBY'}
+    name: flow_panel_1
+    properties: {align: center}
+    type: FlowPanel
   layout_properties: {slot: default}
   name: content_panel
   properties: {col_widths: '{}'}
