@@ -13,25 +13,27 @@ class Form1(Form1Template):
     self.IMAGE_WIDTH = 80
     # self.IMAGE_HEIGHT = 107
     self.IMAGE_HEIGHT = 80
-    self.GRID_COLS = 10
-    self.GRID_ROWS = 10
-    self.images = {
-      'AH': URLMedia('_/theme/cardHeartsA.png')
-    }
+    # self.GRID_COLS = 10
+    # self.GRID_ROWS = 10
+    # self.images = {
+      # 'AH': URLMedia('_/theme/cardHeartsA.png')
+    # }
 
-    self.model = []
-    for row in range(self.GRID_ROWS):
-      for col in range(self.GRID_COLS):
-        self.model.append({'type':'AH',
-                          'x':col*self.IMAGE_WIDTH,
-                          'y':row*self.IMAGE_HEIGHT})
+    # self.model = []
+    # for row in range(self.GRID_ROWS):
+      # for col in range(self.GRID_COLS):
+        # self.model.append({'type':'AH',
+                          # 'x':col*self.IMAGE_WIDTH,
+                          # 'y':row*self.IMAGE_HEIGHT})
     
       
     
 
     # canvas_size is width. Using image_height because cards are taller than wider
-    self.canvas_size = self.GRID_ROWS * self.IMAGE_HEIGHT 
-    self.canvas_1.height = self.canvas_size
+    # self.canvas_size = self.GRID_ROWS * self.IMAGE_HEIGHT 
+    # self.canvas_1.height = self.canvas_size
+    self.canvas_size = 800
+    self.canvas_1.height = 800
     
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
 
@@ -46,12 +48,44 @@ class Form1(Form1Template):
       # if shape['type'] in self.images:
         # self.canvas_1.draw_image(self.images[shape['type']], shape['x'], shape['y'])
 
+  def draw_flag(self, col, row):
+    self.canvas_1.draw_image(URLMedia('_/theme/flag.png'), col*self.IMAGE_WIDTH+7, row*self.IMAGE_HEIGHT+7)
+
+  def draw_flag_by_card(self, card):
+    # card is a string representation of an individual playing card
+    if card=='AH':
+      self.draw_flag(5,1)
+      self.draw_flag(6,4)
+    if card=='KH':
+      self.draw_flag(6,1)
+      self.draw_flag(6,5)
+    if card=='QH':
+      self.draw_flag(7,1)
+      self.draw_flag(6,6)
+    if card=='10H':
+      self.draw_flag(8,1)
+      self.draw_flag(5,6)
+
+  def draw_flag_by_hand(self, hand):
+    # hand is a list of cards in a player's hand
+    for card in hand:
+      self.draw_flag_by_card(card)
+    
+
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
     # row and col are 0-based; upper left corner is (0,0)
     row = y//self.IMAGE_HEIGHT
     col = x//self.IMAGE_WIDTH
-    print(f"row = {row}, col = {col}")
+    print(f"col = {col}, row = {row}")
+    # Draw green chip where user clicks
+    self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
+    # Draw flags for A, K, Q, and 10 of Hearts
+    self.draw_flag_by_hand(['AH','KH','QH','10H'])
+
+    
+   
+    
   
     
   

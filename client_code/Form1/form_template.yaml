@@ -1,5 +1,9 @@
 components:
 - components:
+  - layout_properties: {grid_position: 'SJSCGO,EEFAJS'}
+    name: spacer_1
+    properties: {height: '40'}
+    type: Spacer
   - event_bindings: {mouse_down: canvas_1_mouse_down, reset: canvas_1_reset}
     layout_properties: {grid_position: 'SRDDSV,DQASFS'}
     name: canvas_1
