@@ -38,12 +38,30 @@ class Form1(Form1Template):
 
     self.is_green_turn = True
 
-    self.location={'AH':[(5,1),(6,4)],
-                  'KH':[(6,1),(6,5)],
-                  'QH':[(7,1),(6,6)],
-                  '10H':[(8,1),(5,6)],
-                  '9H':[(4,6),(8,2)],
-                  '8H':[(3,6),(8,3)],
+    self.locations={'AH':[(5,1),(6,4)],
+                   'KH':[(6,1),(6,5)],
+                   'QH':[(7,1),(6,6)],
+                   '10H':[(8,1),(5,6)],
+                   '9H':[(4,6),(8,2)],
+                   '8H':[(3,6),(8,3)],
+                   '7H':[(3,5),(8,4)],
+                   '6H':[(3,4),(8,5)],
+                   '5H':[(4,4),(8,6)],
+                   '4H':[(5,4),(8,7)],
+                   '3H':[(5,5),(8,8)],
+                   '2H':[(4,5),(7,8)],
+                   '2S':[(1,0),(6,8)],
+                   '3S':[(2,0),(5,8)],
+                   '4S':[(3,0),(4,8)],
+                   '5S':[(4,0),(3,8)],
+                   '6S':[(5,0),(3,8)],
+                   '7S':[(6,0),(1,8)],
+                   '8S':[(7,0),(1,7)],
+                   '9S':[(8,0),(1,6)],
+                   '10S':[(9,1),(1,5)],
+                   'QS':[(9,2),(1,4)],
+                   'KS':[(9,3),(1,3)],
+                   'AS':[(9,4),(1,2)]
                   }
     
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
@@ -57,131 +75,30 @@ class Form1(Form1Template):
     for item in self.model:
         self.canvas_1.draw_image(URLMedia(item['url']), item['x'], item['y'])
 
-  def draw_flag(self, col, row):
+  def draw_flag(self, location):
+    col=location[0]
+    row=location[1]
     flag = {'url':'_/theme/flag.png', 'x': col*self.IMAGE_WIDTH+7, 'y': row*self.IMAGE_HEIGHT+7}
     self.model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
     # self.canvas_1.draw_image(URLMedia('_/theme/flag.png'), col*self.IMAGE_WIDTH+7, row*self.IMAGE_HEIGHT+7)
     # self.canvas_1_reset()
 
-  def remove_flag(self, col, row):
+  def remove_flag(self, location):
+    col=location[0]
+    row=location[1]
     flag = {'url':'_/theme/flag.png', 'x': col*self.IMAGE_WIDTH+7, 'y': row*self.IMAGE_HEIGHT+7}
     self.model.remove(flag) if flag in self.model else None
     # self.canvas_1_reset()
 
   def draw_flag_by_card(self, card):
+    for location in self.locations[card]:
+      self.draw_flag(location)
     # card is a string representation of an individual playing card
-    if card=='AH':
-      self.draw_flag(5,1)
-      self.draw_flag(6,4)
-    if card=='KH':
-      self.draw_flag(6,1)
-      self.draw_flag(6,5)
-    if card=='QH':
-      self.draw_flag(7,1)
-      self.draw_flag(6,6)
-    if card=='10H':
-      self.draw_flag(8,1)
-      self.draw_flag(5,6)
-    if card=='9H':
-      self.draw_flag(4,6)
-      self.draw_flag(8,2)
-    if card=='8H':
-      self.draw_flag(3,6)
-      self.draw_flag(8,3)
-    if card=='7H':
-      self.draw_flag(3,5)
-      self.draw_flag(8,4)
-    if card=='6H':
-      self.draw_flag(3,4)
-      self.draw_flag(8,5)
-    if card=='5H':
-      self.draw_flag(4,4)
-      self.draw_flag(8,6)
-    if card=='4H':
-      self.draw_flag(5,4)
-      self.draw_flag(8,7)
-    if card=='3H':
-      self.draw_flag(5,5)
-      self.draw_flag(8,8)
-    if card=='2H':
-      self.draw_flag(4,5)
-      self.draw_flag(7,8)
+    
 
   def remove_flag_by_card(self,card):
-    # Hearts
-    if card=='AH':
-      self.remove_flag(5,1)
-      self.remove_flag(6,4)
-    if card=='KH':
-      self.remove_flag(6,1)
-      self.remove_flag(6,5)
-    if card=='QH':
-      self.remove_flag(7,1)
-      self.remove_flag(6,6)
-    if card=='10H':
-      self.remove_flag(8,1)
-      self.remove_flag(5,6)
-    if card=='9H':
-      self.remove_flag(4,6)
-      self.remove_flag(8,2)
-    if card=='8H':
-      self.remove_flag(3,6)
-      self.remove_flag(8,3)
-    if card=='7H':
-      self.remove_flag(3,5)
-      self.remove_flag(8,4)
-    if card=='6H':
-      self.remove_flag(3,4)
-      self.remove_flag(8,5)
-    if card=='5H':
-      self.remove_flag(4,4)
-      self.remove_flag(8,6)
-    if card=='4H':
-      self.remove_flag(5,4)
-      self.remove_flag(8,7)
-    if card=='3H':
-      self.remove_flag(5,5)
-      self.remove_flag(8,8)
-    if card=='2H':
-      self.remove_flag(4,5)
-      self.remove_flag(7,8)
-    # Spades
-    if card=='AS':
-      self.remove_flag(5,1)
-      self.remove_flag(6,4)
-    if card=='KS':
-      self.remove_flag(6,1)
-      self.remove_flag(6,5)
-    if card=='QS':
-      self.remove_flag(7,1)
-      self.remove_flag(6,6)
-    if card=='10S':
-      self.remove_flag(8,1)
-      self.remove_flag(5,6)
-    if card=='9S':
-      self.remove_flag(4,6)
-      self.remove_flag(8,2)
-    if card=='8S':
-      self.remove_flag(3,6)
-      self.remove_flag(8,3)
-    if card=='7S':
-      self.remove_flag(3,5)
-      self.remove_flag(8,4)
-    if card=='6S':
-      self.remove_flag(3,4)
-      self.remove_flag(8,5)
-    if card=='5S':
-      self.remove_flag(4,4)
-      self.remove_flag(8,6)
-    if card=='4S':
-      self.remove_flag(5,4)
-      self.remove_flag(8,7)
-    if card=='3S':
-      self.remove_flag(5,5)
-      self.remove_flag(8,8)
-    if card=='2S':
-      self.remove_flag(4,5)
-      self.remove_flag(7,8)
+    for location in self.locations[card]:
+      self.draw_flag(location)
     
 
   def draw_flags_for_hand(self, hand):
