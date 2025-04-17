@@ -135,6 +135,7 @@ class Form1(Form1Template):
     if card=='2H':
       self.remove_flag(4,5)
       self.remove_flag(7,8)
+    
 
   def draw_flags_for_hand(self, hand):
     # hand is a list of cards in a player's hand
