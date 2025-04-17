@@ -1,5 +1,6 @@
 from ._anvil_designer import Form1Template
 from anvil import *
+from ..constants import *
 import random
 
 
@@ -10,6 +11,9 @@ class Form1(Form1Template):
     self.init_components(**properties)
 
     # Any code you write here will run before the form opens.
+    self.label_1.text="J\u2665"
+    self.label_1_copy.text="9\u2663"
+    self.label_1_copy.foreground="black"
     self.IMAGE_WIDTH = 64
     # self.IMAGE_HEIGHT = 107
     self.IMAGE_HEIGHT = 64
@@ -41,56 +45,6 @@ class Form1(Form1Template):
 
     self.is_green_turn = True
 
-    self.locations={'AH':[(5,1),(6,4)],
-                   'KH':[(6,1),(6,5)],
-                   'QH':[(7,1),(6,6)],
-                   '10H':[(8,1),(5,6)],
-                   '9H':[(4,6),(8,2)],
-                   '8H':[(3,6),(8,3)],
-                   '7H':[(3,5),(8,4)],
-                   '6H':[(3,4),(8,5)],
-                   '5H':[(4,4),(8,6)],
-                   '4H':[(5,4),(8,7)],
-                   '3H':[(5,5),(8,8)],
-                   '2H':[(4,5),(7,8)],
-                   '2S':[(1,0),(6,8)],
-                   '3S':[(2,0),(5,8)],
-                   '4S':[(3,0),(4,8)],
-                   '5S':[(4,0),(3,8)],
-                   '6S':[(5,0),(3,8)],
-                   '7S':[(6,0),(1,8)],
-                   '8S':[(7,0),(1,7)],
-                   '9S':[(8,0),(1,6)],
-                   '10S':[(9,1),(1,5)],
-                   'QS':[(9,2),(1,4)],
-                   'KS':[(9,3),(1,3)],
-                   'AS':[(9,4),(1,2)],
-                   'AD':[(1,9),(6,7)],
-                   'KD':[(2,9),(7,7)],
-                    'QD':[(3,9),(7,6)],
-                    '10D':[(4,9),(7,5)],
-                    '9D':[(5,9),(7,4)],
-                    '8D':[(6,9),(7,3)],
-                    '7D':[(7,9),(7,2)],
-                    '6D':[(8,9),(6,2)],
-                    '5D':[(9,8),(5,2)],
-                    '4D':[(9,7),(4,2)],
-                    '3D':[(9,6),(3,2)],
-                    '2D':[(9,5),(2,2)],
-                    'AC':[(0,8),(5,7)],
-                    'KC':[(0,7),(4,7)],
-                    'QC':[(0,6),(3,7)],
-                    '10C':[(0,5),(2,7)],
-                    '9C':[(0,4),(2,6)],
-                    '8C':[(0,3),(2,5)],
-                    '7C':[(0,2),(2,4)],
-                    '6C':[(0,1),(2,3)],
-                    '5C':[(1,1),(3,3)],
-                    '4C':[(2,1),(4,3)],
-                    '3C':[(3,1),(5,3)],
-                    '2C':[(4,1),(6,3)]
-                  }
-    
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
 
 
@@ -128,12 +82,12 @@ class Form1(Form1Template):
 
   def draw_flag_by_card(self, card):
    # card is a string representation of an individual playing card
-    for location in self.locations[card]:
+    for location in locations[card]:
       self.draw_flag(location)
     
 
   def remove_flag_by_card(self,card):
-    for location in self.locations[card]:
+    for location in locations[card]:
       self.remove_flag(location)
     
 
