@@ -15,11 +15,14 @@ class Form1(Form1Template):
     self.IMAGE_HEIGHT = 64
     # self.GRID_COLS = 10
     # self.GRID_ROWS = 10
-    # self.images = {
-    #   'board': URLMedia('_/theme/sequence_board.png')
-    # }
+    self.images = {
+      'board': '_/theme/sequence_board.png',
+      'flag': '_/theme/flag.png',
+      'green_chip': '_/theme/chipGreen_border.png',
+      'blue_chip': '_/theme/chipBlue_border.png'
+    }
 
-    self.model = [{'url':'_/theme/sequence_board.png', 'x':0, 'y':0}]
+    self.model = [{'url':'board', 'col':0, 'row':0}]
     # for row in range(self.GRID_ROWS):
       # for col in range(self.GRID_COLS):
         # self.model.append({'type':'AH',
@@ -61,7 +64,31 @@ class Form1(Form1Template):
                    '10S':[(9,1),(1,5)],
                    'QS':[(9,2),(1,4)],
                    'KS':[(9,3),(1,3)],
-                   'AS':[(9,4),(1,2)]
+                   'AS':[(9,4),(1,2)],
+                   'AD':[(1,9),(6,7)],
+                   'KD':[(2,9),(7,7)],
+                    'QD':[(3,9),(7,6)],
+                    '10D':[(4,9),(7,5)],
+                    '9D':[(5,9),(7,4)],
+                    '8D':[(6,9),(7,3)],
+                    '7D':[(7,9),(7,2)],
+                    '6D':[(8,9),(6,2)],
+                    '5D':[(9,8),(5,2)],
+                    '4D':[(9,7),(4,2)],
+                    '3D':[(9,6),(3,2)],
+                    '2D':[(9,5),(2,2)],
+                    'AC':[(0,8),(5,7)],
+                    'KC':[(0,7),(4,7)],
+                    'QC':[(0,6),(3,7)],
+                    '10C':[(0,5),(2,7)],
+                    '9C':[(0,4),(2,6)],
+                    '8C':[(0,3),(2,5)],
+                    '7C':[(0,2),(2,4)],
+                    '6C':[(0,1),(2,3)],
+                    '5C':[(1,1),(3,3)],
+                    '4C':[(2,1),(4,3)],
+                    '3C':[(3,1),(5,3)],
+                    '2C':[(4,1),(6,3)]
                   }
     
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
@@ -73,12 +100,21 @@ class Form1(Form1Template):
     # self.canvas_1.translate(self.canvas_offset, 0)
 
     for item in self.model:
-        self.canvas_1.draw_image(URLMedia(item['url']), item['x'], item['y'])
+      if item['url']=='flag':
+        x=item['col']*self.IMAGE_WIDTH+7
+        y=item['row']*self.IMAGE_HEIGHT+7
+      elif item['url']=='green_chip' or item['url']=='blue_chip':
+        x=item['col']*self.IMAGE_WIDTH+7
+        y=item['row']*self.IMAGE_HEIGHT+7
+      elif item['url']=='board':
+        x=0
+        y=0
+      self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
 
   def draw_flag(self, location):
     col=location[0]
     row=location[1]
-    flag = {'url':'_/theme/flag.png', 'x': col*self.IMAGE_WIDTH+7, 'y': row*self.IMAGE_HEIGHT+7}
+    flag = {'url':'flag', 'col':col, 'row':row}
     self.model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
     # self.canvas_1.draw_image(URLMedia('_/theme/flag.png'), col*self.IMAGE_WIDTH+7, row*self.IMAGE_HEIGHT+7)
     # self.canvas_1_reset()
@@ -86,19 +122,19 @@ class Form1(Form1Template):
   def remove_flag(self, location):
     col=location[0]
     row=location[1]
-    flag = {'url':'_/theme/flag.png', 'x': col*self.IMAGE_WIDTH+7, 'y': row*self.IMAGE_HEIGHT+7}
+    flag = {'url':'flag', 'col': col, 'row': row}
     self.model.remove(flag) if flag in self.model else None
     # self.canvas_1_reset()
 
   def draw_flag_by_card(self, card):
+   # card is a string representation of an individual playing card
     for location in self.locations[card]:
       self.draw_flag(location)
-    # card is a string representation of an individual playing card
     
 
   def remove_flag_by_card(self,card):
     for location in self.locations[card]:
-      self.draw_flag(location)
+      self.remove_flag(location)
     
 
   def draw_flags_for_hand(self, hand):
@@ -116,16 +152,26 @@ class Form1(Form1Template):
     # row and col are 0-based; upper left corner is (0,0)
     row = y//self.IMAGE_HEIGHT
     col = x//self.IMAGE_WIDTH
-    print(f"col = {col}, row = {row}")
     # Draw green chip where user clicks
     # self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
-    green_chip = {'url':'_/theme/chipGreen_border.png', 'x':x-24, 'y':y-24}
-    blue_chip = {'url':'_/theme/chipBlue_border.png', 'x':x-24, 'y':y-24}
+    green_chip = {'url':'green_chip', 'col':col, 'row':row}
+    blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
     
     if self.is_green_turn:
-      self.model.append(green_chip) if green_chip not in self.model else None
-    else:
-      self.model.append(blue_chip) if blue_chip not in self.model else None
+      # if there's a blue chip in this square, remove it
+      if blue_chip in self.model:
+        self.model.remove(blue_chip) 
+      else:
+        self.model.append(green_chip)
+        # add a green chip, if it's not already in the model
+        # self.model.append(green_chip) if green_chip not in self.model else self.model.remove(green_chip)
+    else: # it's blue's turn
+      # if there's a green chip in this square, remove it
+      if green_chip in self.model:
+        self.model.remove(green_chip)
+      else:
+        self.model.append(blue_chip)
+      # self.model.append(blue_chip) if blue_chip not in self.model else self.model.remove(blue_chip)
     self.remove_flags_for_hand(['5H','4H','3H','2H','AH'])
     self.change_player()
     self.canvas_1_reset()
