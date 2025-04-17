@@ -1,8 +1,8 @@
 allow_embedding: false
 dependencies: []
-metadata: {title: Canvas Tutorial}
-name: Canvas Tutorial
-package_name: Canvas_Tutorial
+metadata: {description: tinyurl.com/seeQuince, title: Sequence}
+name: Sequence
+package_name: Sequence
 renamed: true
 runtime_options:
   client_version: '3'
