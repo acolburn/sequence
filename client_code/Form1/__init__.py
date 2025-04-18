@@ -16,17 +16,12 @@ class Form1(Form1Template):
     self.player_green=Player()
     self.player_blue=Player()
     self.deck = Deck() # creates and shuffles deck
-    self.deal_hand()
-    
-    
+    self.deal_hand(self.player_blue)
+    self.deal_hand(self.player_green)
+    self.is_green_turn = True
     
     self.IMAGE_WIDTH = 64
-    # self.IMAGE_HEIGHT = 107
     self.IMAGE_HEIGHT = 64
-    # self.GRID_COLS = 10
-    # self.GRID_ROWS = 10
-    
-   
     self.images = {
       'board': '_/theme/sequence_board.png',
       'flag': '_/theme/flag.png',
@@ -35,23 +30,11 @@ class Form1(Form1Template):
     }
 
     self.model = [{'url':'board', 'col':0, 'row':0}]
-    # for row in range(self.GRID_ROWS):
-      # for col in range(self.GRID_COLS):
-        # self.model.append({'type':'AH',
-                          # 'x':col*self.IMAGE_WIDTH,
-                          # 'y':row*self.IMAGE_HEIGHT})
     
-      
-    
-
-    # canvas_size is width. Using image_height because cards are taller than wider
-    # self.canvas_size = self.GRID_ROWS * self.IMAGE_HEIGHT 
-    # self.canvas_1.height = self.canvas_size
+    # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
     self.canvas_size = 800
     self.canvas_1.height = 650 #64 px/cell, 10 cells
-
-    self.is_green_turn = True
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
 
@@ -61,52 +44,52 @@ class Form1(Form1Template):
     if card[-1]==HEARTS or card[-1]==DIAMONDS:
       return "red"
 
-  def deal_card(self):
+  def deal_card(self, player):
     card=self.deck.deal()
-    self.hand.append(card.rank+card.suit)
+    player.hand.append(card.rank+card.suit)
     return card.rank+card.suit
 
-  def deal_hand(self):
-    self.hand.clear()
-    #deal_card() appends card.rank+card.suit to self.hand
+  def deal_hand(self, player):
+    player.hand.clear()
+    #deal_card() appends card.rank+card.suit to player.hand
     #it returns card.rank+card.suit
-    card=self.deal_card() 
+    card=self.deal_card(player) 
     self.label_1.text = card
     self.label_1.foreground = self.card_color(card)
-    card=self.deal_card()
+    card=self.deal_card(player)
     self.label_2.text = card
     self.label_2.foreground = self.card_color(card)
-    card=self.deal_card()
+    card=self.deal_card(player)
     self.label_3.text = card
     self.label_3.foreground = self.card_color(card)
-    card=self.deal_card()
+    card=self.deal_card(player)
     self.label_4.text = card
     self.label_4.foreground = self.card_color(card)
-    card=self.deal_card()
+    card=self.deal_card(player)
     self.label_5.text = card
     self.label_5.foreground = self.card_color(card)
-    card=self.deal_card()
+    card=self.deal_card(player)
     self.label_6.text = card
     self.label_6.foreground = self.card_color(card)
-    card=self.deal_card()
+    card=self.deal_card(player)
     self.label_7.text = card
     self.label_7.foreground = self.card_color(card)
 
-  def update_hand(self):
+  def update_hand(self, player):
     labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for i in range(7):
       # if there's a card in self.hand at the given position,
       # display it
       # the items in self.hand each have card.rank+card.suit
-      if len(self.hand)>i:
-        card=self.hand[i]
+      if len(player.hand)>i:
+        card=player.hand[i]
         label=labels[i]
         label.text=card
         label.foreground=self.card_color(card)
       # and if there's no card at the given position,
       # deal one to fill the space
       else:
-        card = self.deal_card() #addds card.rank+card.suit to self.hand
+        card = self.deal_card(player) #addds card.rank+card.suit to self.hand
         label=labels[i]
         label.text=card
         label.foreground=self.card_color(card)
@@ -114,10 +97,8 @@ class Form1(Form1Template):
         
     
   def canvas_1_reset(self, **event_args):
-    # Adjust these coordinates if you want the drawing area to not be centered
-    # self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
-    # self.canvas_1.translate(self.canvas_offset, 0)
-
+    # self.model is list of everything that needs to be drawn on canvas
+    # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
     for item in self.model:
       if item['url']=='flag':
         x=item['col']*self.IMAGE_WIDTH+7
@@ -131,23 +112,22 @@ class Form1(Form1Template):
       self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
 
   def draw_flag(self, location):
+    # location is a tuple with two coordinates, one for column, one for row
     col=location[0]
     row=location[1]
     flag = {'url':'flag', 'col':col, 'row':row}
     self.model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
-    # self.canvas_1.draw_image(URLMedia('_/theme/flag.png'), col*self.IMAGE_WIDTH+7, row*self.IMAGE_HEIGHT+7)
-    # self.canvas_1_reset()
 
   def remove_flag(self, location):
+    # location is a tuple with two coordinates, one for column, one for row
     col=location[0]
     row=location[1]
     flag = {'url':'flag', 'col': col, 'row': row}
     self.model.remove(flag) if flag in self.model else None
-    # self.canvas_1_reset()
 
   def draw_flag_by_card(self, card):
-   # card is a string representation of an individual playing card; card.rank+card.suit
-    # locations (in constants) is dictionary with key=card.rank+card.suit, value=board locations for card
+   # card is a string representation of an individual playing card--card.rank+card.suit
+    # locations (in constants) is dictionary with key=card.rank+card.suit (string), value=board locations for card (list of tuples)
     # locations[card] is the dictionary entry whose key=card parameter
     # the loop goes through both values in location
     for location in locations[card]:
@@ -159,13 +139,13 @@ class Form1(Form1Template):
       self.remove_flag(location)
     
 
-  def draw_flags_for_hand(self, hand):
+  def draw_flags_for_hand(self, player):
     # hand is a list of card.ranks+card.suits in a player's hand
-    for card in hand:
+    for card in player.hand:
       self.draw_flag_by_card(card)
 
-  def remove_flags_for_hand(self, hand):
-    for card in hand:
+  def remove_flags_for_hand(self, player):
+    for card in player.hand:
       self.remove_flag_by_card(card)
     
 
@@ -200,17 +180,24 @@ class Form1(Form1Template):
       else:
         # add a blue chip
         self.model.append(blue_chip)
-    self.remove_flags_for_hand(self.hand)
+    # update display and hand for current player
+    player=self.player_green if self.is_green_turn else self.player_blue
+    self.remove_flags_for_hand(player)
     # remove the played card from player's hand
-    self.hand.remove(card)
+    if card in player.hand:
+      player.hand.remove(card)
     # update player's hand
-    self.update_hand()
+    self.update_hand(player)
+    # now switch players
     self.change_player()
     self.canvas_1_reset()
 
   def change_player(self, **event_args):
-    labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     self.is_green_turn = not self.is_green_turn
+    player=self.player_green if self.is_green_turn else self.player_blue
+    self.update_hand(player)
+    # change button text+color, and label colors
+    labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     if self.is_green_turn:
       self.btn_player_turn.background='#8fef8f'
       self.btn_player_turn.text="Green's Turn"
@@ -224,7 +211,8 @@ class Form1(Form1Template):
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
-    self.draw_flags_for_hand(self.hand) 
+    player=self.player_green if self.is_green_turn else self.player_blue
+    self.draw_flags_for_hand(player) 
     self.canvas_1_reset()
 
 
