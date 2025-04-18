@@ -15,27 +15,8 @@ class Form1(Form1Template):
     self.hand=[]
     self.hand.clear()
     self.deck = Deck() # creates and shuffles deck
-    card=self.deal_card()
-    self.label_1.text = card[0]
-    self.label_1.foreground = card[1]
-    card=self.deal_card()
-    self.label_2.text = card[0]
-    self.label_2.foreground = card[1]
-    card=self.deal_card()
-    self.label_3.text = card[0]
-    self.label_3.foreground = card[1]
-    card=self.deal_card()
-    self.label_4.text = card[0]
-    self.label_4.foreground = card[1]
-    card=self.deal_card()
-    self.label_5.text = card[0]
-    self.label_5.foreground = card[1]
-    card=self.deal_card()
-    self.label_6.text = card[0]
-    self.label_6.foreground = card[1]
-    card=self.deal_card()
-    self.label_7.text = card[0]
-    self.label_7.foreground = card[1]
+    self.deal_hand()
+    
     
     
     self.IMAGE_WIDTH = 64
@@ -81,7 +62,37 @@ class Form1(Form1Template):
     if card.suit==HEARTS or card.suit==DIAMONDS:
       color="red"
     return [card,color]
-    
+
+  def deal_hand(self):
+    card=self.deal_card()
+    self.label_1.text = card[0]
+    self.label_1.foreground = card[1]
+    card=self.deal_card()
+    self.label_2.text = card[0]
+    self.label_2.foreground = card[1]
+    card=self.deal_card()
+    self.label_3.text = card[0]
+    self.label_3.foreground = card[1]
+    card=self.deal_card()
+    self.label_4.text = card[0]
+    self.label_4.foreground = card[1]
+    card=self.deal_card()
+    self.label_5.text = card[0]
+    self.label_5.foreground = card[1]
+    card=self.deal_card()
+    self.label_6.text = card[0]
+    self.label_6.foreground = card[1]
+    card=self.deal_card()
+    self.label_7.text = card[0]
+    self.label_7.foreground = card[1]
+
+  def update_hand(self):
+    for i in range(7):
+      
+      if len(self.hand)>0:
+        card=self.hand[0]
+        self.label_1.text=self.hand[0][0]
+        self.label_1.foreground=self.hand[0][1]
     
   def canvas_1_reset(self, **event_args):
     # Adjust these coordinates if you want the drawing area to not be centered
@@ -142,7 +153,13 @@ class Form1(Form1Template):
     # row and col are 0-based; upper left corner is (0,0)
     row = y//self.IMAGE_HEIGHT
     col = x//self.IMAGE_WIDTH
-    print(f"Clicked ({col},{row})")
+    # Which cell was clicked?
+    location=(col,row)
+    # What card card was clicked?
+    for key,value in locations.items():
+      if location in value:
+        card=key
+        
     # Draw green chip where user clicks
     # self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
     green_chip = {'url':'green_chip', 'col':col, 'row':row}
@@ -153,17 +170,20 @@ class Form1(Form1Template):
       if blue_chip in self.model:
         self.model.remove(blue_chip) 
       else:
-        self.model.append(green_chip)
         # add a green chip, if it's not already in the model
-        # self.model.append(green_chip) if green_chip not in self.model else self.model.remove(green_chip)
+        self.model.append(green_chip)
     else: # it's blue's turn
       # if there's a green chip in this square, remove it
       if green_chip in self.model:
         self.model.remove(green_chip)
       else:
+        # add a blue chip
         self.model.append(blue_chip)
-      # self.model.append(blue_chip) if blue_chip not in self.model else self.model.remove(blue_chip)
     self.remove_flags_for_hand(self.hand)
+    # remove the played card from user's hand
+    print(self.hand)
+    self.hand.remove(card)
+    print(self.hand)
     self.change_player()
     self.canvas_1_reset()
 
