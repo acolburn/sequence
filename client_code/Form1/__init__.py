@@ -2,6 +2,7 @@ from ._anvil_designer import Form1Template
 from anvil import *
 from ..constants import *
 from ..Cards import *
+from ..Player import *
 import random
 
 
@@ -12,7 +13,8 @@ class Form1(Form1Template):
     self.init_components(**properties)
 
     # Any code you write here will run before the form opens.
-    self.hand=[]
+    self.player_green=Player()
+    self.player_blue=Player()
     self.deck = Deck() # creates and shuffles deck
     self.deal_hand()
     
