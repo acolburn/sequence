@@ -13,7 +13,6 @@ class Form1(Form1Template):
 
     # Any code you write here will run before the form opens.
     self.hand=[]
-    self.hand.clear()
     self.deck = Deck() # creates and shuffles deck
     self.deal_hand()
     
@@ -64,35 +63,57 @@ class Form1(Form1Template):
     return [card,color]
 
   def deal_hand(self):
+    self.hand.clear()
     card=self.deal_card()
+    self.hand.append(card)
     self.label_1.text = card[0]
     self.label_1.foreground = card[1]
     card=self.deal_card()
+    self.hand.append(card)
     self.label_2.text = card[0]
     self.label_2.foreground = card[1]
     card=self.deal_card()
+    self.hand.append(card)
     self.label_3.text = card[0]
     self.label_3.foreground = card[1]
     card=self.deal_card()
+    self.hand.append(card)
     self.label_4.text = card[0]
     self.label_4.foreground = card[1]
     card=self.deal_card()
+    self.hand.append(card)
     self.label_5.text = card[0]
     self.label_5.foreground = card[1]
     card=self.deal_card()
+    self.hand.append(card)
     self.label_6.text = card[0]
     self.label_6.foreground = card[1]
     card=self.deal_card()
+    self.hand.append(card)
     self.label_7.text = card[0]
     self.label_7.foreground = card[1]
 
   def update_hand(self):
+    print(self.hand)
+    labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for i in range(7):
-      
-      if len(self.hand)>0:
-        card=self.hand[0]
-        self.label_1.text=self.hand[0][0]
-        self.label_1.foreground=self.hand[0][1]
+      # if there's a card in self.hand at the given position,
+      # display it
+      if len(self.hand)>i:
+        card=self.hand[i]
+        label=labels[i]
+        label.text=self.hand[i][0]
+        label.foreground=self.hand[i][1]
+      # and if there's no card at the given position,
+      # deal one to fill the space
+      else:
+        card = self.deal_card()
+        self.hand.append(card)
+        label=labels[i]
+        label.text=card[0]
+        label.foreground=card[1]
+        
+        
     
   def canvas_1_reset(self, **event_args):
     # Adjust these coordinates if you want the drawing area to not be centered
@@ -129,8 +150,12 @@ class Form1(Form1Template):
   def draw_flag_by_card(self, card):
    # card is a string representation of an individual playing card
     # locations (in constants) is dictionary with key=card, value=board locations for card
-    for location in locations[card]:
-      self.draw_flag(location)
+    # locations[card] is the dictionary entry whose key=card parameter
+    # location is the dictionary value (a list, with board coordinates) for the card
+    # the loop goes through both values in location
+    print(card)
+    # for location in locations[card]:
+      # self.draw_flag(location)
     
 
   def remove_flag_by_card(self,card):
@@ -180,10 +205,10 @@ class Form1(Form1Template):
         # add a blue chip
         self.model.append(blue_chip)
     self.remove_flags_for_hand(self.hand)
-    # remove the played card from user's hand
-    print(self.hand)
+    # remove the played card from player's hand
     self.hand.remove(card)
-    print(self.hand)
+    # update player's hand
+    self.update_hand()
     self.change_player()
     self.canvas_1_reset()
 
