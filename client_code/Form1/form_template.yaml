@@ -11,44 +11,59 @@ components:
       name: btn_playable_cells
       properties: {role: outlined-button, text: 'Where can I play?'}
       type: Button
-    - layout_properties: {width: 52.5}
-      name: image_1
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
-    - name: image_1_copy
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
-    - name: image_1_copy_2
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
-    - name: image_1_copy_3
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
-    - name: image_1_copy_4
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
-    - name: image_1_copy_5
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
-    - name: image_1_copy_6
-      properties: {height: 67.83331298828125, source: _/theme/cardHeartsA.png}
-      type: Image
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {expand: false}
+      name: label_1
+      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      type: Label
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {}
+      name: label_2
+      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      type: Label
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {}
+      name: label_3
+      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      type: Label
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {}
+      name: label_4
+      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      type: Label
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {}
+      name: label_5
+      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      type: Label
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {}
+      name: label_6
+      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      type: Label
+    - data_bindings:
+      - {code: '', property: border, writeback: false}
+      layout_properties: {}
+      name: label_7
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: ['4', null, '4', null]
+        text: '----'
+      type: Label
     - event_bindings: {click: change_player}
       name: btn_player_turn
       properties: {background: '#8fef8f', role: outlined-button, text: Green's Turn}
       type: Button
-    - data_bindings:
-      - {code: '', property: border, writeback: false}
-      layout_properties: {}
-      name: label_1
-      properties: {bold: true, font_size: 20, foreground: '#e01b24', text: '---'}
-      type: Label
-    - data_bindings:
-      - {code: '', property: border, writeback: false}
-      layout_properties: {}
-      name: label_1_copy
-      properties: {bold: true, font_size: 20, foreground: '#e01b24', text: '---'}
-      type: Label
     layout_properties: {grid_position: 'JAJXQF,NVCOBY'}
     name: flow_panel_1
     properties: {align: left, vertical_align: middle}

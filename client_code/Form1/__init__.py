@@ -1,6 +1,7 @@
 from ._anvil_designer import Form1Template
 from anvil import *
 from ..constants import *
+from ..Cards import *
 import random
 
 
@@ -11,14 +12,39 @@ class Form1(Form1Template):
     self.init_components(**properties)
 
     # Any code you write here will run before the form opens.
-    self.label_1.text="J\u2665"
-    self.label_1_copy.text="9\u2663"
-    self.label_1_copy.foreground="black"
+    self.hand=[]
+    self.hand.clear()
+    self.deck = Deck() # creates and shuffles deck
+    card=self.deal_card()
+    self.label_1.text = card[0]
+    self.label_1.foreground = card[1]
+    card=self.deal_card()
+    self.label_2.text = card[0]
+    self.label_2.foreground = card[1]
+    card=self.deal_card()
+    self.label_3.text = card[0]
+    self.label_3.foreground = card[1]
+    card=self.deal_card()
+    self.label_4.text = card[0]
+    self.label_4.foreground = card[1]
+    card=self.deal_card()
+    self.label_5.text = card[0]
+    self.label_5.foreground = card[1]
+    card=self.deal_card()
+    self.label_6.text = card[0]
+    self.label_6.foreground = card[1]
+    card=self.deal_card()
+    self.label_7.text = card[0]
+    self.label_7.foreground = card[1]
+    
+    
     self.IMAGE_WIDTH = 64
     # self.IMAGE_HEIGHT = 107
     self.IMAGE_HEIGHT = 64
     # self.GRID_COLS = 10
     # self.GRID_ROWS = 10
+    
+   
     self.images = {
       'board': '_/theme/sequence_board.png',
       'flag': '_/theme/flag.png',
@@ -47,7 +73,16 @@ class Form1(Form1Template):
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
 
-
+  def deal_card(self):
+    card=self.deck.deal()
+    self.hand.append(card.rank+card.suit)
+    if card.suit==SPADES or card.suit==CLUBS:
+      color="black"
+    if card.suit==HEARTS or card.suit==DIAMONDS:
+      color="red"
+    return [card,color]
+    
+    
   def canvas_1_reset(self, **event_args):
     # Adjust these coordinates if you want the drawing area to not be centered
     # self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
@@ -82,6 +117,7 @@ class Form1(Form1Template):
 
   def draw_flag_by_card(self, card):
    # card is a string representation of an individual playing card
+    # locations (in constants) is dictionary with key=card, value=board locations for card
     for location in locations[card]:
       self.draw_flag(location)
     
@@ -126,7 +162,7 @@ class Form1(Form1Template):
       else:
         self.model.append(blue_chip)
       # self.model.append(blue_chip) if blue_chip not in self.model else self.model.remove(blue_chip)
-    self.remove_flags_for_hand(['5H','4H','3H','2H','AH'])
+    self.remove_flags_for_hand(self.hand)
     self.change_player()
     self.canvas_1_reset()
 
@@ -141,7 +177,7 @@ class Form1(Form1Template):
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
-    self.draw_flags_for_hand(['5H','4H','3H','2H','AH']) 
+    self.draw_flags_for_hand(self.hand) 
     self.canvas_1_reset()
 
 
