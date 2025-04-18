@@ -9,43 +9,89 @@ components:
     - event_bindings: {click: btn_playable_cells_click}
       layout_properties: {}
       name: btn_playable_cells
-      properties: {role: outlined-button, text: 'Where can I play?'}
+      properties:
+        role: outlined-button
+        spacing:
+          padding: [null, '20', null, '20']
+        text: Playable Spots
       type: Button
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {expand: false}
       name: label_1
-      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: [null, '3', null, '3']
+        text: '----'
       type: Label
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {}
       name: label_2
-      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: [null, '3', null, '3']
+        text: '----'
       type: Label
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {}
       name: label_3
-      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: [null, '3', null, '3']
+        text: '----'
       type: Label
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {}
       name: label_4
-      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: [null, '3', null, '3']
+        text: '----'
       type: Label
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {}
       name: label_5
-      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: [null, '3', null, '3']
+        text: '----'
       type: Label
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {}
       name: label_6
-      properties: {align: center, bold: true, font_size: 28, foreground: '#000000', text: '----'}
+      properties:
+        align: center
+        bold: true
+        font_size: 28
+        foreground: '#000000'
+        spacing:
+          padding: [null, '3', null, '3']
+        text: '----'
       type: Label
     - data_bindings:
       - {code: '', property: border, writeback: false}
@@ -57,7 +103,7 @@ components:
         font_size: 28
         foreground: '#000000'
         spacing:
-          padding: ['4', null, '4', null]
+          padding: ['4', '3', '4', '3']
         text: '----'
       type: Label
     - event_bindings: {click: change_player}

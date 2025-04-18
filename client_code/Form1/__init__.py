@@ -53,65 +53,61 @@ class Form1(Form1Template):
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
 
+  def card_color(self,card):
+    if card[-1]==SPADES or card[1]==CLUBS:
+      return "black"
+    if card[-1]==HEARTS or card[-1]==DIAMONDS:
+      return "red"
+
   def deal_card(self):
     card=self.deck.deal()
     self.hand.append(card.rank+card.suit)
-    if card.suit==SPADES or card.suit==CLUBS:
-      color="black"
-    if card.suit==HEARTS or card.suit==DIAMONDS:
-      color="red"
-    return [card,color]
+    return card.rank+card.suit
 
   def deal_hand(self):
     self.hand.clear()
+    #deal_card() appends card.rank+card.suit to self.hand
+    #it returns card.rank+card.suit
+    card=self.deal_card() 
+    self.label_1.text = card
+    self.label_1.foreground = self.card_color(card)
     card=self.deal_card()
-    self.hand.append(card)
-    self.label_1.text = card[0]
-    self.label_1.foreground = card[1]
+    self.label_2.text = card
+    self.label_2.foreground = self.card_color(card)
     card=self.deal_card()
-    self.hand.append(card)
-    self.label_2.text = card[0]
-    self.label_2.foreground = card[1]
+    self.label_3.text = card
+    self.label_3.foreground = self.card_color(card)
     card=self.deal_card()
-    self.hand.append(card)
-    self.label_3.text = card[0]
-    self.label_3.foreground = card[1]
+    self.label_4.text = card
+    self.label_4.foreground = self.card_color(card)
     card=self.deal_card()
-    self.hand.append(card)
-    self.label_4.text = card[0]
-    self.label_4.foreground = card[1]
+    self.label_5.text = card
+    self.label_5.foreground = self.card_color(card)
     card=self.deal_card()
-    self.hand.append(card)
-    self.label_5.text = card[0]
-    self.label_5.foreground = card[1]
+    self.label_6.text = card
+    self.label_6.foreground = self.card_color(card)
     card=self.deal_card()
-    self.hand.append(card)
-    self.label_6.text = card[0]
-    self.label_6.foreground = card[1]
-    card=self.deal_card()
-    self.hand.append(card)
-    self.label_7.text = card[0]
-    self.label_7.foreground = card[1]
+    self.label_7.text = card
+    self.label_7.foreground = self.card_color(card)
 
   def update_hand(self):
-    print(self.hand)
     labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for i in range(7):
       # if there's a card in self.hand at the given position,
       # display it
+      # the items in self.hand each have card.rank+card.suit
       if len(self.hand)>i:
         card=self.hand[i]
         label=labels[i]
-        label.text=self.hand[i][0]
-        label.foreground=self.hand[i][1]
+        label.text=card
+        label.foreground=self.card_color(card)
       # and if there's no card at the given position,
       # deal one to fill the space
       else:
-        card = self.deal_card()
-        self.hand.append(card)
+        card = self.deal_card() #addds card.rank+card.suit to self.hand
         label=labels[i]
-        label.text=card[0]
-        label.foreground=card[1]
+        label.text=card
+        label.foreground=self.card_color(card)
         
         
     
@@ -148,14 +144,12 @@ class Form1(Form1Template):
     # self.canvas_1_reset()
 
   def draw_flag_by_card(self, card):
-   # card is a string representation of an individual playing card
-    # locations (in constants) is dictionary with key=card, value=board locations for card
+   # card is a string representation of an individual playing card; card.rank+card.suit
+    # locations (in constants) is dictionary with key=card.rank+card.suit, value=board locations for card
     # locations[card] is the dictionary entry whose key=card parameter
-    # location is the dictionary value (a list, with board coordinates) for the card
     # the loop goes through both values in location
-    print(card)
-    # for location in locations[card]:
-      # self.draw_flag(location)
+    for location in locations[card]:
+      self.draw_flag(location)
     
 
   def remove_flag_by_card(self,card):
@@ -164,7 +158,7 @@ class Form1(Form1Template):
     
 
   def draw_flags_for_hand(self, hand):
-    # hand is a list of cards in a player's hand
+    # hand is a list of card.ranks+card.suits in a player's hand
     for card in hand:
       self.draw_flag_by_card(card)
 
@@ -180,7 +174,7 @@ class Form1(Form1Template):
     col = x//self.IMAGE_WIDTH
     # Which cell was clicked?
     location=(col,row)
-    # What card card was clicked?
+    # What card.rank+card.suit was clicked?
     for key,value in locations.items():
       if location in value:
         card=key
@@ -213,13 +207,18 @@ class Form1(Form1Template):
     self.canvas_1_reset()
 
   def change_player(self, **event_args):
+    labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     self.is_green_turn = not self.is_green_turn
     if self.is_green_turn:
       self.btn_player_turn.background='#8fef8f'
       self.btn_player_turn.text="Green's Turn"
+      for label in labels:
+        label.background="#8fef8f"
     else:
       self.btn_player_turn.background='#a8c2e1'
       self.btn_player_turn.text="Blue's Turn"
+      for label in labels:
+        label.background="#a8c2e1"
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
