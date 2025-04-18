@@ -142,6 +142,7 @@ class Form1(Form1Template):
     # row and col are 0-based; upper left corner is (0,0)
     row = y//self.IMAGE_HEIGHT
     col = x//self.IMAGE_WIDTH
+    print(f"Clicked ({col},{row})")
     # Draw green chip where user clicks
     # self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
     green_chip = {'url':'green_chip', 'col':col, 'row':row}
