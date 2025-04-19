@@ -118,12 +118,12 @@ class Form1(Form1Template):
     flag = {'url':'flag', 'col':col, 'row':row}
     self.model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
 
-  def remove_flag(self, location):
-    # location is a tuple with two coordinates, one for column, one for row
-    col=location[0]
-    row=location[1]
-    flag = {'url':'flag', 'col': col, 'row': row}
-    self.model.remove(flag) if flag in self.model else None
+  # def remove_flag(self, location):
+  #   # location is a tuple with two coordinates, one for column, one for row
+  #   col=location[0]
+  #   row=location[1]
+  #   flag = {'url':'flag', 'col': col, 'row': row}
+  #   self.model.remove(flag) if flag in self.model else None
 
   def draw_flag_by_card(self, card):
    # card is a string representation of an individual playing card--card.rank+card.suit
@@ -134,9 +134,9 @@ class Form1(Form1Template):
       self.draw_flag(location)
     
 
-  def remove_flag_by_card(self,card):
-    for location in locations[card]:
-      self.remove_flag(location)
+  # def remove_flag_by_card(self,card):
+  #   for location in locations[card]:
+  #     self.remove_flag(location)
     
 
   def draw_flags_for_hand(self, player):
@@ -145,11 +145,22 @@ class Form1(Form1Template):
     for card in player.hand:
       self.draw_flag_by_card(card)
 
-  def remove_flags_for_hand(self, player):
-    # print(f'Removing: {player.hand}')
-    for card in player.hand:
-      self.remove_flag_by_card(card)
+  # def remove_flags_for_hand(self, player):
+  #   for card in player.hand:
+  #     self.remove_flag_by_card(card)
     
+  def remove_all_flags(self):
+    # Use a list comprehension to filter out entries with 'url' equal to 'flag'
+    self.model = [entry for entry in self.model if entry['url'] != 'flag']
+    # Thank you, duck.ai :-)
+
+  def is_cell_occupied(self, col, row):
+    for item in self.model:
+        if item['col'] == col and item['row'] == row:
+            if item['url'] in ['green_chip', 'blue_chip']:
+                return True
+    return False
+    # Thank you again, duck.ai
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
@@ -162,49 +173,54 @@ class Form1(Form1Template):
     for key,value in locations.items():
       if location in value:
         card=key
-
+    # We need to check whether there's already a chip at the selected location
+    cell_occupied = self.is_cell_occupied(col, row)
+    
     player=self.player_green if self.is_green_turn else self.player_blue
-    # got to remove flags before removing card from hand
-    # remove_flags removes flags for items in hand
-    self.remove_flags_for_hand(player)
+    # If player has card in hand matching square with chip, remove the card from hand
     if card in player.hand:
       player.hand.remove(card)
-    elif 'J'+DIAMONDS in player.hand:
-      alert('You are using the Jack of Diamonds')
+    # If player's using a wild card in an empty square, remove the card from hand
+    elif 'J'+DIAMONDS in player.hand and not cell_occupied:
+      alert('You are playing the J of Diamonds as a wild card')
       player.hand.remove('J'+DIAMONDS)
-    elif 'J'+HEARTS in player.hand:
-      alert('You are using the Jack of Hearts')
+    elif 'J'+HEARTS in player.hand and not cell_occupied:
+      alert('You are playing the J of Hearts as a wild card')
       player.hand.remove('J'+HEARTS)
-    elif 'J'+SPADES in player.hand:
-      alert('You are using the Jack of Spades')
+    # Black Jacks used to remove existing pieces
+    elif 'J'+SPADES in player.hand and cell_occupied:
+      alert('You are playing the J of Spades to remove a chip')
       player.hand.remove('J'+SPADES)
-    elif 'J'+CLUBS in player.hand:
-      alert ('You are using the Jack of Clubs')
+      # Need to remove chip at [location]
+      for item in self.model:
+        if item['col'] == col and item['row'] == row:
+            if item['url'] in ['green_chip', 'blue_chip']:
+                self.model.remove(item)
+    elif 'J'+CLUBS in player.hand and cell_occupied:
+      alert ('You are using the J of Clubs to remove a chip')
       player.hand.remove('J'+CLUBS)
+      # Need to remove chip at [location]
+      for item in self.model:
+        if item['col'] == col and item['row'] == row:
+            if item['url'] in ['green_chip', 'blue_chip']:
+                self.model.remove(item)
+        
     else:
       alert('You cannot put a piece in this square.')
+      return
+      
     
     # Draw green chip where user clicks
     # self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
     green_chip = {'url':'green_chip', 'col':col, 'row':row}
     blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
-    
+
+    #TODO: Don't let next code happen if player's using a black Jack
     if self.is_green_turn:
-      # if there's a blue chip in this square, remove it
-      if blue_chip in self.model:
-        self.model.remove(blue_chip) 
-      else:
-        # add a green chip, if it's not already in the model
         self.model.append(green_chip)
     else: # it's blue's turn
-      # if there's a green chip in this square, remove it
-      if green_chip in self.model:
-        self.model.remove(green_chip)
-      else:
-        # add a blue chip
         self.model.append(blue_chip)
-
-    # now switch players
+    self.remove_all_flags()
     self.change_player()
     self.canvas_1_reset()
 
