@@ -160,7 +160,25 @@ class Form1(Form1Template):
     for key,value in locations.items():
       if location in value:
         card=key
-        
+
+    player=self.player_green if self.is_green_turn else self.player_blue
+    if card in player.hand:
+      player.hand.remove(card)
+    elif 'J'+DIAMONDS in player.hand:
+      alert('You are using the Jack of Diamonds')
+      player.hand.remove('J'+DIAMONDS)
+    elif 'J'+HEARTS in player.hand:
+      alert('You are using the Jack of Hearts')
+      player.hand.remove('J'+HEARTS)
+    elif 'J'+SPADES in player.hand:
+      alert('You are using the Jack of Spades')
+      player.hand.remove('J'+SPADES)
+    elif 'J'+CLUBS in player.hand:
+      alert ('You are using the Jack of Clubs')
+      player.hand.remove('J'+CLUBS)
+    else:
+      alert('You cannot put a piece in this square.')
+    
     # Draw green chip where user clicks
     # self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
     green_chip = {'url':'green_chip', 'col':col, 'row':row}
@@ -180,12 +198,9 @@ class Form1(Form1Template):
       else:
         # add a blue chip
         self.model.append(blue_chip)
-    # update display and hand for current player
-    player=self.player_green if self.is_green_turn else self.player_blue
+    
     self.remove_flags_for_hand(player)
-    # remove the played card from player's hand
-    if card in player.hand:
-      player.hand.remove(card)
+    
     # update player's hand
     self.update_hand(player)
     # now switch players
