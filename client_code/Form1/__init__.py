@@ -75,7 +75,7 @@ class Form1(Form1Template):
     self.label_7.text = card
     self.label_7.foreground = self.card_color(card)
 
-  def update_hand(self, player):
+  def update_hand_display(self, player):
     labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for i in range(7):
       # if there's a card in self.hand at the given position,
@@ -141,10 +141,12 @@ class Form1(Form1Template):
 
   def draw_flags_for_hand(self, player):
     # hand is a list of card.ranks+card.suits in a player's hand
+    # print(f'Drawing: {player.hand}')
     for card in player.hand:
       self.draw_flag_by_card(card)
 
   def remove_flags_for_hand(self, player):
+    # print(f'Removing: {player.hand}')
     for card in player.hand:
       self.remove_flag_by_card(card)
     
@@ -162,6 +164,9 @@ class Form1(Form1Template):
         card=key
 
     player=self.player_green if self.is_green_turn else self.player_blue
+    # got to remove flags before removing card from hand
+    # remove_flags removes flags for items in hand
+    self.remove_flags_for_hand(player)
     if card in player.hand:
       player.hand.remove(card)
     elif 'J'+DIAMONDS in player.hand:
@@ -198,11 +203,7 @@ class Form1(Form1Template):
       else:
         # add a blue chip
         self.model.append(blue_chip)
-    
-    self.remove_flags_for_hand(player)
-    
-    # update player's hand
-    self.update_hand(player)
+
     # now switch players
     self.change_player()
     self.canvas_1_reset()
@@ -210,16 +211,18 @@ class Form1(Form1Template):
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn
     player=self.player_green if self.is_green_turn else self.player_blue
-    self.update_hand(player)
+    self.update_hand_display(player)
     # change button text+color, and label colors
     labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     if self.is_green_turn:
       self.btn_player_turn.background='#8fef8f'
+      self.flow_panel_1.background='#8fef8f'
       self.btn_player_turn.text="Green's Turn"
       for label in labels:
         label.background="#8fef8f"
     else:
       self.btn_player_turn.background='#a8c2e1'
+      self.flow_panel_1.background='#a8c2e1'
       self.btn_player_turn.text="Blue's Turn"
       for label in labels:
         label.background="#a8c2e1"
