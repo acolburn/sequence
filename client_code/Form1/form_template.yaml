@@ -107,8 +107,18 @@ components:
         text: '----'
       type: Label
     - event_bindings: {click: change_player}
+      layout_properties: {}
       name: btn_player_turn
-      properties: {background: '#8fef8f', role: outlined-button, text: Green's Turn}
+      properties: {background: '#8fef8f', role: outlined-button, text: Green}
+      type: Button
+    - event_bindings: {click: btn_dead_card_click}
+      layout_properties: {}
+      name: btn_dead_card
+      properties:
+        role: outlined-button
+        spacing:
+          padding: [null, '4', null, '4']
+        text: Dead Card
       type: Button
     layout_properties: {grid_position: 'JAJXQF,NVCOBY'}
     name: flow_panel_1

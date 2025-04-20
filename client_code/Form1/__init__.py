@@ -19,6 +19,12 @@ class Form1(Form1Template):
     self.deal_hand(self.player_blue)
     self.deal_hand(self.player_green)
     self.is_green_turn = True
+    self.btn_player_turn.background='#8fef8f'
+    self.flow_panel_1.background='#8fef8f'
+    self.btn_player_turn.text="Green"
+    self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
+    for label in self.labels:
+        label.background="#8fef8f"
     
     self.IMAGE_WIDTH = 64
     self.IMAGE_HEIGHT = 64
@@ -76,21 +82,21 @@ class Form1(Form1Template):
     self.label_7.foreground = self.card_color(card)
 
   def update_hand_display(self, player):
-    labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
+    # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for i in range(7):
       # if there's a card in self.hand at the given position,
       # display it
       # the items in self.hand each have card.rank+card.suit
       if len(player.hand)>i:
         card=player.hand[i]
-        label=labels[i]
+        label=self.labels[i]
         label.text=card
         label.foreground=self.card_color(card)
       # and if there's no card at the given position,
       # deal one to fill the space
       else:
         card = self.deal_card(player) #addds card.rank+card.suit to self.hand
-        label=labels[i]
+        label=self.labels[i]
         label.text=card
         label.foreground=self.card_color(card)
         
@@ -175,19 +181,28 @@ class Form1(Form1Template):
         card=key
     # We need to check whether there's already a chip at the selected location
     cell_occupied = self.is_cell_occupied(col, row)
+    # Here are the dictionary entries for self.model representing where
+    # the green or blue chips will go
+    green_chip = {'url':'green_chip', 'col':col, 'row':row}
+    blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
     
     player=self.player_green if self.is_green_turn else self.player_blue
     # If player has card in hand matching square with chip, remove the card from hand
+    # and then play the chip
     if card in player.hand:
       player.hand.remove(card)
+      self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
     # If player's using a wild card in an empty square, remove the card from hand
+    # and then play the chip
     elif 'J'+DIAMONDS in player.hand and not cell_occupied:
       alert('You are playing the J of Diamonds as a wild card')
       player.hand.remove('J'+DIAMONDS)
+      self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
     elif 'J'+HEARTS in player.hand and not cell_occupied:
       alert('You are playing the J of Hearts as a wild card')
       player.hand.remove('J'+HEARTS)
-    # Black Jacks used to remove existing pieces
+      self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
+    # Black Jacks used to remove chips; no chips _added_
     elif 'J'+SPADES in player.hand and cell_occupied:
       alert('You are playing the J of Spades to remove a chip')
       player.hand.remove('J'+SPADES)
@@ -203,23 +218,14 @@ class Form1(Form1Template):
       for item in self.model:
         if item['col'] == col and item['row'] == row:
             if item['url'] in ['green_chip', 'blue_chip']:
-                self.model.remove(item)
-        
+                self.model.remove(item)   
     else:
+      # If player's trying to put chip in an illegal spot, alert
+      # them and then exit the method. Nothing else will happen, it'll still
+      # be their turn.
       alert('You cannot put a piece in this square.')
       return
-      
-    
-    # Draw green chip where user clicks
-    # self.canvas_1.draw_image(URLMedia('_/theme/chipGreen_border.png'),x-30,y-30)
-    green_chip = {'url':'green_chip', 'col':col, 'row':row}
-    blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
 
-    #TODO: Don't let next code happen if player's using a black Jack
-    if self.is_green_turn:
-        self.model.append(green_chip)
-    else: # it's blue's turn
-        self.model.append(blue_chip)
     self.remove_all_flags()
     self.change_player()
     self.canvas_1_reset()
@@ -229,18 +235,18 @@ class Form1(Form1Template):
     player=self.player_green if self.is_green_turn else self.player_blue
     self.update_hand_display(player)
     # change button text+color, and label colors
-    labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
+    # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     if self.is_green_turn:
       self.btn_player_turn.background='#8fef8f'
       self.flow_panel_1.background='#8fef8f'
-      self.btn_player_turn.text="Green's Turn"
-      for label in labels:
+      self.btn_player_turn.text="Green"
+      for label in self.labels:
         label.background="#8fef8f"
     else:
       self.btn_player_turn.background='#a8c2e1'
       self.flow_panel_1.background='#a8c2e1'
-      self.btn_player_turn.text="Blue's Turn"
-      for label in labels:
+      self.btn_player_turn.text="Blue"
+      for label in self.labels:
         label.background="#a8c2e1"
 
   def btn_playable_cells_click(self, **event_args):
@@ -248,6 +254,39 @@ class Form1(Form1Template):
     player=self.player_green if self.is_green_turn else self.player_blue
     self.draw_flags_for_hand(player) 
     self.canvas_1_reset()
+
+  def btn_dead_card_click(self, **event_args):
+    """This method is called when players claim they have a dead card"""
+    # Whose turn is it?
+    player=self.player_green if self.is_green_turn else self.player_blue
+    isDeadCard=False
+    # Go through each card in player's hand
+    for card in player.hand:
+      match1=False
+      # ID the board cells for the given card
+      if card[0]!='J':
+        cell1=locations[card][0]
+        cell2=locations[card][1]
+      # See if both cells are occupied
+      for item in self.model:
+        #cell1[0] is col, cell1[1] is row
+        if item['col']==cell1[0] and item['row']==cell1[1] and item['url'] in ['green_chip','blue_chip']:
+          match1=True
+          print(f'Match for {card} at {cell1[0]},{cell1[1]}')
+      # If first cell filled, see if second one is too
+      if match1:
+        for item in self.model:
+          if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
+            alert(f'{card} is a dead card')
+            player.hand.remove(card)
+            self.deal_card(player)
+            isDeadCard=True
+    if not isDeadCard:
+      alert('No dead cards found')
+            
+        
+          
+    
 
 
 
