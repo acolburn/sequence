@@ -17,6 +17,8 @@ class Deck:
     """Represents a deck of playing cards."""
     def __init__(self):
         self.cards = [Card(suit, rank) for suit in Card.suits for rank in Card.ranks]
+        # Two decks
+        self.cards = self.cards + self.cards
         self.shuffle()
 
     def shuffle(self):

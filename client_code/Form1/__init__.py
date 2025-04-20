@@ -39,11 +39,19 @@ class Form1(Form1Template):
     
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
-    self.canvas_size = 800
+    self.canvas_size = 650
     self.canvas_1.height = 650 #64 px/cell, 10 cells
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
 
+  def is_within_clickable_area(self, x, y):
+    """
+    Checks whether click is within canvas bounds
+    param x: x-coordinate
+    param y: y-coordinate
+    """
+    return(0<=x<=640) and (0<=y<=640)
+    
   def card_color(self,card):
     if card[-1]==SPADES or card[1]==CLUBS:
       return "black"
@@ -52,6 +60,10 @@ class Form1(Form1Template):
 
   def deal_card(self, player):
     card=self.deck.deal()
+    # End of deck? Start over
+    if card is None:
+      self.deck = Deck()
+      card=self.deck.deal()
     player.hand.append(card.rank+card.suit)
     return card.rank+card.suit
 
@@ -103,6 +115,10 @@ class Form1(Form1Template):
         
     
   def canvas_1_reset(self, **event_args):
+    # Adjust these coordinates if you want the drawing area to not be centered
+    # self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
+    # self.canvas_1.translate(self.canvas_offset, 0)
+
     # self.model is list of everything that needs to be drawn on canvas
     # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
     for item in self.model:
@@ -170,6 +186,8 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
+    if not self.is_within_clickable_area(x,y):
+      return
     # row and col are 0-based; upper left corner is (0,0)
     row = y//self.IMAGE_HEIGHT
     col = x//self.IMAGE_WIDTH
@@ -187,6 +205,10 @@ class Form1(Form1Template):
     blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
     
     player=self.player_green if self.is_green_turn else self.player_blue
+    # Cannot play corners
+    if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
+      alert("You cannot put a chip on a corner square")
+      return
     # If player has card in hand matching square with chip, remove the card from hand
     # and then play the chip
     if card in player.hand:
