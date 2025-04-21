@@ -9,3 +9,10 @@ def save_board(model):
   :param model is self.model from Form1"""
   app_tables.board_state.delete_all_rows()
   app_tables.board_state.add_row(Board=model)
+
+@anvil.server.callable
+def clear_board():
+  """Starting new game"""
+  app_tables.board_state.delete_all_rows()
+
+

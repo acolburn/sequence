@@ -42,12 +42,16 @@ class Form1(Form1Template):
     self.model = [{'url':'board', 'col':0, 'row':0}]
     # TODO If table isn't empty, load its contents into self.model
     data_table=app_tables.board_state.search() # data_table is a SearchIterator
-    # Table has only one row; access it as row[0]
-    for row in data_table:
-      temp = row[0] # temp is a list
-    # temp[0] has value 'Board' (column name(?)); temp[1] is the list of dicts that is self.model
-    self.model = temp[1]
-    # TODO Table should include ref for whose turn it is, i.e., self.is_green_turn
+    # Make sure there's a table to work with; at the start of a game there isn't
+    # convert data_table to a list, see if the lists's length is 0
+    is_empty_data_table = len(list(data_table)) == 0
+    if not is_empty_data_table:
+      # Table has only one row; access it as row[0]
+      for row in data_table:
+        temp = row[0] # temp is a list
+      # temp[0] has value 'Board' (column name(?)); temp[1] is the list of dicts that is self.model
+      self.model = temp[1]
+      # TODO Table should include ref for whose turn it is, i.e., self.is_green_turn
     
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
@@ -323,6 +327,12 @@ class Form1(Form1Template):
             isDeadCard=True
     if not isDeadCard:
       alert('No dead cards found')
+
+  def btn_new_game_click(self, **event_args):
+    """This method is called when the button is clicked"""
+    anvil.server.call('clear_board')
+    self.model = [{'url':'board', 'col':0, 'row':0}]
+    self.canvas_1.reset_context()
             
         
           
