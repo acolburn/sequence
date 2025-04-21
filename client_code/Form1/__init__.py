@@ -40,6 +40,14 @@ class Form1(Form1Template):
     }
 
     self.model = [{'url':'board', 'col':0, 'row':0}]
+    # TODO If table isn't empty, load its contents into self.model
+    data_table=app_tables.board_state.search() # data_table is a SearchIterator
+    # Table has only one row; access it as row[0]
+    for row in data_table:
+      temp = row[0] # temp is a list
+    # temp[0] has value 'Board' (column name(?)); temp[1] is the list of dicts that is self.model
+    self.model = temp[1]
+    # TODO Table should include ref for whose turn it is, i.e., self.is_green_turn
     
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger

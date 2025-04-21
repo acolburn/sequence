@@ -1,7 +1,7 @@
 allow_embedding: false
 db_schema:
   board_state:
-    client: none
+    client: full
     columns:
     - admin_ui: {order: 0, width: 723}
       name: Board
