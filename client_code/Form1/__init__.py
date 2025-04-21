@@ -40,7 +40,7 @@ class Form1(Form1Template):
     }
 
     self.model = [{'url':'board', 'col':0, 'row':0}]
-    # TODO If table isn't empty, load its contents into self.model
+    # If table isn't empty, load its contents into self.model
     data_table=app_tables.board_state.search() # data_table is a SearchIterator
     # Make sure there's a table to work with; at the start of a game there isn't
     # convert data_table to a list, see if the lists's length is 0
@@ -170,22 +170,13 @@ class Form1(Form1Template):
     # the loop goes through both values in location
     for location in locations[card]:
       self.draw_flag(location)
-    
 
-  # def remove_flag_by_card(self,card):
-  #   for location in locations[card]:
-  #     self.remove_flag(location)
-    
 
   def draw_flags_for_hand(self, player):
     # hand is a list of card.ranks+card.suits in a player's hand
     # print(f'Drawing: {player.hand}')
     for card in player.hand:
       self.draw_flag_by_card(card)
-
-  # def remove_flags_for_hand(self, player):
-  #   for card in player.hand:
-  #     self.remove_flag_by_card(card)
     
   def remove_all_flags(self):
     # Use a list comprehension to filter out entries with 'url' equal to 'flag'
