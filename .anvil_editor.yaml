@@ -14,4 +14,5 @@ unique_ids:
     Player: '1745011901963935129188493.6002'
     constants: '1744928965716187335976452.2421'
   scripts: {}
-  server_modules: {}
+  server_modules:
+    GameState: '174520882003996965806456.90544'

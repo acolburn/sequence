@@ -1,4 +1,13 @@
 allow_embedding: false
+db_schema:
+  board_state:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 723}
+      name: Board
+      type: simpleObject
+    server: full
+    title: Board_State
 dependencies: []
 metadata: {description: tinyurl.com/seeQuince, title: Sequence}
 name: Sequence

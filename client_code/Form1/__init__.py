@@ -1,5 +1,9 @@
 from ._anvil_designer import Form1Template
 from anvil import *
+import anvil.tables as tables
+import anvil.tables.query as q
+from anvil.tables import app_tables
+import anvil.server
 from ..constants import *
 from ..Cards import *
 from ..Player import *
@@ -209,9 +213,10 @@ class Form1(Form1Template):
     if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
       alert("You cannot put a chip on a corner square")
       return
-    # If player has card in hand matching square with chip, remove the card from hand
+    # If player has card in hand matching square with chip, and there's no chip
+    # already in the spot, remove the card from hand
     # and then play the chip
-    if card in player.hand:
+    if card in player.hand and not cell_occupied:
       player.hand.remove(card)
       self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
     # If player's using a wild card in an empty square, remove the card from hand
@@ -240,16 +245,21 @@ class Form1(Form1Template):
       for item in self.model:
         if item['col'] == col and item['row'] == row:
             if item['url'] in ['green_chip', 'blue_chip']:
-                self.model.remove(item)   
+                self.model.remove(item)  
+    elif card in player.hand and cell_occupied:
+      alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
+      return
     else:
       # If player's trying to put chip in an illegal spot, alert
       # them and then exit the method. Nothing else will happen, it'll still
       # be their turn.
       alert('You cannot put a piece in this square.')
       return
-
+    
     self.remove_all_flags()
     self.change_player()
+    # Save self.model to database
+    anvil.server.call('save_board',self.model)
     self.canvas_1_reset()
 
   def change_player(self, **event_args):
