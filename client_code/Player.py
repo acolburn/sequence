@@ -5,9 +5,8 @@ import anvil.server
 from .Cards import *
 
 class Player:
-  def __init__(self):
-    self.hand=Hand()
-    self.turn=False
+  def __init__(self, deck):
+    self.hand=Hand(deck)
 
   # def deal_card(self, player):
   #   """Removes a card from the deck and adds it to a player's hand"""

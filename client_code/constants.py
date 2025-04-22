@@ -3,7 +3,11 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 
+IMAGE_WIDTH  = 64
+IMAGE_HEIGHT = 64
+
 GREEN = '#8fef8f'
+BLUE = '#a8c2e1'
 
 HEARTS = "\u2665"
 DIAMONDS = "\u2666"

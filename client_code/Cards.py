@@ -35,9 +35,11 @@ class Deck:
         return ', '.join(str(card) for card in self.cards)
 
 class Hand:
-  def __init__(self):
+  def __init__(self, deck):
     self.hand=[]
     self.hand_length=7
+    self.deck=deck
+    self.deal_hand() # create new hand
 
   def clear_hand(self):
     self.hand.clear()
@@ -54,7 +56,7 @@ class Hand:
 
   def deal_hand(self):
     self.hand.clear()
-    for i in range(7):
+    for i in range(self.hand_length):
       card=self.deal_card()
       self.hand.append(card)
 
