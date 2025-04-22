@@ -3,6 +3,8 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 
+GREEN = '#8fef8f'
+
 HEARTS = "\u2665"
 DIAMONDS = "\u2666"
 CLUBS = "\u2663"

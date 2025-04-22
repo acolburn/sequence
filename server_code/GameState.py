@@ -16,8 +16,8 @@ def clear_board():
   """Starting new game"""
   app_tables.board_state.delete_all_rows()
 
-
 # Functions Involving Hands
+
 
 
 

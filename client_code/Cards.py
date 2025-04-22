@@ -6,7 +6,6 @@ import random
 import constants
 
 class Card:
-    """Represents a single playing card."""
     suits = [constants.HEARTS, constants.DIAMONDS, constants.CLUBS, constants.SPADES]
     ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
@@ -18,7 +17,6 @@ class Card:
         return f"{self.rank}{self.suit}"
 
 class Deck:
-    """Represents a deck of playing cards."""
     def __init__(self):
         self.cards = [Card(suit, rank) for suit in Card.suits for rank in Card.ranks]
         # Two decks
@@ -35,3 +33,39 @@ class Deck:
 
     def __str__(self):
         return ', '.join(str(card) for card in self.cards)
+
+class Hand:
+  def __init__(self):
+    self.hand=[]
+    self.hand_length=7
+
+  def clear_hand(self):
+    self.hand.clear()
+
+  def deal_card(self):
+    """Removes a card from the deck
+    Returns card (rank+suit)"""
+    card=self.deck.deal()
+    # End of deck? Start over
+    if card is None:
+      self.deck = Deck()
+      card=self.deck.deal()
+    return card.rank+card.suit
+
+  def deal_hand(self):
+    self.hand.clear()
+    for i in range(7):
+      card=self.deal_card()
+      self.hand.append(card)
+
+  def update_hand(self):
+    while len(self.hand)<7:
+      card=self.deal_card()
+      self.hand.append(card)
+
+  def remove_card(self,card):
+    if card in self.hand:
+      self.hand.remove(card)
+
+  def card_in_hand(self,card):
+    return card in self.hand

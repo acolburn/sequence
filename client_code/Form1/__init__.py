@@ -4,7 +4,7 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-from ..constants import *
+from ..constants import constants
 from ..Cards import *
 from ..Player import *
 import random
@@ -20,15 +20,16 @@ class Form1(Form1Template):
     self.player_green=Player()
     self.player_blue=Player()
     self.deck = Deck() # creates and shuffles deck
-    self.deal_hand(self.player_blue)
-    self.deal_hand(self.player_green)
-    self.is_green_turn = True
-    self.btn_player_turn.background='#8fef8f'
-    self.flow_panel_1.background='#8fef8f'
+    self.player_blue.hand.deal_hand()
+    self.player_blue.turn = False
+    self.player_green.hand.deal_hand()
+    self.player_green.turn = True # Game starts with green
+    self.btn_player_turn.background=constants.GREEN
+    self.flow_panel_1.background=constants.GREEN
     self.btn_player_turn.text="Green"
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for label in self.labels:
-        label.background="#8fef8f"
+        label.background=constants.GREEN
     
     self.IMAGE_WIDTH = 64
     self.IMAGE_HEIGHT = 64
