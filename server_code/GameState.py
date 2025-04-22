@@ -3,6 +3,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 
+# Functions Involving Playing Board
 @anvil.server.callable
 def save_board(model):
   """Save game board state, i.e., self.model
@@ -14,5 +15,10 @@ def save_board(model):
 def clear_board():
   """Starting new game"""
   app_tables.board_state.delete_all_rows()
+
+
+# Functions Involving Hands
+
+
 
 

@@ -75,6 +75,7 @@ class Form1(Form1Template):
       return "red"
 
   def deal_card(self, player):
+    """Removes a card from the deck and adds it to a player's hand"""
     card=self.deck.deal()
     # End of deck? Start over
     if card is None:
@@ -84,6 +85,10 @@ class Form1(Form1Template):
     return card.rank+card.suit
 
   def deal_hand(self, player):
+    """
+    Creates hand by dealing individual cards and adding them to 
+    the hand (via self.deal_card()) and displaying the cards in labels in the GUI
+    """
     player.hand.clear()
     #deal_card() appends card.rank+card.suit to player.hand
     #it returns card.rank+card.suit
@@ -110,6 +115,10 @@ class Form1(Form1Template):
     self.label_7.foreground = self.card_color(card)
 
   def update_hand_display(self, player):
+    """
+    Does essentially the same thing as deal_hand(), except it adds additional card(s) 
+    if the hand isn't full, i.e., after a card has been played during a turn
+    """
     # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     for i in range(7):
       # if there's a card in self.hand at the given position,
@@ -155,13 +164,6 @@ class Form1(Form1Template):
     row=location[1]
     flag = {'url':'flag', 'col':col, 'row':row}
     self.model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
-
-  # def remove_flag(self, location):
-  #   # location is a tuple with two coordinates, one for column, one for row
-  #   col=location[0]
-  #   row=location[1]
-  #   flag = {'url':'flag', 'col': col, 'row': row}
-  #   self.model.remove(flag) if flag in self.model else None
 
   def draw_flag_by_card(self, card):
    # card is a string representation of an individual playing card--card.rank+card.suit
