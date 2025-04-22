@@ -105,9 +105,11 @@ class Form1(Form1Template):
     Does essentially the same thing as deal_hand(), except it adds additional card(s) 
     if the hand isn't full, i.e., after a card has been played during a turn
     """
-    player.hand.update_hand() # Adds cards, as necessary, to make sure hand has 7 cards
+    player.update_hand() # Adds cards, as necessary, to make sure hand has 7 cards
+    hand = player.get_hand()
     for i in range(7):
-      card = player.hand.hand[i]
+      # card = player.get_hand()[i]
+      card = hand[i]
       label = self.labels[i]
       label.text = card
       label.foreground = self.card_color(card)
@@ -170,7 +172,8 @@ class Form1(Form1Template):
   def draw_flags_for_hand(self, player):
     # hand is a list of card.ranks+card.suits in a player's hand
     # print(f'Drawing: {player.hand}')
-    for card in player.hand.hand:
+    hand = player.get_hand()
+    for card in hand:
       self.draw_flag_by_card(card)
     
   def remove_all_flags(self):
@@ -214,37 +217,37 @@ class Form1(Form1Template):
     # If player has card in hand matching square with chip, and there's no chip
     # already in the spot, remove the card from hand
     # and then play the chip
-    if card in player.hand.hand and not cell_occupied:
-      player.hand.hand.remove(card)
+    if card in player.get_hand() and not cell_occupied:
+      player.remove_card(card)
       self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
     # If player's using a wild card in an empty square, remove the card from hand
     # and then play the chip
-    elif 'J'+DIAMONDS in player.hand.hand and not cell_occupied:
+    elif 'J'+DIAMONDS in player.get_hand() and not cell_occupied:
       alert('You are playing the J of Diamonds as a wild card')
-      player.hand.hand.remove('J'+DIAMONDS)
+      player.remove_card('J'+DIAMONDS)
       self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
-    elif 'J'+HEARTS in player.hand.hand and not cell_occupied:
+    elif 'J'+HEARTS in player.get_hand() and not cell_occupied:
       alert('You are playing the J of Hearts as a wild card')
-      player.hand.hand.remove('J'+HEARTS)
+      player.remove_card('J'+HEARTS)
       self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
     # Black Jacks used to remove chips; no chips _added_
-    elif 'J'+SPADES in player.hand.hand and cell_occupied:
+    elif 'J'+SPADES in player.get_hand() and cell_occupied:
       alert('You are playing the J of Spades to remove a chip')
-      player.hand.hand.remove('J'+SPADES)
+      player.remove_card('J'+SPADES)
       # Need to remove chip at [location]
       for item in self.model:
         if item['col'] == col and item['row'] == row:
             if item['url'] in ['green_chip', 'blue_chip']:
                 self.model.remove(item)
-    elif 'J'+CLUBS in player.hand.hand and cell_occupied:
+    elif 'J'+CLUBS in player.get_hand() and cell_occupied:
       alert ('You are using the J of Clubs to remove a chip')
-      player.hand.hand.remove('J'+CLUBS)
+      player.remove_card('J'+CLUBS)
       # Need to remove chip at [location]
       for item in self.model:
         if item['col'] == col and item['row'] == row:
             if item['url'] in ['green_chip', 'blue_chip']:
                 self.model.remove(item)  
-    elif card in player.hand.hand and cell_occupied:
+    elif card in player.get_hand() and cell_occupied:
       alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
       return
     else:
@@ -291,7 +294,7 @@ class Form1(Form1Template):
     player=self.player_green if self.is_green_turn else self.player_blue
     isDeadCard=False
     # Go through each card in player's hand
-    for card in player.hand.hand:
+    for card in player.get_hand():
       match1=False
       # ID the board cells for the given card
       if card[0]!='J':
@@ -308,7 +311,7 @@ class Form1(Form1Template):
         for item in self.model:
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
-            player.hand.hand.remove(card)
+            player.remove_card(card)
             self.deal_card(player)
             isDeadCard=True
     if not isDeadCard:

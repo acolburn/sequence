@@ -8,6 +8,15 @@ class Player:
   def __init__(self, deck):
     self.hand=Hand(deck)
 
+  def update_hand(self):
+    self.hand.update_hand()
+
+  def get_hand(self):
+    return self.hand.hand
+
+  def remove_card(self, card):
+    self.hand.remove_card(card)
+
   # def deal_card(self, player):
   #   """Removes a card from the deck and adds it to a player's hand"""
   #   card=self.deck.deal()
