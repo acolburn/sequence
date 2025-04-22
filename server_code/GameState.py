@@ -2,6 +2,18 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
+from .Cards import Deck
+
+_deck = []
+
+@anvil.server.callable
+def make_deck():
+  _deck = Deck()
+  # convert _deck to something serializable
+  result=[]
+  for item in _deck.cards:
+    result.append(item)
+  return result
 
 # Functions Involving Playing Board
 @anvil.server.callable

@@ -17,8 +17,15 @@ class Card:
         return f"{self.rank}{self.suit}"
 
 class Deck:
+    suits = [constants.HEARTS, constants.DIAMONDS, constants.CLUBS, constants.SPADES]
+    ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+  
     def __init__(self):
-        self.cards = [Card(suit, rank) for suit in Card.suits for rank in Card.ranks]
+        self.cards=[]
+        for suit in self.suits:
+          for rank in self.ranks:
+            card=f"{rank}{suit}"
+            self.cards.append(card)
         # Two decks
         self.cards = self.cards + self.cards
         self.shuffle()
@@ -47,12 +54,13 @@ class Hand:
   def deal_card(self):
     """Removes a card from the deck
     Returns card (rank+suit)"""
-    card=self.deck.deal()
+    # card=self.deck.deal()
+    card=self.deck.pop() if len(self.deck)>0 else None
     # End of deck? Start over
     if card is None:
       self.deck = Deck()
       card=self.deck.deal()
-    return card.rank+card.suit
+    return card
 
   def deal_hand(self):
     self.hand.clear()

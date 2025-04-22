@@ -23,7 +23,7 @@ class Form1(Form1Template):
     }
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     
-    self.deck = Deck() # creates and shuffles deck
+    self.deck = anvil.server.call('make_deck')# creates and shuffles deck
     self.player_green=Player(self.deck) # creates player hand in constructor
     self.player_blue=Player(self.deck) # creates player hand in constructor
     self.is_green_turn = True # Green goes first
