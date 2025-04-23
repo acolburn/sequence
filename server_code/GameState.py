@@ -17,7 +17,7 @@ is_green_turn=True
 # Functions Involving Playing Board
 # ----------------------------------------------------------------------------------------
 @anvil.server.callable
-def update_board():
+def load_board():
   """Returns playing board (as dict type called `model`) retrieved from DataTable
   If no board in DataTable, creates a new one"""
   model = [{'url':'board', 'col':0, 'row':0}]
@@ -41,18 +41,14 @@ def update_board():
 def save_board(model):
   """Save game board state, i.e., self.model
   :param model is self.model from Form1"""
-  app_tables.board_state.delete_all_rows()
-  app_tables.board_state.add_row(Board=model)
+  update_cell(1,"Board",model)
 
-@anvil.server.callable
-def clear_board():
-  """Starting new game"""
-  app_tables.board_state.delete_all_rows()
+
 
 # ----------------------------------------------------------------------------------------
 # Functions Involving Deck
 # ----------------------------------------------------------------------------------------
-@anvil.server.callable
+# @anvil.server.callable
 def make_deck():
   global deck
   _deck = Deck()
@@ -63,15 +59,19 @@ def make_deck():
   return deck 
     
 @anvil.server.callable
-# TODO load deck if it exists, or make new one if it's the start of a game
 def get_deck():
   global deck
+  data_table=app_tables.board_state.search()
+  if data_table[0]['Deck'] is None:
+    make_deck()
+  else:
+    deck = data_table[0]['Deck']
   return deck
 
 # ----------------------------------------------------------------------------------------
 # Functions Involving Hands
 # ----------------------------------------------------------------------------------------
-@anvil.server.callable
+# @anvil.server.callable
 def make_hand(player):
   global green_hand
   global blue_hand
@@ -91,12 +91,22 @@ def make_hand(player):
 def get_hand(player):
   global green_hand
   global blue_hand
+  data_table=app_tables.board_state.search()
+  
   if player=="green":
+    if data_table[0]['GreenHand'] is None:
+      green_hand = make_hand("green")
+    else:
+      green_hand = data_table[0]['GreenHand']
     return green_hand
   if player=="blue":
+    if data_table[0]['BlueHand'] is None:
+      blue_hand = make_hand("blue")
+    else:
+      blue_hand = data_table[0]['BlueHand']
     return blue_hand
 
-@anvil.server.callable
+# @anvil.server.callable
 def update_hand(player):
   global green_hand, blue_hand, deck
   _hand=green_hand if player=="green" else blue_hand
@@ -125,31 +135,36 @@ def update_cell(row_id, column_name, new_value):
     row[column_name]=new_value # direct modification
     return True
   return False
+
+@anvil.server.callable
+def new_game():
+  """Starting new game"""
+  app_tables.board_state.delete_all_rows()
   
-def init():
-  # Initialize deck
-  # TODO Load deck from db
-  global deck
-  # deck = anvil.server.call('make_deck')
-  deck = get_deck() if len(deck)>0 else make_deck()
-  # Initialize hands, convert to something seializable (green_hand, blue_hand: list of strings)
-  # TODO Load hands from db
-  global green_hand, blue_hand
-  # green_hand=anvil.server.call('make_hand')
-  green_hand=get_hand("green")
-  if len(green_hand)==0:
-    green_hand=get_hand("green")
-  # blue_hand=anvil.server.call('make_hand')
-  blue_hand=get_hand("blue")
-  if len(blue_hand)==0:
-    blue_hand=update_hand("blue")
+# def init():
+#   # Initialize deck
+#   # TODO Load deck from db
+#   global deck
+#   # deck = anvil.server.call('make_deck')
+#   deck = get_deck() if len(deck)>0 else make_deck()
+#   # Initialize hands, convert to something seializable (green_hand, blue_hand: list of strings)
+#   # TODO Load hands from db
+#   global green_hand, blue_hand
+#   # green_hand=anvil.server.call('make_hand')
+#   green_hand=get_hand("green")
+#   if len(green_hand)==0:
+#     green_hand=update_hand("green")
+#   # blue_hand=anvil.server.call('make_hand')
+#   blue_hand=get_hand("blue")
+#   if len(blue_hand)==0:
+#     blue_hand=update_hand("blue")
   
   # Initialize turn
   # TODO Load turn from db
-  is_green_turn=True
+  # is_green_turn=True
 
 # call init when server starts
-init()
+# init()
 
 
   

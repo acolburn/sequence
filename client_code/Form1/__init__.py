@@ -44,7 +44,7 @@ class Form1(Form1Template):
     for label in self.labels:
         label.background=constants.GREEN
 
-    self.model = anvil.server.call('update_board')
+    self.model = anvil.server.call('load_board')
     
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
@@ -113,7 +113,8 @@ class Form1(Form1Template):
     if the hand isn't full, i.e., after a card has been played during a turn.
     Parameter player_color (string) = "green" or "blue"
     """ 
-    hand = anvil.server.call('update_hand', player_color) 
+    # hand = anvil.server.call('update_hand', player_color) 
+    hand = self.green_hand if player_color=="green" else self.blue_hand
     for i in range(7):
       # card = player.get_hand()[i]
       card = hand[i]
@@ -328,7 +329,7 @@ class Form1(Form1Template):
 
   def btn_new_game_click(self, **event_args):
     """This method is called when the button is clicked"""
-    anvil.server.call('clear_board')
+    anvil.server.call('new_game')
     self.model = [{'url':'board', 'col':0, 'row':0}]
     self.canvas_1.reset_context()
             
