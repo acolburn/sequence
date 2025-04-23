@@ -2,18 +2,34 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-from .Cards import Deck
+from .Cards import Deck, Hand
 
-_deck = []
+deck = []
+green_hand=[]
+blue_hand=[]
 
-@anvil.server.callable
-def make_deck():
+def init():
+  # Initialize deck
+  # TODO Load deck from db
+  global deck
   _deck = Deck()
-  # convert _deck to something serializable
-  result=[]
+  # convert _deck to something serializable (deck, a list of strings)
   for item in _deck.cards:
-    result.append(item)
-  return result
+    deck.append(item)
+  # Initialize hands, convert to something seializable (green_hand, blue_hand: list of strings)
+  # TODO Load hands from db
+  global green_hand, blue_hand
+  _green_hand = Hand(deck)
+  _blue_hand = Hand(deck)
+  for item in _green_hand.hand:
+    green_hand.append(item)
+  for itme in _blue_hand.hand:
+    blue_hand.append(item)
+
+# call init when server starts
+init()
+
+
 
 # Functions Involving Playing Board
 @anvil.server.callable
@@ -47,7 +63,20 @@ def clear_board():
   """Starting new game"""
   app_tables.board_state.delete_all_rows()
 
+# Functions Involving Deck
+@anvil.server.callable
+def get_deck():
+  return deck
+
 # Functions Involving Hands
+@anvil.server.callable
+def get_hand(player):
+  if player=="green":
+    return green_hand
+  if player=="blue":
+    return blue_hand
+
+  
 
 
 

@@ -6,7 +6,7 @@ from anvil.tables import app_tables
 import anvil.server
 from ..constants import *
 from ..Cards import *
-from ..Player import *
+# from ..Player import *
 import random
 
 
@@ -23,9 +23,11 @@ class Form1(Form1Template):
     }
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     
-    self.deck = anvil.server.call('make_deck')# creates and shuffles deck
-    self.player_green=Player(self.deck) # creates player hand in constructor
-    self.player_blue=Player(self.deck) # creates player hand in constructor
+    self.deck = anvil.server.call('get_deck')# creates and shuffles deck
+    # self.player_green=Player(self.deck) # creates hand in constructor
+    # self.player_blue=Player(self.deck) # creates hand in constructor
+    self.green_hand = anvil.server.call('get_hand','green')
+    self.blue_hand = anvil.server.call('get_hand','blue')
     self.is_green_turn = True # Green goes first
     self.update_hand_display(self.player_green)
     self.btn_player_turn.background=constants.GREEN
@@ -105,6 +107,7 @@ class Form1(Form1Template):
     Does essentially the same thing as deal_hand(), except it adds additional card(s) 
     if the hand isn't full, i.e., after a card has been played during a turn
     """
+    
     player.update_hand() # Adds cards, as necessary, to make sure hand has 7 cards
     hand = player.get_hand()
     for i in range(7):
