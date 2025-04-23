@@ -24,18 +24,25 @@ class Form1(Form1Template):
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     
     self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
+    # Select whether player is green or blue; players must agree to choose different colors
+    player_color = alert(content="Will you be the GREEN or BLUE player?",
+               title="Select Color",
+               large=True,
+               buttons=[
+                 ("GREEN", "green"),
+                 ("BLUE", "blue"),
+               ])
+
     self.green_hand = anvil.server.call('get_hand','green')
     self.blue_hand = anvil.server.call('get_hand','blue')
     self.is_green_turn = True # Green goes first
-    self.update_hand_display("green") # Green goes first
+    self.update_hand_display(player_color) # Green goes first
     self.btn_player_turn.background=constants.GREEN
     self.flow_panel_1.background=constants.GREEN
     self.btn_player_turn.text="Green"
     
     for label in self.labels:
         label.background=constants.GREEN
-    
-    
 
     self.model = anvil.server.call('update_board')
     
@@ -100,13 +107,13 @@ class Form1(Form1Template):
   #   self.label_7.text = card
   #   self.label_7.foreground = self.card_color(card)
 
-  def update_hand_display(self, player):
+  def update_hand_display(self, player_color):
     """
     Makes seven card hand, adding additional card(s) 
     if the hand isn't full, i.e., after a card has been played during a turn.
-    Parameter player (string) = "green" or "blue"
+    Parameter player_color (string) = "green" or "blue"
     """ 
-    hand = anvil.server.call('update_hand', player) 
+    hand = anvil.server.call('update_hand', player_color) 
     for i in range(7):
       # card = player.get_hand()[i]
       card = hand[i]
@@ -169,10 +176,10 @@ class Form1(Form1Template):
       self.draw_flag(location)
 
 
-  def draw_flags_for_hand(self, player):
+  def draw_flags_for_hand(self, player_color):
     # hand is a list of card.ranks+card.suits in a player's hand
     # print(f'Drawing: {player.hand}')
-    hand=self.green_hand if player=="green" else self.blue_hand
+    hand=self.green_hand if player_color=="green" else self.blue_hand
     for card in hand:
       self.draw_flag_by_card(card)
     
@@ -267,8 +274,8 @@ class Form1(Form1Template):
   def change_player(self, **event_args):
     # TODO This ... including saving player turn to database
     self.is_green_turn = not self.is_green_turn
-    player="green" if self.is_green_turn else "blue"
-    self.update_hand_display(player)
+    player_color="green" if self.is_green_turn else "blue"
+    self.update_hand_display(player_color)
     # change button text+color, and label colors
     # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     if self.is_green_turn:
@@ -286,14 +293,14 @@ class Form1(Form1Template):
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
-    player="green" if self.is_green_turn else "blue"
-    self.draw_flags_for_hand(player) 
+    player_color="green" if self.is_green_turn else "blue"
+    self.draw_flags_for_hand(player_color) 
     self.canvas_1_reset()
 
   def btn_dead_card_click(self, **event_args):
     """This method is called when players claim they have a dead card"""
     # Whose turn is it?
-    player="green" if self.is_green_turn else "blue"
+    player_color="green" if self.is_green_turn else "blue"
     isDeadCard=False
     # Go through each card in player's hand
     for card in player.get_hand():
@@ -314,7 +321,7 @@ class Form1(Form1Template):
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
             player.remove_card(card)
-            self.deal_card(player)
+            self.deal_card(player_color)
             isDeadCard=True
     if not isDeadCard:
       alert('No dead cards found')
