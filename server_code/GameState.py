@@ -7,31 +7,15 @@ from .Cards import Deck, Hand
 deck = []
 green_hand=[]
 blue_hand=[]
-
-def init():
-  # Initialize deck
-  # TODO Load deck from db
-  global deck
-  _deck = Deck()
-  # convert _deck to something serializable (deck, a list of strings)
-  for item in _deck.cards:
-    deck.append(item)
-  # Initialize hands, convert to something seializable (green_hand, blue_hand: list of strings)
-  # TODO Load hands from db
-  global green_hand, blue_hand
-  _green_hand = Hand(deck)
-  _blue_hand = Hand(deck)
-  for item in _green_hand.hand:
-    green_hand.append(item)
-  for itme in _blue_hand.hand:
-    blue_hand.append(item)
-
-# call init when server starts
-init()
+is_green_turn=True
 
 
 
+
+
+# ----------------------------------------------------------------------------------------
 # Functions Involving Playing Board
+# ----------------------------------------------------------------------------------------
 @anvil.server.callable
 def update_board():
   """Returns playing board (as dict type called `model`) retrieved from DataTable
@@ -63,18 +47,79 @@ def clear_board():
   """Starting new game"""
   app_tables.board_state.delete_all_rows()
 
+# ----------------------------------------------------------------------------------------
 # Functions Involving Deck
+# ----------------------------------------------------------------------------------------
 @anvil.server.callable
+def make_deck():
+  _deck = Deck()
+  # convert _deck to something serializable (deck, a list of strings)
+  for item in _deck.cards:
+    deck.append(item)
+  return deck # deck is global
+    
+@anvil.server.callable
+# TODO load deck if it exists, or make new one if it's the start of a game
 def get_deck():
   return deck
 
+# ----------------------------------------------------------------------------------------
 # Functions Involving Hands
+# ----------------------------------------------------------------------------------------
+@anvil.server.callable
+def make_hand():
+  hand=[]
+  _hand = Hand(deck)
+  for item in _hand.hand:
+    hand.append(item)
+  return hand
+  
 @anvil.server.callable
 def get_hand(player):
   if player=="green":
     return green_hand
   if player=="blue":
     return blue_hand
+
+@anvil.server.callable
+def update_hand(player):
+  _hand=green_hand if player=="green" else blue_hand
+  while len(_hand)<7:
+    # Remove card from deck
+    card=deck.pop() if len(deck)>0 else None
+    # End of deck? Start over
+    if card is None:
+      deck = make_deck()
+      card=deck.pop()
+    # Add card to hand
+    _hand.append(card)
+  return _hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
+  
+
+# ----------------------------------------------------------------------------------------
+# Initialization Code
+# ----------------------------------------------------------------------------------------
+def init():
+  # Initialize deck
+  # TODO Load deck from db
+  global deck
+  # deck = anvil.server.call('make_deck')
+  deck = make_deck()
+  # Initialize hands, convert to something seializable (green_hand, blue_hand: list of strings)
+  # TODO Load hands from db
+  global green_hand, blue_hand
+  # green_hand=anvil.server.call('make_hand')
+  green_hand=make_hand()
+  # blue_hand=anvil.server.call('make_hand')
+  blue_hand=make_hand()
+  
+  # Initialize turn
+  # TODO Load turn from db
+  is_green_turn=True
+
+# call init when server starts
+init()
+
 
   
 
