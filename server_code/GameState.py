@@ -106,11 +106,14 @@ def get_hand(player):
       blue_hand = data_table[0]['BlueHand']
     return blue_hand
 
-# @anvil.server.callable
-def update_hand(player):
+@anvil.server.callable
+def update_hand(player_color, hand):
+  """Adds cards to assure proper hand length, updates data_table
+  
+  param string player = 'green' or 'blue', player color
+  param list hand = player's hand, probably needing update at end of a play"""
   global green_hand, blue_hand, deck
-  _hand=green_hand if player=="green" else blue_hand
-  while len(_hand)<7:
+  while len(hand)<7:
     # Remove card from deck
     card=deck.pop() if len(deck)>0 else None
     # End of deck? Start over
@@ -118,8 +121,16 @@ def update_hand(player):
       deck = make_deck()
       card=deck.pop()
     # Add card to hand
-    _hand.append(card)
-  return _hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
+    hand.append(card)
+    if player_color=="green":
+      green_hand=hand
+      column_name="GreenHand"
+    else:
+      blue_hand=hand
+      column_name="BlueHand"
+    # updaate data_table
+    update_cell(1,column_name,hand)
+  return hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
   
 
 # ----------------------------------------------------------------------------------------

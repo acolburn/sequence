@@ -39,7 +39,6 @@ class Form1(Form1Template):
     self.update_hand_display(player_color) # Green goes first
     self.btn_player_turn.background=constants.GREEN
     self.flow_panel_1.background=constants.GREEN
-    self.btn_player_turn.text="Green"
     
     for label in self.labels:
         label.background=constants.GREEN
@@ -266,14 +265,16 @@ class Form1(Form1Template):
       return
     
     self.remove_all_flags()
-    self.change_player()
     # Save self.model to database
     anvil.server.call('save_board',self.model)
-    # TODO Save hand to database
+    # Save hand to database
+    player_color="green" if self.is_green_turn else "blue"
+    hand = anvil.server.call('update_hand',player_color,hand)
+    self.change_player()
+
     self.canvas_1_reset()
 
   def change_player(self, **event_args):
-    # TODO This ... including saving player turn to database
     self.is_green_turn = not self.is_green_turn
     player_color="green" if self.is_green_turn else "blue"
     self.update_hand_display(player_color)
@@ -302,9 +303,10 @@ class Form1(Form1Template):
     """This method is called when players claim they have a dead card"""
     # Whose turn is it?
     player_color="green" if self.is_green_turn else "blue"
+    hand=self.green_hand if self.is_green_turn else self.blue_hand
     isDeadCard=False
     # Go through each card in player's hand
-    for card in player.get_hand():
+    for card in hand:
       match1=False
       # ID the board cells for the given card
       if card[0]!='J':
@@ -321,8 +323,8 @@ class Form1(Form1Template):
         for item in self.model:
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
-            player.remove_card(card)
-            self.deal_card(player_color)
+            hand.remove(card)
+            hand =anvil.server.call('update_hand',player_color,hand)
             isDeadCard=True
     if not isDeadCard:
       alert('No dead cards found')
