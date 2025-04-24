@@ -23,7 +23,6 @@ class Form1(Form1Template):
     }
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     
-    self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
     # Select whether player is green or blue; players must agree to choose different colors
     player_color = alert(content="Will you be the GREEN or BLUE player?",
                title="Select Color",
@@ -32,18 +31,17 @@ class Form1(Form1Template):
                  ("GREEN", "green"),
                  ("BLUE", "blue"),
                ])
-
-    self.green_hand = anvil.server.call('get_hand','green')
+    self.model = anvil.server.call('load_board') # creates new board if not existing
+    self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
+    self.green_hand = anvil.server.call('get_hand','green') # creates hand if not existing
     self.blue_hand = anvil.server.call('get_hand','blue')
     self.is_green_turn = True # Green goes first
     self.update_hand_display(player_color) # Green goes first
-    self.btn_player_turn.background=constants.GREEN
     self.flow_panel_1.background=constants.GREEN
     
     for label in self.labels:
         label.background=constants.GREEN
 
-    self.model = anvil.server.call('load_board')
     
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
@@ -281,15 +279,11 @@ class Form1(Form1Template):
     # change button text+color, and label colors
     # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     if self.is_green_turn:
-      self.btn_player_turn.background='#8fef8f'
       self.flow_panel_1.background='#8fef8f'
-      self.btn_player_turn.text="Green"
       for label in self.labels:
         label.background="#8fef8f"
     else:
-      self.btn_player_turn.background='#a8c2e1'
       self.flow_panel_1.background='#a8c2e1'
-      self.btn_player_turn.text="Blue"
       for label in self.labels:
         label.background="#a8c2e1"
 
@@ -334,6 +328,22 @@ class Form1(Form1Template):
     anvil.server.call('new_game')
     self.model = [{'url':'board', 'col':0, 'row':0}]
     self.canvas_1.reset_context()
+
+  def update(self):
+    game_state = app_tables.board_state.get(id=1)
+    self.deck = game_state['Deck']
+    self.blue_hand = game_state['BlueHand']
+    self.green_hand = game_state['GreenHand']
+    player_color="green" if self.is_green_turn else "blue"
+    self.update_hand_display(player_color)
+    self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
+    self.draw_flags_for_hand(player_color) # add flags back to board
+    self.canvas_1_reset()
+    
+
+  def timer_1_tick(self, **event_args):
+    """This method is called Every [interval] seconds. Does not trigger if [interval] is 0."""
+    self.update()
             
         
           
