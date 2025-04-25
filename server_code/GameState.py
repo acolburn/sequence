@@ -75,6 +75,7 @@ def get_deck():
 def make_hand(player):
   global green_hand
   global blue_hand
+  global deck
   hand=[]
   _hand = Hand(deck)
   for item in _hand.hand:
