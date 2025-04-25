@@ -10,6 +10,10 @@ components:
     name: timer_1
     properties: {interval: 4.5}
     type: Timer
+  - layout_properties: {grid_position: 'XOOOYY,VEIHWY'}
+    name: lbl_turn_message
+    properties: {text: This is a test message ...}
+    type: Label
   - components:
     - event_bindings: {click: btn_playable_cells_click}
       layout_properties: {}

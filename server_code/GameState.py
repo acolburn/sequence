@@ -7,7 +7,7 @@ from .Cards import Deck, Hand
 deck = []
 green_hand=[]
 blue_hand=[]
-is_green_turn=True
+# is_green_turn=True
 
 
 
@@ -132,6 +132,25 @@ def update_hand(player_color, hand):
     # updaate data_table
     update_cell(1,column_name,hand)
   return hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
+
+# ----------------------------------------------------------------------------------------
+# Functions Involving Turns
+# ----------------------------------------------------------------------------------------
+
+@anvil.server.callable
+def green_turn():
+  # global is_green_turn
+  data_table=app_tables.board_state.search()
+  if data_table[0]['IsGreenTurn'] is None:
+    is_green_turn = True
+    data_table[0]['IsGreenTurn'] = True
+  else:
+    is_green_turn = data_table[0]['IsGreenTurn']
+  return is_green_turn
+
+@anvil.server.callable
+def update_turn(is_green_turn):
+  update_cell(1,"IsGreenTurn",is_green_turn)
   
 
 # ----------------------------------------------------------------------------------------
@@ -162,40 +181,8 @@ def new_game():
   # add new board to table
   model = [{'url':'board', 'col':0, 'row':0}]
   update_cell(1,'Board',model)
-  make_deck()
-  make_hand("green")
-  make_hand("blue")
+  make_deck() #update_cell() part of this method
+  make_hand("green") #update_cell() part of this method
+  make_hand("blue") #update_cell() part of this method
   
-  
-# def init():
-#   # Initialize deck
-#   # TODO Load deck from db
-#   global deck
-#   # deck = anvil.server.call('make_deck')
-#   deck = get_deck() if len(deck)>0 else make_deck()
-#   # Initialize hands, convert to something seializable (green_hand, blue_hand: list of strings)
-#   # TODO Load hands from db
-#   global green_hand, blue_hand
-#   # green_hand=anvil.server.call('make_hand')
-#   green_hand=get_hand("green")
-#   if len(green_hand)==0:
-#     green_hand=update_hand("green")
-#   # blue_hand=anvil.server.call('make_hand')
-#   blue_hand=get_hand("blue")
-#   if len(blue_hand)==0:
-#     blue_hand=update_hand("blue")
-  
-  # Initialize turn
-  # TODO Load turn from db
-  # is_green_turn=True
-
-# call init when server starts
-# init()
-
-
-  
-
-
-
-
-
+ 

@@ -21,10 +21,14 @@ class Form1(Form1Template):
       'green_chip': '_/theme/chipGreen_border.png',
       'blue_chip': '_/theme/chipBlue_border.png'
     }
+    self.message = {
+      'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
+      'their_turn': 'Waiting for your opponent to play ...'
+    }
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     
     # Select whether player is green or blue; players must agree to choose different colors
-    player_color = alert(content="Will you be the GREEN or BLUE player?",
+    self.player_color = alert(content="Will you be the GREEN or BLUE player?",
                title="Select Color",
                large=True,
                buttons=[
@@ -35,14 +39,12 @@ class Form1(Form1Template):
     self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
     self.green_hand = anvil.server.call('get_hand','green') # creates hand if not existing
     self.blue_hand = anvil.server.call('get_hand','blue')
-    self.is_green_turn = True # Green goes first
-    self.update_hand_display(player_color) # Green goes first
-    self.flow_panel_1.background=constants.GREEN
-    
+    self.is_green_turn = anvil.server.call('green_turn')
+    self.update_hand_display(self.player_color)
+    self.flow_panel_1.background=constants.GREEN if self.player_color=="green" else constants.BLUE
     for label in self.labels:
-        label.background=constants.GREEN
+        label.background=constants.GREEN if self.player_color=="green" else constants.BLUE
 
-    
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
     self.canvas_size = 650
@@ -64,53 +66,12 @@ class Form1(Form1Template):
     if card[-1]==HEARTS or card[-1]==DIAMONDS:
       return "red"
 
-  # def deal_card(self, player):
-  #   """Removes a card from the deck and adds it to a player's hand"""
-  #   card=self.deck.deal()
-  #   # End of deck? Start over
-  #   if card is None:
-  #     self.deck = Deck()
-  #     card=self.deck.deal()
-  #   player.hand.append(card.rank+card.suit)
-  #   return card.rank+card.suit
-
-  # def deal_hand(self, player):
-  #   """
-  #   Creates hand by dealing individual cards and adding them to 
-  #   the hand (via self.deal_card()) and displaying the cards in labels in the GUI
-  #   """
-  #   player.hand.clear()
-  #   #deal_card() appends card.rank+card.suit to player.hand
-  #   #it returns card.rank+card.suit
-  #   card=self.deal_card(player) 
-  #   self.label_1.text = card
-  #   self.label_1.foreground = self.card_color(card)
-  #   card=self.deal_card(player)
-  #   self.label_2.text = card
-  #   self.label_2.foreground = self.card_color(card)
-  #   card=self.deal_card(player)
-  #   self.label_3.text = card
-  #   self.label_3.foreground = self.card_color(card)
-  #   card=self.deal_card(player)
-  #   self.label_4.text = card
-  #   self.label_4.foreground = self.card_color(card)
-  #   card=self.deal_card(player)
-  #   self.label_5.text = card
-  #   self.label_5.foreground = self.card_color(card)
-  #   card=self.deal_card(player)
-  #   self.label_6.text = card
-  #   self.label_6.foreground = self.card_color(card)
-  #   card=self.deal_card(player)
-  #   self.label_7.text = card
-  #   self.label_7.foreground = self.card_color(card)
-
   def update_hand_display(self, player_color):
     """
     Makes seven card hand, adding additional card(s) 
     if the hand isn't full, i.e., after a card has been played during a turn.
     Parameter player_color (string) = "green" or "blue"
     """ 
-    # hand = anvil.server.call('update_hand', player_color) 
     hand = self.green_hand if player_color=="green" else self.blue_hand
     for i in range(7):
       # card = player.get_hand()[i]
@@ -118,26 +79,6 @@ class Form1(Form1Template):
       label = self.labels[i]
       label.text = card
       label.foreground = self.card_color(card)
-    
-    # # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
-    # for i in range(7):
-    #   # if there's a card in self.hand at the given position,
-    #   # display it
-    #   # the items in self.hand each have card.rank+card.suit
-    #   if len(player.hand)>i:
-    #     card=player.hand[i]
-    #     label=self.labels[i]
-    #     label.text=card
-    #     label.foreground=self.card_color(card)
-    #   # and if there's no card at the given position,
-    #   # deal one to fill the space
-    #   else:
-    #     card = self.deal_card(player) #addds card.rank+card.suit to self.hand
-    #     label=self.labels[i]
-    #     label.text=card
-    #     label.foreground=self.card_color(card)
-        
-        
     
   def canvas_1_reset(self, **event_args):
     # Adjust these coordinates if you want the drawing area to not be centered
@@ -172,7 +113,6 @@ class Form1(Form1Template):
     # the loop goes through both values in location
     for location in locations[card]:
       self.draw_flag(location)
-
 
   def draw_flags_for_hand(self, player_color):
     # hand is a list of card.ranks+card.suits in a player's hand
@@ -274,18 +214,21 @@ class Form1(Form1Template):
 
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn
-    player_color="green" if self.is_green_turn else "blue"
-    self.update_hand_display(player_color)
+    anvil.server.call_s('update_turn',self.is_green_turn)
+    # player_color="green" if self.is_green_turn else "blue"
+    self.update_hand_display(self.player_color)
     # change button text+color, and label colors
     # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
-    if self.is_green_turn:
-      self.flow_panel_1.background='#8fef8f'
-      for label in self.labels:
-        label.background="#8fef8f"
-    else:
-      self.flow_panel_1.background='#a8c2e1'
-      for label in self.labels:
-        label.background="#a8c2e1"
+    # if self.is_green_turn:
+    #   self.flow_panel_1.background='#8fef8f'
+    #   for label in self.labels:
+    #     label.background="#8fef8f"
+    # else:
+    #   self.flow_panel_1.background='#a8c2e1'
+    #   for label in self.labels:
+    #     label.background="#a8c2e1"
+    
+    
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
