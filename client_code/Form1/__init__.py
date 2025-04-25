@@ -325,12 +325,14 @@ class Form1(Form1Template):
 
   def btn_new_game_click(self, **event_args):
     """This method is called when the button is clicked"""
-    anvil.server.call('new_game')
+    anvil.server.call('new_game') # clears board, creates new row, includes empty board
     self.model = [{'url':'board', 'col':0, 'row':0}]
     self.canvas_1.reset_context()
 
   def update(self):
-    game_state = app_tables.board_state.get(id=1)
+    with anvil.server.no_loading_indicator: 
+      game_state = anvil.server.call('update')
+    # game_state = anvil.server.call_s('update')
     self.deck = game_state['Deck']
     self.blue_hand = game_state['BlueHand']
     self.green_hand = game_state['GreenHand']

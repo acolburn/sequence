@@ -63,7 +63,7 @@ def get_deck():
   global deck
   data_table=app_tables.board_state.search()
   if data_table[0]['Deck'] is None:
-    make_deck()
+    deck = make_deck()
   else:
     deck = data_table[0]['Deck']
   return deck
@@ -148,9 +148,23 @@ def update_cell(row_id, column_name, new_value):
   return False
 
 @anvil.server.callable
+def update():
+  return app_tables.board_state.get(id=1)
+
+@anvil.server.callable
 def new_game():
   """Starting new game"""
+  # clear data table
   app_tables.board_state.delete_all_rows()
+  # add row
+  app_tables.board_state.add_row(id=1)
+  # add new board to table
+  model = [{'url':'board', 'col':0, 'row':0}]
+  update_cell(1,'Board',model)
+  make_deck()
+  make_hand("green")
+  make_hand("blue")
+  
   
 # def init():
 #   # Initialize deck
