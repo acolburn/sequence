@@ -330,17 +330,26 @@ class Form1(Form1Template):
     self.canvas_1.reset_context()
 
   def update(self):
+    _needs_redraw = False
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
-    # game_state = anvil.server.call_s('update')
-    self.deck = game_state['Deck']
-    self.blue_hand = game_state['BlueHand']
-    self.green_hand = game_state['GreenHand']
-    player_color="green" if self.is_green_turn else "blue"
-    self.update_hand_display(player_color)
-    self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
-    self.draw_flags_for_hand(player_color) # add flags back to board
-    self.canvas_1_reset()
+      # game_state = anvil.server.call_s('update')
+      if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
+        self.deck = game_state['Deck']
+        _needs_redraw = True
+      if game_state['BlueHand'] is not None and game_state['BlueHand']!=self.blue_hand:
+        self.blue_hand = game_state['BlueHand']
+        _needs_redraw = True
+      if game_state['GreenHand'] is not None and game_state['GreenHand']!=self.green_hand:
+        self.green_hand = game_state['GreenHand']
+        _needs_redraw = True
+      if game_state['Board'] is not None and game_state['Board']!=self.model:
+        self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
+      player_color="green" if self.is_green_turn else "blue"
+      self.draw_flags_for_hand(player_color) # add flags back to board
+      if _needs_redraw:
+        self.update_hand_display(player_color)
+        self.canvas_1_reset()
     
 
   def timer_1_tick(self, **event_args):

@@ -77,6 +77,7 @@ def make_hand(player):
   global blue_hand
   global deck
   hand=[]
+  deck = get_deck()
   _hand = Hand(deck)
   for item in _hand.hand:
     hand.append(item)
@@ -93,7 +94,6 @@ def get_hand(player):
   global green_hand
   global blue_hand
   data_table=app_tables.board_state.search()
-  
   if player=="green":
     if data_table[0]['GreenHand'] is None:
       green_hand = make_hand("green")
