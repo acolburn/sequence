@@ -74,6 +74,7 @@ class Form1(Form1Template):
     Parameter player_color (string) = "green" or "blue"
     """ 
     hand = self.green_hand if self.player_color=="green" else self.blue_hand
+    print(f'length of hand: {len(hand)}')
     for i in range(7):
       # card = player.get_hand()[i]
       card = hand[i]
@@ -284,6 +285,8 @@ class Form1(Form1Template):
     _needs_redraw = False
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
+      print(f'game_state type: {type(game_state)}')
+      print(f'game_state: {game_state}')
       if game_state is None:
         return
       if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
