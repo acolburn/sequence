@@ -15,12 +15,14 @@ class Form1(Form1Template):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
-    self.images = {
-      'board': '_/theme/sequence_board.png',
-      'flag': '_/theme/flag.png',
-      'green_chip': '_/theme/chipGreen_border.png',
-      'blue_chip': '_/theme/chipBlue_border.png'
-    }
+    # self.images = {
+    #   'board': '_/theme/sequence_board.png',
+    #   'flag': '_/theme/flag.png',
+    #   'green_chip': '_/theme/chipGreen_border.png',
+    #   'blue_chip': '_/theme/chipBlue_border.png'
+    # }
+    # turn off update during __init__
+    self.timer_1.interval=0
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
       'their_turn': 'Waiting for your opponent to play ...'
@@ -52,6 +54,8 @@ class Form1(Form1Template):
     self.canvas_1.height = 650 #64 px/cell, 10 cells
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
+    # turn timer ticker back on
+    self.timer_1.interval=4.5
 
   def is_within_clickable_area(self, x, y):
     """
@@ -91,15 +95,19 @@ class Form1(Form1Template):
     # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
     for item in self.model:
       if item['url']=='flag':
+        path = '_/theme/flag.png'
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
       elif item['url']=='green_chip' or item['url']=='blue_chip':
+        path = '_/theme/chipGreen_border.png' if item['url']=='green_chip' else '_/theme/chipBlue_border.png'
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
       elif item['url']=='board':
+        path = '_/theme/sequence_board.png'
         x=0
         y=0
-      self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
+      # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
+      self.canvas_1.draw_image(URLMedia(path),x,y)
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
