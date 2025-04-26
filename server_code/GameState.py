@@ -75,18 +75,21 @@ def get_deck():
 def make_hand(player):
   global green_hand
   global blue_hand
-  global deck
+  # global deck
   hand=[]
   deck = get_deck()
   _hand = Hand(deck)
   for item in _hand.hand:
     hand.append(item)
+  
   if player=="green":
     green_hand=hand
   else:
     blue_hand=hand
   col_name="GreenHand" if player=="green" else "BlueHand"
   update_cell(1,col_name,hand)
+  # deck has also changed now, so it too needs to be updated
+  update_cell(1,"Deck",deck)
   return hand
   
 @anvil.server.callable
@@ -184,5 +187,6 @@ def new_game():
   make_deck() #update_cell() part of this method
   make_hand("green") #update_cell() part of this method
   make_hand("blue") #update_cell() part of this method
+  update_cell(1,'IsGreenTurn',True)
   
  

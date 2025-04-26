@@ -40,7 +40,8 @@ class Form1(Form1Template):
     self.green_hand = anvil.server.call('get_hand','green') # creates hand if not existing
     self.blue_hand = anvil.server.call('get_hand','blue')
     self.is_green_turn = anvil.server.call('green_turn')
-    self.update_hand_display(self.player_color)
+    self.display_turn_message()
+    self.update_hand_display()
     self.flow_panel_1.background=constants.GREEN if self.player_color=="green" else constants.BLUE
     for label in self.labels:
         label.background=constants.GREEN if self.player_color=="green" else constants.BLUE
@@ -66,13 +67,13 @@ class Form1(Form1Template):
     if card[-1]==HEARTS or card[-1]==DIAMONDS:
       return "red"
 
-  def update_hand_display(self, player_color):
+  def update_hand_display(self):
     """
     Makes seven card hand, adding additional card(s) 
     if the hand isn't full, i.e., after a card has been played during a turn.
     Parameter player_color (string) = "green" or "blue"
     """ 
-    hand = self.green_hand if player_color=="green" else self.blue_hand
+    hand = self.green_hand if self.player_color=="green" else self.blue_hand
     for i in range(7):
       # card = player.get_hand()[i]
       card = hand[i]
@@ -206,28 +207,31 @@ class Form1(Form1Template):
     # Save self.model to database
     anvil.server.call('save_board',self.model)
     # Save hand to database
-    player_color="green" if self.is_green_turn else "blue"
-    hand = anvil.server.call('update_hand',player_color,hand)
+    # player_color="green" if self.is_green_turn else "blue"
+    hand = anvil.server.call('update_hand',self.player_color,hand)
+    self.update_hand_display()
     self.change_player()
-
     self.canvas_1_reset()
 
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn
     anvil.server.call_s('update_turn',self.is_green_turn)
     # player_color="green" if self.is_green_turn else "blue"
-    self.update_hand_display(self.player_color)
-    # change button text+color, and label colors
-    # labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
-    # if self.is_green_turn:
-    #   self.flow_panel_1.background='#8fef8f'
-    #   for label in self.labels:
-    #     label.background="#8fef8f"
-    # else:
-    #   self.flow_panel_1.background='#a8c2e1'
-    #   for label in self.labels:
-    #     label.background="#a8c2e1"
-    
+
+    self.display_turn_message()
+
+  def display_turn_message(self):
+    if self.is_green_turn and self.player_color=="green":
+      self.lbl_turn_message.text=self.message['your_turn']
+    elif self.is_green_turn and self.player_color=="blue":
+      self.lbl_turn_message.text=self.message['their_turn']
+    elif not self.is_green_turn and self.player_color=="green":
+      self.lbl_turn_message.text=self.message['their_turn']
+    elif not self.is_green_turn and self.player_color=="blue":
+      self.lbl_turn_message.text=self.message['your_turn']
+    else:
+      self.lbl_turn_message="It's no one's turn right now. Hmm ..."
+
     
 
   def btn_playable_cells_click(self, **event_args):
@@ -268,15 +272,20 @@ class Form1(Form1Template):
 
   def btn_new_game_click(self, **event_args):
     """This method is called when the button is clicked"""
+    # Pause self.update() while this method taking place
+    self.timer_1.interval = 0
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
     self.model = [{'url':'board', 'col':0, 'row':0}]
     self.canvas_1.reset_context()
+    # Turn timer back on 
+    self.timer_1.interval=4.5
 
   def update(self):
     _needs_redraw = False
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
-      # game_state = anvil.server.call_s('update')
+      if game_state is None:
+        return
       if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
         self.deck = game_state['Deck']
         _needs_redraw = True
@@ -291,7 +300,7 @@ class Form1(Form1Template):
       player_color="green" if self.is_green_turn else "blue"
       self.draw_flags_for_hand(player_color) # add flags back to board
       if _needs_redraw:
-        self.update_hand_display(player_color)
+        self.update_hand_display()
         self.canvas_1_reset()
     
 
