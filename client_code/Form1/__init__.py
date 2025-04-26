@@ -259,7 +259,6 @@ class Form1(Form1Template):
         #cell1[0] is col, cell1[1] is row
         if item['col']==cell1[0] and item['row']==cell1[1] and item['url'] in ['green_chip','blue_chip']:
           match1=True
-          print(f'Match for {card} at {cell1[0]},{cell1[1]}')
       # If first cell filled, see if second one is too
       if match1:
         for item in self.model:
@@ -285,8 +284,6 @@ class Form1(Form1Template):
     _needs_redraw = False
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
-      print(f'game_state type: {type(game_state)}')
-      print(f'game_state: {game_state}')
       if game_state is None:
         return
       if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
