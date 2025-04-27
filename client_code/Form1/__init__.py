@@ -292,7 +292,8 @@ class Form1(Form1Template):
     self.timer_1.interval = 0
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
     self.model = [{'url':'board', 'col':0, 'row':0}]
-    self.canvas_1.reset_context()
+    self.update()
+    # self.canvas_1.reset_context()
     # Turn timer back on 
     self.timer_1.interval=4.5
 
@@ -325,8 +326,10 @@ class Form1(Form1Template):
         self.is_green_turn = game_state['IsGreenTurn']
     
     self.display_turn_message()
-    player_color="green" if self.is_green_turn else "blue"
-    self.draw_flags_for_hand(player_color) # add flags back to board
+    if self.player_color=="green" and self.is_green_turn:
+      self.draw_flags_for_hand(self.player_color) # add flags back to board
+    if self.player_color=="blue" and not self.is_green_turn:
+      self.draw_flags_for_hand((self.player_color))
     if _needs_redraw:
       # hand=self.green_hand if player_color=="green" else self.blue_hand
       self.update_hand_display(self.hand)
