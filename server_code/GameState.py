@@ -5,8 +5,8 @@ import anvil.server
 from .Cards import Deck, Hand
 
 deck = []
-green_hand=[]
-blue_hand=[]
+# green_hand=[]
+# blue_hand=[]
 # is_green_turn=True
 
 
@@ -73,8 +73,8 @@ def get_deck():
 # ----------------------------------------------------------------------------------------
 # @anvil.server.callable
 def make_hand(player):
-  global green_hand
-  global blue_hand
+  # global green_hand
+  # global blue_hand
   # global deck
   hand=[]
   deck = get_deck()
@@ -82,10 +82,10 @@ def make_hand(player):
   for item in _hand.hand:
     hand.append(item)
   
-  if player=="green":
-    green_hand=hand
-  else:
-    blue_hand=hand
+  # if player=="green":
+    # green_hand=hand
+  # else:
+    # blue_hand=hand
   col_name="GreenHand" if player=="green" else "BlueHand"
   update_cell(1,col_name,hand)
   # deck has also changed now, so it too needs to be updated
@@ -94,8 +94,8 @@ def make_hand(player):
   
 @anvil.server.callable
 def get_hand(player):
-  global green_hand
-  global blue_hand
+  # global green_hand
+  # global blue_hand
   data_table=app_tables.board_state.search()
   if player=="green":
     if data_table[0]['GreenHand'] is None:
@@ -116,7 +116,8 @@ def update_hand(player_color, hand):
   
   param string player = 'green' or 'blue', player color
   param list hand = player's hand, probably needing update at end of a play"""
-  global green_hand, blue_hand, deck
+  # global green_hand, blue_hand, deck
+  global deck
   while len(hand)<7:
     # Remove card from deck
     card=deck.pop() if len(deck)>0 else None
@@ -127,10 +128,10 @@ def update_hand(player_color, hand):
     # Add card to hand
     hand.append(card)
     if player_color=="green":
-      green_hand=hand
+      # green_hand=hand
       column_name="GreenHand"
     else:
-      blue_hand=hand
+      # blue_hand=hand
       column_name="BlueHand"
     # updaate data_table
     update_cell(1,column_name,hand)
@@ -178,9 +179,9 @@ def update():
 def new_game():
   """Starting new game"""
   # clear data table
-  app_tables.board_state.delete_all_rows()
+  # app_tables.board_state.delete_all_rows()
   # add row
-  app_tables.board_state.add_row(id=1)
+  # app_tables.board_state.add_row(id=1)
   # add new board to table
   model = [{'url':'board', 'col':0, 'row':0}]
   update_cell(1,'Board',model)

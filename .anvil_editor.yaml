@@ -11,7 +11,6 @@ unique_ids:
     Form1: 4PBMJEDEDKSYRT3T65JPMMMH7UIFO5FU
   modules:
     Cards: '1744943937884323121515470.38513'
-    Player: '1745011901963935129188493.6002'
     constants: '1744928965716187335976452.2421'
   scripts: {}
   server_modules:

@@ -281,7 +281,7 @@ class Form1(Form1Template):
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
             self.hand.remove(card)
-            self.hand =anvil.server.call('update_hand',player_color,self.hand)
+            self.hand =anvil.server.call('update_hand',self.player_color,self.hand)
             isDeadCard=True
     if not isDeadCard:
       alert('No dead cards found')
