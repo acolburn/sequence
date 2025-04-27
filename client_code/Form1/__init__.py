@@ -39,11 +39,13 @@ class Form1(Form1Template):
                ])
     self.model = anvil.server.call('load_board') # creates new board if not existing
     self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
-    self.green_hand = anvil.server.call('get_hand','green') # creates hand if not existing
-    self.blue_hand = anvil.server.call('get_hand','blue')
+    if self.player_color=="green":
+      self.hand = anvil.server.call('get_hand','green') # creates hand if not existing
+    else:
+      self.hand = anvil.server.call('get_hand','blue')
     self.is_green_turn = anvil.server.call('green_turn')
     self.display_turn_message()
-    self.update_hand_display()
+    self.update_hand_display(self.hand)
     self.flow_panel_1.background=constants.GREEN if self.player_color=="green" else constants.BLUE
     for label in self.labels:
         label.background=constants.GREEN if self.player_color=="green" else constants.BLUE
@@ -71,14 +73,13 @@ class Form1(Form1Template):
     if card[-1]==HEARTS or card[-1]==DIAMONDS:
       return "red"
 
-  def update_hand_display(self):
+  def update_hand_display(self, hand):
     """
     Makes seven card hand, adding additional card(s) 
     if the hand isn't full, i.e., after a card has been played during a turn.
     Parameter player_color (string) = "green" or "blue"
     """ 
-    hand = self.green_hand if self.player_color=="green" else self.blue_hand
-    print(f'length of hand: {len(hand)}')
+    # hand = self.green_hand if self.player_color=="green" else self.blue_hand
     for i in range(7):
       # card = player.get_hand()[i]
       card = hand[i]
@@ -93,6 +94,7 @@ class Form1(Form1Template):
 
     # self.model is list of everything that needs to be drawn on canvas
     # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
+    self.timer_1.interval=0
     for item in self.model:
       if item['url']=='flag':
         path = '_/theme/flag.png'
@@ -108,6 +110,7 @@ class Form1(Form1Template):
         y=0
       # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
       self.canvas_1.draw_image(URLMedia(path),x,y)
+      self.timer_1.interval=4.5
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
@@ -127,8 +130,8 @@ class Form1(Form1Template):
   def draw_flags_for_hand(self, player_color):
     # hand is a list of card.ranks+card.suits in a player's hand
     # print(f'Drawing: {player.hand}')
-    hand=self.green_hand if player_color=="green" else self.blue_hand
-    for card in hand:
+    # hand=self.green_hand if player_color=="green" else self.blue_hand
+    for card in self.hand:
       self.draw_flag_by_card(card)
     
   def remove_all_flags(self):
@@ -164,7 +167,7 @@ class Form1(Form1Template):
     green_chip = {'url':'green_chip', 'col':col, 'row':row}
     blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
     
-    hand=self.green_hand if self.is_green_turn else self.blue_hand
+    # hand=self.green_hand if self.is_green_turn else self.blue_hand
     # Cannot play corners
     if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
       alert("You cannot put a chip on a corner square")
@@ -172,37 +175,37 @@ class Form1(Form1Template):
     # If player has card in hand matching square with chip, and there's no chip
     # already in the spot, remove the card from hand
     # and then play the chip
-    if card in hand and not cell_occupied:
-      hand.remove(card)
-      self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
+    if card in self.hand and not cell_occupied:
+      self.hand.remove(card)
+      self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
     # If player's using a wild card in an empty square, remove the card from hand
     # and then play the chip
-    elif 'J'+DIAMONDS in hand and not cell_occupied:
+    elif 'J'+DIAMONDS in self.hand and not cell_occupied:
       alert('You are playing the J of Diamonds as a wild card')
-      hand.remove('J'+DIAMONDS)
-      self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
-    elif 'J'+HEARTS in hand and not cell_occupied:
+      self.hand.remove('J'+DIAMONDS)
+      self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+    elif 'J'+HEARTS in self.hand and not cell_occupied:
       alert('You are playing the J of Hearts as a wild card')
-      hand.remove('J'+HEARTS)
-      self.model.append(green_chip) if self.is_green_turn else self.model.append(blue_chip)
+      self.hand.remove('J'+HEARTS)
+      self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
     # Black Jacks used to remove chips; no chips _added_
-    elif 'J'+SPADES in hand and cell_occupied:
+    elif 'J'+SPADES in self.hand and cell_occupied:
       alert('You are playing the J of Spades to remove a chip')
-      hand.remove('J'+SPADES)
+      self.hand.remove('J'+SPADES)
       # Need to remove chip at [location]
       for item in self.model:
         if item['col'] == col and item['row'] == row:
             if item['url'] in ['green_chip', 'blue_chip']:
                 self.model.remove(item)
-    elif 'J'+CLUBS in hand and cell_occupied:
+    elif 'J'+CLUBS in self.hand and cell_occupied:
       alert ('You are using the J of Clubs to remove a chip')
-      hand.remove('J'+CLUBS)
+      self.hand.remove('J'+CLUBS)
       # Need to remove chip at [location]
       for item in self.model:
         if item['col'] == col and item['row'] == row:
             if item['url'] in ['green_chip', 'blue_chip']:
                 self.model.remove(item)  
-    elif card in hand and cell_occupied:
+    elif card in self.hand and cell_occupied:
       alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
       return
     else:
@@ -213,21 +216,26 @@ class Form1(Form1Template):
       return
     
     self.remove_all_flags()
+    #Let's turn off update() while contacting server
+    self.timer_1.interval=0
     # Save self.model to database
     anvil.server.call('save_board',self.model)
     # Save hand to database
     # player_color="green" if self.is_green_turn else "blue"
-    hand = anvil.server.call('update_hand',self.player_color,hand)
-    self.update_hand_display()
-    self.change_player()
+    self.hand = anvil.server.call('update_hand',self.player_color,self.hand)
+    self.update_hand_display(self.hand)
     self.canvas_1_reset()
+    self.change_player()
+
+    self.timer_1.interval=4.5
 
   def change_player(self, **event_args):
+    self.timer_1.interval=0
     self.is_green_turn = not self.is_green_turn
     anvil.server.call_s('update_turn',self.is_green_turn)
     # player_color="green" if self.is_green_turn else "blue"
-
     self.display_turn_message()
+    self.timer_1.interval=4.5
 
   def display_turn_message(self):
     if self.is_green_turn and self.player_color=="green":
@@ -252,11 +260,11 @@ class Form1(Form1Template):
   def btn_dead_card_click(self, **event_args):
     """This method is called when players claim they have a dead card"""
     # Whose turn is it?
-    player_color="green" if self.is_green_turn else "blue"
-    hand=self.green_hand if self.is_green_turn else self.blue_hand
+    # player_color="green" if self.is_green_turn else "blue"
+    # hand=self.green_hand if self.is_green_turn else self.blue_hand
     isDeadCard=False
     # Go through each card in player's hand
-    for card in hand:
+    for card in self.hand:
       match1=False
       # ID the board cells for the given card
       if card[0]!='J':
@@ -272,8 +280,8 @@ class Form1(Form1Template):
         for item in self.model:
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
-            hand.remove(card)
-            hand =anvil.server.call('update_hand',player_color,hand)
+            self.hand.remove(card)
+            self.hand =anvil.server.call('update_hand',player_color,self.hand)
             isDeadCard=True
     if not isDeadCard:
       alert('No dead cards found')
@@ -297,19 +305,32 @@ class Form1(Form1Template):
       if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
         self.deck = game_state['Deck']
         _needs_redraw = True
-      if game_state['BlueHand'] is not None and game_state['BlueHand']!=self.blue_hand:
-        self.blue_hand = game_state['BlueHand']
-        _needs_redraw = True
-      if game_state['GreenHand'] is not None and game_state['GreenHand']!=self.green_hand:
-        self.green_hand = game_state['GreenHand']
-        _needs_redraw = True
+      # only need to update hand for player's color
+      # Sometimes update() runs while hand still being updated, mid-turn
+      # To prevent a list index out of bounds error, need to make sure hand is updated
+      # here if it happens to be 6 cards long
+      if self.player_color=="green":
+        if game_state['GreenHand'] is not None and game_state['GreenHand']!=self.hand:
+          # self.green_hand = game_state['GreenHand']
+          self.hand = anvil.server.call('update_hand',"green",self.hand)
+          _needs_redraw = True
+      else:
+        if game_state['BlueHand'] is not None and game_state['BlueHand']!=self.hand:
+          # self.blue_hand = game_state['BlueHand']
+          self.hand = anvil.server.call('update_hand',"blue",self.hand)
+          _needs_redraw = True
       if game_state['Board'] is not None and game_state['Board']!=self.model:
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
-      player_color="green" if self.is_green_turn else "blue"
-      self.draw_flags_for_hand(player_color) # add flags back to board
-      if _needs_redraw:
-        self.update_hand_display()
-        self.canvas_1_reset()
+      if game_state['IsGreenTurn'] is not None and game_state['IsGreenTurn']!=self.is_green_turn:
+        self.is_green_turn = game_state['IsGreenTurn']
+    
+    self.display_turn_message()
+    player_color="green" if self.is_green_turn else "blue"
+    self.draw_flags_for_hand(player_color) # add flags back to board
+    if _needs_redraw:
+      # hand=self.green_hand if player_color=="green" else self.blue_hand
+      self.update_hand_display(self.hand)
+      self.canvas_1_reset()
     
 
   def timer_1_tick(self, **event_args):
