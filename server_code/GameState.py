@@ -85,8 +85,9 @@ def make_hand(player):
 
   # Cards.make_new_hand returns hand; if deck doesn't have 7 cards, returns []
   if len(deck)<7:
-    
+    deck = make_deck() #updates data_table
   hand = Cards.make_new_hand(deck)
+  print(f'GameState, line 90, hand={hand}')
   # if player=="green":
     # green_hand=hand
   # else:
@@ -101,12 +102,16 @@ def make_hand(player):
 def get_hand(player):
   # global green_hand
   # global blue_hand
+  print('get_hand is starting')
   data_table=app_tables.board_state.search()
   if player=="green":
     if data_table[0]['GreenHand'] is None:
+      print('data_table is None')
       green_hand = make_hand("green")
     else:
+      print('data_table is not None')
       green_hand = data_table[0]['GreenHand']
+    print(f'green_hand is {green_hand}')
     return green_hand
   if player=="blue":
     if data_table[0]['BlueHand'] is None:
@@ -123,25 +128,30 @@ def update_hand(player_color, hand):
   param list hand = player's hand, probably needing update at end of a play"""
   # global green_hand, blue_hand, deck
   global deck
-  while len(hand)<7:
-    # Remove card from deck
-    print(f'Length of deck: {len(deck)}')
-    card=deck.pop() if len(deck)>0 else None
-    # End of deck? Start over
-    if card is None:
-      print('Making deck, line 129')
-      deck = make_deck()
-      card=deck.pop()
-    # Add card to hand
-    hand.append(card)
-    if player_color=="green":
-      # green_hand=hand
-      column_name="GreenHand"
-    else:
-      # blue_hand=hand
-      column_name="BlueHand"
-    # updaate data_table
-    update_cell(1,column_name,hand)
+  hand = Cards.update_hand(hand, deck)
+  print(f'Just called Cards.update_hand. Hand now {len(hand)} cards.')
+  if len(hand)<7:
+    deck=Cards.make_decks()
+    Cards.update_hand(hand, deck)
+  # while len(hand)<7:
+  #   # Remove card from deck
+  #   print(f'Length of deck: {len(deck)}')
+  #   card=deck.pop() if len(deck)>0 else None
+  #   # End of deck? Start over
+  #   if card is None:
+  #     print('Making deck, line 129')
+  #     deck = make_deck()
+  #     card=deck.pop()
+  #   # Add card to hand
+  #   hand.append(card)
+  if player_color=="green":
+    # green_hand=hand
+    column_name="GreenHand"
+  else:
+    # blue_hand=hand
+    column_name="BlueHand"
+  # updaate data_table
+  update_cell(1,column_name,hand)
   return hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
 
 # ----------------------------------------------------------------------------------------
@@ -191,9 +201,11 @@ def new_game():
   # app_tables.board_state.add_row(id=1)
   # add new board to table
   # model = [{'url':'board', 'col':0, 'row':0}]
+  global deck
   model = []
   update_cell(1,'Board',model)
-  make_deck() #update_cell() part of this method
+  deck = Cards.make_decks()
+  update_cell(1,'Deck',deck)
   make_hand("green") #update_cell() part of this method
   make_hand("blue") #update_cell() part of this method
   update_cell(1,'IsGreenTurn',True)

@@ -48,7 +48,7 @@ def make_new_hand(deck):
   if len(deck)<7:
     return hand
   for i in range(hand_length):
-      card=deal_card()
+      card=deal_card(deck)
       hand.append(card)
   return hand
 

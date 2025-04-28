@@ -68,9 +68,10 @@ class Form1(Form1Template):
     return(0<=x<=self.canvas_size) and (0<=y<=self.canvas_1.height)
     
   def card_color(self,card):
-    if card[-1]==SPADES or card[1]==CLUBS:
+    print(f'card_color card is {card}')
+    if card[1]==SPADES or card[1]==CLUBS:
       return "black"
-    if card[-1]==HEARTS or card[-1]==DIAMONDS:
+    if card[1]==HEARTS or card[1]==DIAMONDS:
       return "red"
 
   def update_hand_display(self, hand):
