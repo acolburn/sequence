@@ -2,16 +2,12 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-from .Cards import Deck, Hand
+from .Cards import *
 
 deck = []
 # green_hand=[]
 # blue_hand=[]
 # is_green_turn=True
-
-
-
-
 
 # ----------------------------------------------------------------------------------------
 # Functions Involving Playing Board
@@ -51,7 +47,9 @@ def save_board(model):
 # ----------------------------------------------------------------------------------------
 # @anvil.server.callable
 def make_deck():
+  print('Making deck, line 54')
   global deck
+  deck.clear()
   _deck = Deck()
   # convert _deck to something serializable (deck, a list of strings)
   for item in _deck.cards:
@@ -64,6 +62,7 @@ def get_deck():
   global deck
   data_table=app_tables.board_state.search()
   if data_table[0]['Deck'] is None:
+    print('Making deck, line 68')
     deck = make_deck()
   else:
     deck = data_table[0]['Deck']
@@ -121,9 +120,11 @@ def update_hand(player_color, hand):
   global deck
   while len(hand)<7:
     # Remove card from deck
+    print(f'Length of deck: {len(deck)}')
     card=deck.pop() if len(deck)>0 else None
     # End of deck? Start over
     if card is None:
+      print('Making deck, line 129')
       deck = make_deck()
       card=deck.pop()
     # Add card to hand
