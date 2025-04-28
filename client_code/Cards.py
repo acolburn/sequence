@@ -74,10 +74,16 @@ def update_hand(hand, deck):
   Hand and deck lists are parameters,
   returns hand list. If the deck is empty,
   returns hand as is."""
+  # while len(hand)<7: ... can't do it this way; code is conting "None" as part of list's length
+  # So, first, let's make sure there's 7 slots in the hand
   while len(hand)<7:
+    hand.append(None)
+  # Now, fill the slots
+  for i in range(7):
     if deck is not None:
-      card=deal_card(deck)
-      hand.append(card)
+      if hand[i] is None:
+        card=deal_card(deck)
+        hand[i]=card
   return hand
 
   # def remove_card(self,card):

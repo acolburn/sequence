@@ -47,7 +47,6 @@ def save_board(model):
 # ----------------------------------------------------------------------------------------
 # @anvil.server.callable
 def make_deck():
-  print('Making deck, line 54')
   global deck
   deck.clear()
   deck = Cards.make_decks()
@@ -63,7 +62,6 @@ def get_deck():
   global deck
   data_table=app_tables.board_state.search()
   if data_table[0]['Deck'] is None:
-    print('Making deck, line 68')
     deck = make_deck()
   else:
     deck = data_table[0]['Deck']
@@ -87,7 +85,6 @@ def make_hand(player):
   if len(deck)<7:
     deck = make_deck() #updates data_table
   hand = Cards.make_new_hand(deck)
-  print(f'GameState, line 90, hand={hand}')
   # if player=="green":
     # green_hand=hand
   # else:
@@ -102,34 +99,32 @@ def make_hand(player):
 def get_hand(player):
   # global green_hand
   # global blue_hand
-  print('get_hand is starting')
+  global deck
+  deck = get_deck()
   data_table=app_tables.board_state.search()
   if player=="green":
     if data_table[0]['GreenHand'] is None:
-      print('data_table is None')
       green_hand = make_hand("green")
     else:
-      print('data_table is not None')
       green_hand = data_table[0]['GreenHand']
-    print(f'green_hand is {green_hand}')
+    green_hand = Cards.update_hand(green_hand,deck)
     return green_hand
   if player=="blue":
     if data_table[0]['BlueHand'] is None:
       blue_hand = make_hand("blue")
     else:
       blue_hand = data_table[0]['BlueHand']
+      blue_hand = Cards.update_hand(blue_hand,deck)
     return blue_hand
 
 @anvil.server.callable
 def update_hand(player_color, hand):
   """Adds cards to assure proper hand length, updates data_table
-  
   param string player = 'green' or 'blue', player color
   param list hand = player's hand, probably needing update at end of a play"""
   # global green_hand, blue_hand, deck
   global deck
   hand = Cards.update_hand(hand, deck)
-  print(f'Just called Cards.update_hand. Hand now {len(hand)} cards.')
   if len(hand)<7:
     deck=Cards.make_decks()
     Cards.update_hand(hand, deck)
