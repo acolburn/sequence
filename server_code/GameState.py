@@ -20,7 +20,8 @@ deck = []
 def load_board():
   """Returns playing board (as dict type called `model`) retrieved from DataTable
   If no board in DataTable, creates a new one"""
-  model = [{'url':'board', 'col':0, 'row':0}]
+  # model = [{'url':'board', 'col':0, 'row':0}]
+  model = []
   # If table isn't empty, load its contents into self.model
   data_table=app_tables.board_state.search() # data_table is a SearchIterator
   # Make sure there's a table to work with; at the start of a game there isn't
@@ -183,7 +184,8 @@ def new_game():
   # add row
   # app_tables.board_state.add_row(id=1)
   # add new board to table
-  model = [{'url':'board', 'col':0, 'row':0}]
+  # model = [{'url':'board', 'col':0, 'row':0}]
+  model = []
   update_cell(1,'Board',model)
   make_deck() #update_cell() part of this method
   make_hand("green") #update_cell() part of this method

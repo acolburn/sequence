@@ -94,7 +94,12 @@ class Form1(Form1Template):
 
     # self.model is list of everything that needs to be drawn on canvas
     # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
+    path = None # at start of game, when self.model=[], the for loop below goes through
+    # an empty list, so the draw_image() method would generate an error without this line
+    # and the code below because the variable path is unassigned
     self.timer_1.interval=0
+    # Draw board ... board's always drawn (first)
+    self.canvas_1.draw_image((URLMedia('_/theme/sequence_board.png')),0,0)
     for item in self.model:
       if item['url']=='flag':
         path = '_/theme/flag.png'
@@ -104,13 +109,14 @@ class Form1(Form1Template):
         path = '_/theme/chipGreen_border.png' if item['url']=='green_chip' else '_/theme/chipBlue_border.png'
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
-      elif item['url']=='board':
-        path = '_/theme/sequence_board.png'
-        x=0
-        y=0
+      # elif item['url']=='board':
+      #   path = '_/theme/sequence_board.png'
+      #   x=0
+      #   y=0
       # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
-      self.canvas_1.draw_image(URLMedia(path),x,y)
-      self.timer_1.interval=4.5
+      if path is not None:
+        self.canvas_1.draw_image(URLMedia(path),x,y)
+    self.timer_1.interval=constants.TIMER_INTERVAL
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
@@ -227,7 +233,7 @@ class Form1(Form1Template):
     self.canvas_1_reset()
     self.change_player()
 
-    self.timer_1.interval=4.5
+    self.timer_1.interval=constants.TIMER_INTERVAL
 
   def change_player(self, **event_args):
     self.timer_1.interval=0
@@ -235,7 +241,7 @@ class Form1(Form1Template):
     anvil.server.call_s('update_turn',self.is_green_turn)
     # player_color="green" if self.is_green_turn else "blue"
     self.display_turn_message()
-    self.timer_1.interval=4.5
+    self.timer_1.interval=constants.TIMER_INTERVAL
 
   def display_turn_message(self):
     if self.is_green_turn and self.player_color=="green":
@@ -291,11 +297,12 @@ class Form1(Form1Template):
     # Pause self.update() while this method taking place
     self.timer_1.interval = 0
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
-    self.model = [{'url':'board', 'col':0, 'row':0}]
+    # self.model = [{'url':'board', 'col':0, 'row':0}]
+    self.model=[]
     self.update()
     # self.canvas_1.reset_context()
     # Turn timer back on 
-    self.timer_1.interval=4.5
+    self.timer_1.interval=constants.TIMER_INTERVAL
 
   def update(self):
     _needs_redraw = False
