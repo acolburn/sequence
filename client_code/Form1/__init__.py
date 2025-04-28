@@ -38,7 +38,7 @@ class Form1(Form1Template):
                  ("BLUE", "blue"),
                ])
     self.model = anvil.server.call('load_board') # creates new board if not existing
-    self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
+    # self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
     if self.player_color=="green":
       self.hand = anvil.server.call('get_hand','green') # creates hand if not existing
     else:
@@ -299,10 +299,13 @@ class Form1(Form1Template):
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
     # self.model = [{'url':'board', 'col':0, 'row':0}]
     self.model=[]
-    self.update()
-    # self.canvas_1.reset_context()
+    # self.update()
+    self.hand = anvil.server.call('get_hand',self.player_color)
+    self.update_hand_display(self.hand)
+    self.canvas_1.reset_context()
     # Turn timer back on 
     self.timer_1.interval=constants.TIMER_INTERVAL
+    
 
   def update(self):
     _needs_redraw = False
@@ -310,9 +313,9 @@ class Form1(Form1Template):
       game_state = anvil.server.call('update')
       if game_state is None:
         return
-      if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
-        self.deck = game_state['Deck']
-        _needs_redraw = True
+      # if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
+        # self.deck = game_state['Deck']
+        # _needs_redraw = True
       # only need to update hand for player's color
       # Sometimes update() runs while hand still being updated, mid-turn
       # To prevent a list index out of bounds error, need to make sure hand is updated

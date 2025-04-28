@@ -101,20 +101,22 @@ def get_hand(player):
   # global blue_hand
   global deck
   deck = get_deck()
-  data_table=app_tables.board_state.search()
+  # data_table=app_tables.board_state.search()
+  data_table=app_tables.board_state.get(id=1)
   if player=="green":
-    if data_table[0]['GreenHand'] is None:
+    if data_table['GreenHand'] is None:
       green_hand = make_hand("green")
     else:
-      green_hand = data_table[0]['GreenHand']
-    green_hand = Cards.update_hand(green_hand,deck)
+      green_hand = data_table['GreenHand']
+      # green_hand = Cards.update_hand(green_hand,deck)
+    print(f'Inside GameState.get_hand, hand is {green_hand}')
     return green_hand
   if player=="blue":
-    if data_table[0]['BlueHand'] is None:
+    if data_table['BlueHand'] is None:
       blue_hand = make_hand("blue")
     else:
-      blue_hand = data_table[0]['BlueHand']
-      blue_hand = Cards.update_hand(blue_hand,deck)
+      blue_hand = data_table['BlueHand']
+      # blue_hand = Cards.update_hand(blue_hand,deck)
     return blue_hand
 
 @anvil.server.callable
@@ -124,6 +126,7 @@ def update_hand(player_color, hand):
   param list hand = player's hand, probably needing update at end of a play"""
   # global green_hand, blue_hand, deck
   global deck
+  deck = get_deck()
   hand = Cards.update_hand(hand, deck)
   if len(hand)<7:
     deck=Cards.make_decks()
@@ -145,8 +148,10 @@ def update_hand(player_color, hand):
   else:
     # blue_hand=hand
     column_name="BlueHand"
-  # updaate data_table
+  # update data_table
   update_cell(1,column_name,hand)
+  # update deck, too!
+  update_cell(1,"Deck",deck)
   return hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
 
 # ----------------------------------------------------------------------------------------
