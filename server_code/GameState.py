@@ -2,7 +2,7 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-from .Cards import *
+import Cards
 
 deck = []
 # green_hand=[]
@@ -50,10 +50,11 @@ def make_deck():
   print('Making deck, line 54')
   global deck
   deck.clear()
-  _deck = Deck()
+  deck = Cards.make_decks()
+  # _deck = Deck()
   # convert _deck to something serializable (deck, a list of strings)
-  for item in _deck.cards:
-    deck.append(item)
+  # for item in _deck.cards:
+    # deck.append(item)
   update_cell(1,"Deck",deck)
   return deck 
     
@@ -75,13 +76,17 @@ def get_deck():
 def make_hand(player):
   # global green_hand
   # global blue_hand
-  # global deck
-  hand=[]
-  deck = get_deck()
-  _hand = Hand(deck)
-  for item in _hand.hand:
-    hand.append(item)
-  
+  global deck
+  # hand=[]
+  # deck = get_deck()
+  # _hand = Hand(deck)
+  # for item in _hand.hand:
+    # hand.append(item)
+
+  # Cards.make_new_hand returns hand; if deck doesn't have 7 cards, returns []
+  if len(deck)<7:
+    
+  hand = Cards.make_new_hand(deck)
   # if player=="green":
     # green_hand=hand
   # else:
