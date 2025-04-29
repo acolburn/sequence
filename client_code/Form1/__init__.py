@@ -167,6 +167,12 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
+    if self.is_green_turn and self.player_color=="blue":
+      alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
+      return
+    if not self.is_green_turn and self.player_color=="green":
+      alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
+      return
     # self.timer_1.interval=0
     if not self.is_within_clickable_area(x,y):
       return
@@ -210,6 +216,8 @@ class Form1(Form1Template):
       if result:
         self.hand.remove('J'+DIAMONDS)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+      else:
+        return
     elif 'J'+HEARTS in self.hand and not cell_occupied:
       result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
                title="Wild Card",
@@ -221,6 +229,8 @@ class Form1(Form1Template):
       if result:
         self.hand.remove('J'+HEARTS)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+      else:
+        return
     # Black Jacks used to remove chips; no chips _added_
     elif 'J'+SPADES in self.hand and cell_occupied:
       result = alert(content='You are playing the J of Spades to remove a chip. Bastard! Continue?',
@@ -237,6 +247,8 @@ class Form1(Form1Template):
           if item['col'] == col and item['row'] == row:
               if item['url'] in ['green_chip', 'blue_chip']:
                   self.model.remove(item)
+      else:
+        return   
     elif 'J'+CLUBS in self.hand and cell_occupied:
       result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
                title="Remove a Chip",
@@ -251,7 +263,9 @@ class Form1(Form1Template):
         for item in self.model:
           if item['col'] == col and item['row'] == row:
               if item['url'] in ['green_chip', 'blue_chip']:
-                  self.model.remove(item)  
+                  self.model.remove(item) 
+      else:
+        return
     elif card in self.hand and cell_occupied:
       alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
       return
