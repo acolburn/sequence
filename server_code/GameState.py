@@ -19,17 +19,19 @@ def load_board():
   # model = [{'url':'board', 'col':0, 'row':0}]
   model = []
   # If table isn't empty, load its contents into self.model
-  data_table=app_tables.board_state.search() # data_table is a SearchIterator
+  # data_table=app_tables.board_state.search() # data_table is a SearchIterator
+  data_table=app_tables.board_state.get(id=1)
   # Make sure there's a table to work with; at the start of a game there isn't
   # convert data_table to a list, see if the lists's length is 0
   # is_empty_data_table = len(list(data_table)) == 0
-  if data_table[0]['Board'] is not None:
+  if data_table['Board'] is not None:
+    model = data_table['Board']
   # if not is_empty_data_table:
     # Table has only one row; access it as row[0]
-    for row in data_table:
-      temp = row[0] # temp is a list
+    # for row in data_table:
+      # temp = row[0] # temp is a list
       # temp[0] has value 'Board' (column name); temp[1] is the list of dicts that is self.model
-      model = temp[1]
+      # model = temp[1]
   else: #Board is empty, create new one
     update_cell(1,"Board",model)
   return model
@@ -109,7 +111,6 @@ def get_hand(player):
     else:
       green_hand = data_table['GreenHand']
       # green_hand = Cards.update_hand(green_hand,deck)
-    print(f'Inside GameState.get_hand, hand is {green_hand}')
     return green_hand
   if player=="blue":
     if data_table['BlueHand'] is None:

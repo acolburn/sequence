@@ -22,7 +22,8 @@ class Form1(Form1Template):
     #   'blue_chip': '_/theme/chipBlue_border.png'
     # }
     # turn off update during __init__
-    self.timer_1.interval=0
+    self.timer_1.interval=constants.TIMER_INTERVAL
+    
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
       'their_turn': 'Waiting for your opponent to play ...'
@@ -57,7 +58,7 @@ class Form1(Form1Template):
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
-    self.timer_1.interval=4.5
+    # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def is_within_clickable_area(self, x, y):
     """
@@ -97,7 +98,7 @@ class Form1(Form1Template):
     path = None # at start of game, when self.model=[], the for loop below goes through
     # an empty list, so the draw_image() method would generate an error without this line
     # and the code below because the variable path is unassigned
-    self.timer_1.interval=0
+    # self.timer_1.interval=0
     # Draw board ... board's always drawn (first)
     self.canvas_1.draw_image((URLMedia('_/theme/sequence_board.png')),0,0)
     for item in self.model:
@@ -116,7 +117,7 @@ class Form1(Form1Template):
       # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
       if path is not None:
         self.canvas_1.draw_image(URLMedia(path),x,y)
-    self.timer_1.interval=constants.TIMER_INTERVAL
+    # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
@@ -155,6 +156,7 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
+    self.timer_1.interval=0
     if not self.is_within_clickable_area(x,y):
       return
     # row and col are 0-based; upper left corner is (0,0)
@@ -187,30 +189,58 @@ class Form1(Form1Template):
     # If player's using a wild card in an empty square, remove the card from hand
     # and then play the chip
     elif 'J'+DIAMONDS in self.hand and not cell_occupied:
-      alert('You are playing the J of Diamonds as a wild card')
-      self.hand.remove('J'+DIAMONDS)
-      self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+      result = alert(content='You are playing the J of Diamonds as a wild card. Continue?',
+               title="Wild Card",
+               large=True,
+               buttons=[
+                 ("Yes", True),
+                 ("No", False),
+               ])
+      if result:
+        self.hand.remove('J'+DIAMONDS)
+        self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
     elif 'J'+HEARTS in self.hand and not cell_occupied:
-      alert('You are playing the J of Hearts as a wild card')
-      self.hand.remove('J'+HEARTS)
-      self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+      result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
+               title="Wild Card",
+               large=True,
+               buttons=[
+                 ("Yes", True),
+                 ("No", False),
+               ])
+      if result:
+        self.hand.remove('J'+HEARTS)
+        self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
     # Black Jacks used to remove chips; no chips _added_
     elif 'J'+SPADES in self.hand and cell_occupied:
-      alert('You are playing the J of Spades to remove a chip')
-      self.hand.remove('J'+SPADES)
-      # Need to remove chip at [location]
-      for item in self.model:
-        if item['col'] == col and item['row'] == row:
-            if item['url'] in ['green_chip', 'blue_chip']:
-                self.model.remove(item)
+      result = alert(content='You are playing the J of Spades to remove a chip. Bastard! Continue?',
+               title="Remove a Chip",
+               large=True,
+               buttons=[
+                 ("Yes", True),
+                 ("No", False),
+               ])
+      if result:
+        self.hand.remove('J'+SPADES)
+        # Need to remove chip at [location]
+        for item in self.model:
+          if item['col'] == col and item['row'] == row:
+              if item['url'] in ['green_chip', 'blue_chip']:
+                  self.model.remove(item)
     elif 'J'+CLUBS in self.hand and cell_occupied:
-      alert ('You are using the J of Clubs to remove a chip')
-      self.hand.remove('J'+CLUBS)
-      # Need to remove chip at [location]
-      for item in self.model:
-        if item['col'] == col and item['row'] == row:
-            if item['url'] in ['green_chip', 'blue_chip']:
-                self.model.remove(item)  
+      result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
+               title="Remove a Chip",
+               large=True,
+               buttons=[
+                 ("Yes", True),
+                 ("No", False),
+               ])
+      if result:
+        self.hand.remove('J'+CLUBS)
+        # Need to remove chip at [location]
+        for item in self.model:
+          if item['col'] == col and item['row'] == row:
+              if item['url'] in ['green_chip', 'blue_chip']:
+                  self.model.remove(item)  
     elif card in self.hand and cell_occupied:
       alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
       return
@@ -223,7 +253,7 @@ class Form1(Form1Template):
     
     self.remove_all_flags()
     #Let's turn off update() while contacting server
-    self.timer_1.interval=0
+    # self.timer_1.interval=0
     # Save self.model to database
     anvil.server.call('save_board',self.model)
     # Save hand to database
@@ -236,12 +266,12 @@ class Form1(Form1Template):
     self.timer_1.interval=constants.TIMER_INTERVAL
 
   def change_player(self, **event_args):
-    self.timer_1.interval=0
+    # self.timer_1.interval=0
     self.is_green_turn = not self.is_green_turn
     anvil.server.call_s('update_turn',self.is_green_turn)
     # player_color="green" if self.is_green_turn else "blue"
     self.display_turn_message()
-    self.timer_1.interval=constants.TIMER_INTERVAL
+    # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def display_turn_message(self):
     if self.is_green_turn and self.player_color=="green":
@@ -296,7 +326,7 @@ class Form1(Form1Template):
   def btn_new_game_click(self, **event_args):
     """This method is called when the button is clicked"""
     # Pause self.update() while this method taking place
-    self.timer_1.interval = 0
+    # self.timer_1.interval = 0
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
     # self.model = [{'url':'board', 'col':0, 'row':0}]
     self.model=[]
@@ -305,7 +335,7 @@ class Form1(Form1Template):
     self.update_hand_display(self.hand)
     self.canvas_1.reset_context()
     # Turn timer back on 
-    self.timer_1.interval=constants.TIMER_INTERVAL
+    # self.timer_1.interval=constants.TIMER_INTERVAL
     
 
   def update(self):
