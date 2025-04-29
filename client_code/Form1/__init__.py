@@ -39,6 +39,7 @@ class Form1(Form1Template):
                  ("BLUE", "blue"),
                ])
     self.model = anvil.server.call('load_board') # creates new board if not existing
+    self.flag_model = [] # local variable to hold flag locations
     # self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
     if self.player_color=="green":
       self.hand = anvil.server.call('get_hand','green') # creates hand if not existing
@@ -102,11 +103,11 @@ class Form1(Form1Template):
     # Draw board ... board's always drawn (first)
     self.canvas_1.draw_image((URLMedia('_/theme/sequence_board.png')),0,0)
     for item in self.model:
-      if item['url']=='flag':
-        path = '_/theme/flag.png'
-        x=item['col']*constants.IMAGE_WIDTH+7
-        y=item['row']*constants.IMAGE_HEIGHT+7
-      elif item['url']=='green_chip' or item['url']=='blue_chip':
+      # if item['url']=='flag':
+      #   path = '_/theme/flag.png'
+      #   x=item['col']*constants.IMAGE_WIDTH+7
+      #   y=item['row']*constants.IMAGE_HEIGHT+7
+      if item['url']=='green_chip' or item['url']=='blue_chip':
         path = '_/theme/chipGreen_border.png' if item['url']=='green_chip' else '_/theme/chipBlue_border.png'
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
@@ -117,6 +118,14 @@ class Form1(Form1Template):
       # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
       if path is not None:
         self.canvas_1.draw_image(URLMedia(path),x,y)
+    path=None #re-initialize variable
+    for item in self.flag_model:
+      if item['url']=='flag':
+        path = '_/theme/flag.png'
+        x=item['col']*constants.IMAGE_WIDTH+7
+        y=item['row']*constants.IMAGE_HEIGHT+7
+      if path is not None:
+        self.canvas_1.draw_image(URLMedia(path),x,y)
     # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def draw_flag(self, location):
@@ -124,7 +133,7 @@ class Form1(Form1Template):
     col=location[0]
     row=location[1]
     flag = {'url':'flag', 'col':col, 'row':row}
-    self.model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
+    self.flag_model.append(flag) if flag not in self.model else None #preventing duplicate entries, which could result in flags getting drawn over and over
 
   def draw_flag_by_card(self, card):
    # card is a string representation of an individual playing card--card.rank+card.suit
@@ -143,8 +152,9 @@ class Form1(Form1Template):
     
   def remove_all_flags(self):
     # Use a list comprehension to filter out entries with 'url' equal to 'flag'
-    self.model = [entry for entry in self.model if entry['url'] != 'flag']
+    # self.model = [entry for entry in self.model if entry['url'] != 'flag']
     # Thank you, duck.ai :-)
+    self.flag_model.clear()
 
   def is_cell_occupied(self, col, row):
     for item in self.model:
@@ -255,10 +265,10 @@ class Form1(Form1Template):
     #Let's turn off update() while contacting server
     # self.timer_1.interval=0
     # Save self.model to database
-    anvil.server.call('save_board',self.model)
+    anvil.server.call_s('save_board',self.model)
     # Save hand to database
     # player_color="green" if self.is_green_turn else "blue"
-    self.hand = anvil.server.call('update_hand',self.player_color,self.hand)
+    self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
     self.update_hand_display(self.hand)
     self.canvas_1_reset()
     self.change_player()
@@ -349,7 +359,6 @@ class Form1(Form1Template):
       else:
         if game_state['BlueHand']!=self.hand:
           self.hand = anvil.server.call('update_hand',"blue",self.hand)
-      # if game_state['Board'] is not None and game_state['Board']!=self.model:
       if game_state['Board'] != self.model:
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
       if game_state['IsGreenTurn']!=self.is_green_turn:
