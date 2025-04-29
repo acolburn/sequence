@@ -15,12 +15,13 @@ class Form1(Form1Template):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
-    # self.images = {
-    #   'board': '_/theme/sequence_board.png',
-    #   'flag': '_/theme/flag.png',
-    #   'green_chip': '_/theme/chipGreen_border.png',
-    #   'blue_chip': '_/theme/chipBlue_border.png'
-    # }
+    # Preloading images helps prevent flicker when they're rendered on the Canvas
+    self.images = {
+      'board': URLMedia('_/theme/sequence_board.png'),
+      'flag': URLMedia('_/theme/flag.png'),
+      'green_chip': URLMedia('_/theme/chipGreen_border.png'),
+      'blue_chip': URLMedia('_/theme/chipBlue_border.png')
+    }
     # turn off update during __init__
     # self.timer_1.interval=constants.TIMER_INTERVAL
     
@@ -108,7 +109,7 @@ class Form1(Form1Template):
       #   x=item['col']*constants.IMAGE_WIDTH+7
       #   y=item['row']*constants.IMAGE_HEIGHT+7
       if item['url']=='green_chip' or item['url']=='blue_chip':
-        path = '_/theme/chipGreen_border.png' if item['url']=='green_chip' else '_/theme/chipBlue_border.png'
+        path = self.images['green_chip'] if item['url']=='green_chip' else self.images['blue_chip']
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
       # elif item['url']=='board':
@@ -117,15 +118,15 @@ class Form1(Form1Template):
       #   y=0
       # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
       if path is not None:
-        self.canvas_1.draw_image(URLMedia(path),x,y)
+        self.canvas_1.draw_image(path,x,y)
     path=None #re-initialize variable
     for item in self.flag_model:
       if item['url']=='flag':
-        path = '_/theme/flag.png'
+        path = self.images['flag']
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
       if path is not None:
-        self.canvas_1.draw_image(URLMedia(path),x,y)
+        self.canvas_1.draw_image(path,x,y)
     # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def draw_flag(self, location):
@@ -264,13 +265,13 @@ class Form1(Form1Template):
     self.remove_all_flags()
     #Let's turn off update() while contacting server
     # self.timer_1.interval=0
-    # Save self.model to database
+    # Save self.model to database, redraw board
     anvil.server.call_s('save_board',self.model)
-    # Save hand to database
-    # player_color="green" if self.is_green_turn else "blue"
+    self.canvas_1_reset()
+    # Save hand to database, redraw hand
     self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
     self.update_hand_display(self.hand)
-    self.canvas_1_reset()
+    
     self.change_player()
 
     # self.timer_1.interval=constants.TIMER_INTERVAL
