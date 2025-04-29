@@ -288,6 +288,7 @@ class Form1(Form1Template):
             alert(f'{card} is a dead card')
             self.hand.remove(card)
             self.hand =anvil.server.call('update_hand',self.player_color,self.hand)
+            self.update_hand_display(self.hand)
             isDeadCard=True
     if not isDeadCard:
       alert('No dead cards found')
