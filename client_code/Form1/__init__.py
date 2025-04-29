@@ -58,7 +58,7 @@ class Form1(Form1Template):
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
-    # self.timer_1.interval=constants.TIMER_INTERVAL
+    self.timer_1.interval=constants.TIMER_INTERVAL
 
   def is_within_clickable_area(self, x, y):
     """
@@ -339,43 +339,29 @@ class Form1(Form1Template):
     
 
   def update(self):
-    _needs_redraw = False
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
       if game_state is None:
         return
-      # if game_state['Deck'] is not None and game_state['Deck']!=self.deck:
-        # self.deck = game_state['Deck']
-        # _needs_redraw = True
-      # only need to update hand for player's color
-      # Sometimes update() runs while hand still being updated, mid-turn
-      # To prevent a list index out of bounds error, need to make sure hand is updated
-      # here if it happens to be 6 cards long
       if self.player_color=="green":
-        if game_state['GreenHand'] is not None and game_state['GreenHand']!=self.hand:
-          # self.green_hand = game_state['GreenHand']
+        if game_state['GreenHand']!=self.hand:
           self.hand = anvil.server.call('update_hand',"green",self.hand)
-          _needs_redraw = True
       else:
-        if game_state['BlueHand'] is not None and game_state['BlueHand']!=self.hand:
-          # self.blue_hand = game_state['BlueHand']
+        if game_state['BlueHand']!=self.hand:
           self.hand = anvil.server.call('update_hand',"blue",self.hand)
-          _needs_redraw = True
-      if game_state['Board'] is not None and game_state['Board']!=self.model:
+      # if game_state['Board'] is not None and game_state['Board']!=self.model:
+      if game_state['Board'] != self.model:
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
-        print(f'update, after: {self.model}')
-      if game_state['IsGreenTurn'] is not None and game_state['IsGreenTurn']!=self.is_green_turn:
+      if game_state['IsGreenTurn']!=self.is_green_turn:
         self.is_green_turn = game_state['IsGreenTurn']
     
     self.display_turn_message()
-    if self.player_color=="green" and self.is_green_turn:
-      self.draw_flags_for_hand(self.player_color) # add flags back to board
-    if self.player_color=="blue" and not self.is_green_turn:
-      self.draw_flags_for_hand((self.player_color))
-    if _needs_redraw:
-      # hand=self.green_hand if player_color=="green" else self.blue_hand
-      self.update_hand_display(self.hand)
-      self.canvas_1_reset()
+    # if self.player_color=="green" and self.is_green_turn:
+    #   self.draw_flags_for_hand(self.player_color) # add flags back to board
+    # if self.player_color=="blue" and not self.is_green_turn:
+    #   self.draw_flags_for_hand((self.player_color))
+    self.update_hand_display(self.hand)
+    self.canvas_1_reset()
     
 
   def timer_1_tick(self, **event_args):
