@@ -22,7 +22,7 @@ class Form1(Form1Template):
     #   'blue_chip': '_/theme/chipBlue_border.png'
     # }
     # turn off update during __init__
-    self.timer_1.interval=constants.TIMER_INTERVAL
+    # self.timer_1.interval=constants.TIMER_INTERVAL
     
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
@@ -156,7 +156,7 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
-    self.timer_1.interval=0
+    # self.timer_1.interval=0
     if not self.is_within_clickable_area(x,y):
       return
     # row and col are 0-based; upper left corner is (0,0)
@@ -263,7 +263,7 @@ class Form1(Form1Template):
     self.canvas_1_reset()
     self.change_player()
 
-    self.timer_1.interval=constants.TIMER_INTERVAL
+    # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def change_player(self, **event_args):
     # self.timer_1.interval=0
@@ -363,6 +363,7 @@ class Form1(Form1Template):
           _needs_redraw = True
       if game_state['Board'] is not None and game_state['Board']!=self.model:
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
+        print(f'update, after: {self.model}')
       if game_state['IsGreenTurn'] is not None and game_state['IsGreenTurn']!=self.is_green_turn:
         self.is_green_turn = game_state['IsGreenTurn']
     
