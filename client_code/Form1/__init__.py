@@ -75,14 +75,12 @@ class Form1(Form1Template):
       return "red"
 
   def update_hand_display(self, hand):
-    """
-    Makes seven card hand, adding additional card(s) 
-    if the hand isn't full, i.e., after a card has been played during a turn.
-    Parameter player_color (string) = "green" or "blue"
-    """ 
-    # hand = self.green_hand if self.player_color=="green" else self.blue_hand
-    for i in range(7):
-      # card = player.get_hand()[i]
+    hand_length = len(hand)
+    # for i in range(7):
+    # (made this change b/c every once in awhile there's an error
+    # IndexError: list index out of range. I think maybe this method is called
+    # before data_table has fully updated hand?)
+    for i in range(hand_length):
       card = hand[i]
       label = self.labels[i]
       label.text = card
@@ -327,6 +325,7 @@ class Form1(Form1Template):
     """This method is called when the button is clicked"""
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
     self.model=[]
+    self.hand.clear()
     self.hand = anvil.server.call('get_hand',self.player_color)
     self.update_hand_display(self.hand)
     self.canvas_1.reset_context()

@@ -48,16 +48,17 @@ def save_board(model):
 # Functions Involving Deck
 # ----------------------------------------------------------------------------------------
 # @anvil.server.callable
-def make_deck():
-  global deck
-  deck.clear()
-  deck = Cards.make_decks()
-  # _deck = Deck()
-  # convert _deck to something serializable (deck, a list of strings)
-  # for item in _deck.cards:
-    # deck.append(item)
-  update_cell(1,"Deck",deck)
-  return deck 
+# def make_deck():
+#   print('Starting GameState.make_deck')
+#   global deck
+#   deck.clear()
+#   deck = Cards.make_decks()
+#   # _deck = Deck()
+#   # convert _deck to something serializable (deck, a list of strings)
+#   # for item in _deck.cards:
+#     # deck.append(item)
+#   update_cell(1,"Deck",deck)
+#   return deck 
     
 @anvil.server.callable
 def get_deck():
@@ -85,12 +86,8 @@ def make_hand(player):
 
   # Cards.make_new_hand returns hand; if deck doesn't have 7 cards, returns []
   if len(deck)<7:
-    deck = make_deck() #updates data_table
+    deck = Cards.make_decks() #updates data_table
   hand = Cards.make_new_hand(deck)
-  # if player=="green":
-    # green_hand=hand
-  # else:
-    # blue_hand=hand
   col_name="GreenHand" if player=="green" else "BlueHand"
   update_cell(1,col_name,hand)
   # deck has also changed now, so it too needs to be updated
@@ -205,6 +202,7 @@ def new_game():
   global deck
   model = []
   update_cell(1,'Board',model)
+  deck.clear()
   deck = Cards.make_decks()
   update_cell(1,'Deck',deck)
   make_hand("green") #update_cell() part of this method
