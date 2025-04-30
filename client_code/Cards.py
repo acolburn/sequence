@@ -35,26 +35,26 @@ def make_new_hand(deck):
   hand=[]
   hand_length=7
   if len(deck)<7:
-    return hand
+    deck=make_decks()
   for i in range(hand_length):
       card=deal_card(deck)
       hand.append(card)
   return hand, deck
 
-def update_hand(hand, deck):
+# def update_hand(hand, deck):
   """Adds card(s) after a play.
   Hand and deck lists are parameters,
-  returns hand list. If the deck is empty,
+  returns hand list, deck list. If the deck is empty,
   makes a new deck."""
-  # while len(hand)<7: ... can't do it this way; code is conting "None" as part of list's length
+  # while len(hand)<7: ... can't do it this way; code is counting "None" as part of list's length
   # So, first, let's make sure there's 7 slots in the hand
-  while len(hand)<7:
-    hand.append(None)
-  # Now, fill the slots
-  for i in range(7):
-    if hand[i] is None:
-      if deck is None:
-        deck = make_decks()
-      card=deal_card(deck)
-      hand[i]=card
-  return hand, deck
+  # while len(hand)<7:
+  #   hand.append(None)
+  # # Now, fill the slots
+  # for i in range(7):
+  #   if hand[i] is None:
+  #     if deck is None:
+  #       deck = make_decks()
+  #     card=deal_card(deck)
+  #     hand[i]=card
+  # return hand, deck

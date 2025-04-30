@@ -42,7 +42,6 @@ def save_board(model):
 def get_deck():
   """Gets deck (list) from data_table. If it can't find one, it creates a new deck."""
   print('Starting GameState.get_deck')
-  deck=[]
   data_table=app_tables.board_state.get(id=1)
   if data_table['Deck'] is None:
     deck = Cards.make_decks()
@@ -60,10 +59,6 @@ def get_deck():
 def make_hand(player):
   print('Starting GameState.make_hand')
   deck = get_deck()
-  if len(deck)<7:
-    deck = Cards.make_decks()
-    update_cell(1,'Deck',deck)
-    print(f'GameState.make_hand called Cards.make_decks. Length: {len(deck)}')
   print(f'GameState.make_hand about to create hand. Length: {len(deck)}')
   hand, deck = Cards.make_new_hand(deck)  
   col_name="GreenHand" if player=="green" else "BlueHand"
@@ -87,20 +82,25 @@ def get_hand(player):
   if player=="blue":
     if data_table['BlueHand'] is None:
       blue_hand = make_hand("blue")
+      print('GameState.get_hand just created a blue_hand')
     else:
       blue_hand = data_table['BlueHand']
     return blue_hand
 
 @anvil.server.callable
 def update_hand(player_color, hand):
-  """Adds cards to assure proper hand length, updates data_table
-  param string player = 'green' or 'blue', player color
-  param list hand = player's hand, probably needing update at end of a play"""
-  # global green_hand, blue_hand, deck
+  """Adds card to hand, update data_table
+  param (string) player_color = 'green' or 'blue'
+  param (list) hand = player's hand, needing update at end of a play"""
   print('GameState.update_hand started')
   deck = get_deck()
+  # Make sure there's a card in the deck
+  if len(deck)==0:
+    deck = Cards.make_decks()
   print(f'GameState.update_hand deck length: {len(deck)}')
-  hand = Cards.update_hand(hand, deck)
+  while len(hand)<7:
+    # Pop a card from the deck, add it to the hand
+    hand.append(deck.pop())
   print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}')
   if player_color=="green":
     column_name="GreenHand"
@@ -155,6 +155,7 @@ def new_game():
   """Starting new game"""
   model = []
   update_cell(1,'Board',model)
+  deck=[]
   deck = Cards.make_decks()
   update_cell(1,'Deck',deck)
   print(f'new_game called make_decks. Length: {len(deck)}')

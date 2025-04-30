@@ -341,8 +341,9 @@ class Form1(Form1Template):
         if game_state['GreenHand']!=self.hand:
           print(f"game_state[GreenHand] is {game_state['GreenHand']}. self.hand is {self.hand}")
           self.hand = anvil.server.call('update_hand',"green",self.hand)
-      else:
+      if self.player_color=="blue":
         if game_state['BlueHand']!=self.hand:
+          print(f"game_state[BlueHand] is {game_state['BlueHand']}. self.hand is {self.hand}")
           self.hand = anvil.server.call('update_hand',"blue",self.hand)
       if game_state['Board'] != self.model:
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
