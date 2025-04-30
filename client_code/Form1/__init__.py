@@ -4,7 +4,7 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-from ..constants import *
+from .. import constants
 
 # from ..Cards import *
 # from ..Player import *
@@ -70,9 +70,9 @@ class Form1(Form1Template):
     return(0<=x<=self.canvas_size) and (0<=y<=self.canvas_1.height)
     
   def card_color(self,card):
-    if card[-1]==SPADES or card[-1]==CLUBS:
+    if card[-1]==constants.SPADES or card[-1]==constants.CLUBS:
       return "black"
-    if card[-1]==HEARTS or card[-1]==DIAMONDS:
+    if card[-1]==constants.HEARTS or card[-1]==constants.DIAMONDS:
       return "red"
 
   def update_hand_display(self, hand):
@@ -128,7 +128,7 @@ class Form1(Form1Template):
     # locations (in constants) is dictionary with key=card.rank+card.suit (string), value=board locations for card (list of tuples)
     # locations[card] is the dictionary entry whose key=card parameter
     # the loop goes through both values in location
-    for location in locations[card]:
+    for location in constants.locations[card]:
       self.draw_flag(location)
 
   def draw_flags_for_hand(self, player_color):
@@ -169,7 +169,7 @@ class Form1(Form1Template):
     # Which cell was clicked?
     location=(col,row)
     # What card.rank+card.suit was clicked?
-    for key,value in locations.items():
+    for key,value in constants.locations.items():
       if location in value:
         card=key
     # We need to check whether there's already a chip at the selected location
@@ -191,7 +191,7 @@ class Form1(Form1Template):
       self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
     # If player's using a wild card in an empty square, remove the card from hand
     # and then play the chip
-    elif 'J'+DIAMONDS in self.hand and not cell_occupied:
+    elif 'J'+constants.DIAMONDS in self.hand and not cell_occupied:
       result = alert(content='You are playing the J of Diamonds as a wild card. Continue?',
                title="Wild Card",
                large=True,
@@ -200,11 +200,11 @@ class Form1(Form1Template):
                  ("No", False),
                ])
       if result:
-        self.hand.remove('J'+DIAMONDS)
+        self.hand.remove('J'+constants.DIAMONDS)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
       else:
         return
-    elif 'J'+HEARTS in self.hand and not cell_occupied:
+    elif 'J'+constants.HEARTS in self.hand and not cell_occupied:
       result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
                title="Wild Card",
                large=True,
@@ -218,7 +218,7 @@ class Form1(Form1Template):
       else:
         return
     # Black Jacks used to remove chips; no chips _added_
-    elif 'J'+SPADES in self.hand and cell_occupied:
+    elif 'J'+constants.SPADES in self.hand and cell_occupied:
       result = alert(content='You are playing the J of Spades to remove a chip. Bastard! Continue?',
                title="Remove a Chip",
                large=True,
@@ -235,7 +235,7 @@ class Form1(Form1Template):
                   self.model.remove(item)
       else:
         return   
-    elif 'J'+CLUBS in self.hand and cell_occupied:
+    elif 'J'+constants.CLUBS in self.hand and cell_occupied:
       result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
                title="Remove a Chip",
                large=True,
@@ -244,7 +244,7 @@ class Form1(Form1Template):
                  ("No", False),
                ])
       if result:
-        self.hand.remove('J'+CLUBS)
+        self.hand.remove('J'+constants.CLUBS)
         # Need to remove chip at [location]
         for item in self.model:
           if item['col'] == col and item['row'] == row:
@@ -304,8 +304,8 @@ class Form1(Form1Template):
       match1=False
       # ID the board cells for the given card
       if card[0]!='J':
-        cell1=locations[card][0]
-        cell2=locations[card][1]
+        cell1=constants.locations[card][0]
+        cell2=constants.locations[card][1]
       # See if both cells are occupied
       for item in self.model:
         #cell1[0] is col, cell1[1] is row

@@ -3,7 +3,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 
-TIMER_INTERVAL = 1
+TIMER_INTERVAL = 2.0
 IMAGE_WIDTH  = 64
 IMAGE_HEIGHT = 64
 

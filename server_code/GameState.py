@@ -98,7 +98,7 @@ def make_hand(player):
   if len(deck)<7:
     deck=make_decks()
   for i in range(hand_length):
-      card=deck.pop()
+      card=deck.pop(0)
       hand.append(card)
   update_cell(1,"Deck",deck)
   update_cell(1,"GreenHand",hand) if player=="green" else update_cell(1,"BlueHand",hand)
@@ -192,10 +192,10 @@ def new_game():
   """Starting new game"""
   model = []
   update_cell(1,'Board',model)
-  deck=[]
-  deck = make_decks()
-  update_cell(1,'Deck',deck)
-  print(f'new_game called make_decks. Length: {len(deck)}')
+  # deck=[]
+  make_decks() #updates cell
+  # update_cell(1,'Deck',deck)
+  # print(f'new_game called make_decks. Length: {len(deck)}')
   make_hand("green") #update_cell() part of this method
   make_hand("blue") #update_cell() part of this method
   update_cell(1,'IsGreenTurn',True)
