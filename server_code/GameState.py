@@ -40,16 +40,17 @@ def save_board(model):
     
 @anvil.server.callable
 def get_deck():
+  """Gets deck (list) from data_table. If it can't find one, it creates a new deck."""
   print('Starting GameState.get_deck')
   deck=[]
   data_table=app_tables.board_state.get(id=1)
   if data_table['Deck'] is None:
     deck = Cards.make_decks()
     update_cell(1,'Deck',deck)
-    print(f'GameState.get_deck called make_decks. Length: {len(deck)}')
+    print(f'GameState.get_deck made a new deck. Length: {len(deck)}')
   else:
     deck = data_table['Deck']
-    print(f'GameState.get_deck called data_table[Deck]. Length: {len(deck)}')
+    print(f'GameState.get_deck retrieved a deck. Length: {len(deck)}')
   return deck
 
 # ----------------------------------------------------------------------------------------
@@ -58,22 +59,13 @@ def get_deck():
 # @anvil.server.callable
 def make_hand(player):
   print('Starting GameState.make_hand')
-  # global green_hand
-  # global blue_hand
-  global deck
-  # hand=[]
-  # deck = get_deck()
-  # _hand = Hand(deck)
-  # for item in _hand.hand:
-    # hand.append(item)
-
-  # Cards.make_new_hand returns hand; if deck doesn't have 7 cards, returns []
+  deck = get_deck()
   if len(deck)<7:
     deck = Cards.make_decks()
     update_cell(1,'Deck',deck)
     print(f'GameState.make_hand called Cards.make_decks. Length: {len(deck)}')
   print(f'GameState.make_hand about to create hand. Length: {len(deck)}')
-  hand = Cards.make_new_hand(deck)
+  hand, deck = Cards.make_new_hand(deck)  
   col_name="GreenHand" if player=="green" else "BlueHand"
   update_cell(1,col_name,hand)
   # deck has also changed now, so it too needs to be updated
@@ -84,12 +76,6 @@ def make_hand(player):
 @anvil.server.callable
 def get_hand(player):
   print('GameState.get_hand started')
-  # global green_hand
-  # global blue_hand
-  # global deck
-  # deck = get_deck()
-  # print(f'GameState.get_hand deck length: {len(deck)}')
-  # data_table=app_tables.board_state.search()
   data_table=app_tables.board_state.get(id=1)
   if player=="green":
     if data_table['GreenHand'] is None:
@@ -97,14 +83,12 @@ def get_hand(player):
       print('GameState.get_hand just created a green_hand')
     else:
       green_hand = data_table['GreenHand']
-      # green_hand = Cards.update_hand(green_hand,deck)
     return green_hand
   if player=="blue":
     if data_table['BlueHand'] is None:
       blue_hand = make_hand("blue")
     else:
       blue_hand = data_table['BlueHand']
-      # blue_hand = Cards.update_hand(blue_hand,deck)
     return blue_hand
 
 @anvil.server.callable
@@ -114,25 +98,17 @@ def update_hand(player_color, hand):
   param list hand = player's hand, probably needing update at end of a play"""
   # global green_hand, blue_hand, deck
   print('GameState.update_hand started')
-  global deck
   deck = get_deck()
   print(f'GameState.update_hand deck length: {len(deck)}')
   hand = Cards.update_hand(hand, deck)
   print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}')
-  if len(hand)<7:
-    deck=Cards.make_decks()
-    # update_cell(1,"Deck",deck) # deck is updated below
-    print(f'GameState.update_hand called make_decks. Length: {len(deck)}')
-    Cards.update_hand(hand, deck)
   if player_color=="green":
-    # green_hand=hand
     column_name="GreenHand"
   else:
-    # blue_hand=hand
     column_name="BlueHand"
   # update data_table
   update_cell(1,column_name,hand)
-  # update deck, too!
+  # update deck
   update_cell(1,"Deck",deck)
   return hand # We updated green_hand or blue_hand in this module, and return hand for Form1 to display
 
@@ -177,16 +153,8 @@ def update():
 @anvil.server.callable
 def new_game():
   """Starting new game"""
-  # clear data table
-  # app_tables.board_state.delete_all_rows()
-  # add row
-  # app_tables.board_state.add_row(id=1)
-  # add new board to table
-  # model = [{'url':'board', 'col':0, 'row':0}]
-  global deck
   model = []
   update_cell(1,'Board',model)
-  deck.clear()
   deck = Cards.make_decks()
   update_cell(1,'Deck',deck)
   print(f'new_game called make_decks. Length: {len(deck)}')
