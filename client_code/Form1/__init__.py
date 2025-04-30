@@ -213,7 +213,7 @@ class Form1(Form1Template):
                  ("No", False),
                ])
       if result:
-        self.hand.remove('J'+HEARTS)
+        self.hand.remove('J'+constants.HEARTS)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
       else:
         return
@@ -227,7 +227,7 @@ class Form1(Form1Template):
                  ("No", False),
                ])
       if result:
-        self.hand.remove('J'+SPADES)
+        self.hand.remove('J'+constants.SPADES)
         # Need to remove chip at [location]
         for item in self.model:
           if item['col'] == col and item['row'] == row:
@@ -331,7 +331,7 @@ class Form1(Form1Template):
     self.hand = anvil.server.call('get_hand',self.player_color)
     print(f'btn_new_game_click, self.hand={self.hand}')
     self.update_hand_display(self.hand)
-    self.canvas_1.reset_context()
+    self.update() 
     
 
   def update(self):
@@ -351,6 +351,13 @@ class Form1(Form1Template):
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
       if game_state['IsGreenTurn']!=self.is_green_turn:
         self.is_green_turn = game_state['IsGreenTurn']
+
+    # # when starting new game, need to update hand display for opponent, too
+    # if is_new_game:
+    #   _temp_color="blue" if self.player_color=="green" else "green"
+    #   _temp_hand=anvil.server.call('get_hand',_temp_color)
+    #   self.update_hand_display(_temp_hand)    
+    #   self.canvas_1.reset_context()
     
     self.display_turn_message()
     self.update_hand_display(self.hand)
@@ -359,7 +366,7 @@ class Form1(Form1Template):
 
   def timer_1_tick(self, **event_args):
     """This method is called Every [interval] seconds. Does not trigger if [interval] is 0."""
-    self.update()
+    self.update() 
             
         
           

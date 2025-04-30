@@ -135,9 +135,13 @@ def update_hand(player_color, hand):
   if len(deck)==0:
     deck = make_decks()
   print(f'GameState.update_hand deck length: {len(deck)}')
+  #Python counts None as part of hand; first make sure there's seven slots
   while len(hand)<7:
-    # Pop a card from the deck, add it to the hand
-    hand.append(deck.pop())
+    hand.append(None)
+  #then fill the slots
+  for i in range(7):
+    if hand[i] is None:
+      hand[i] = deck.pop()
   print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}')
   if player_color=="green":
     column_name="GreenHand"
