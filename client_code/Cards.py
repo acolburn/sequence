@@ -19,7 +19,7 @@ def make_decks():
       cards.append(card)
   # Two decks
   cards = cards + cards
-  random.shuffle(cards)
+  # random.shuffle(cards)
   return cards
 
 def deal_card(deck):
