@@ -4,7 +4,7 @@ from anvil.tables import app_tables
 import anvil.server
 import Cards
 
-deck = []
+# deck = []
 # green_hand=[]
 # blue_hand=[]
 # is_green_turn=True
@@ -16,22 +16,12 @@ deck = []
 def load_board():
   """Returns playing board (as dict type called `model`) retrieved from DataTable
   If no board in DataTable, creates a new one"""
-  # model = [{'url':'board', 'col':0, 'row':0}]
   model = []
   # If table isn't empty, load its contents into self.model
   # data_table=app_tables.board_state.search() # data_table is a SearchIterator
   data_table=app_tables.board_state.get(id=1)
-  # Make sure there's a table to work with; at the start of a game there isn't
-  # convert data_table to a list, see if the lists's length is 0
-  # is_empty_data_table = len(list(data_table)) == 0
   if data_table['Board'] is not None:
     model = data_table['Board']
-  # if not is_empty_data_table:
-    # Table has only one row; access it as row[0]
-    # for row in data_table:
-      # temp = row[0] # temp is a list
-      # temp[0] has value 'Board' (column name); temp[1] is the list of dicts that is self.model
-      # model = temp[1]
   else: #Board is empty, create new one
     update_cell(1,"Board",model)
   return model
@@ -47,23 +37,11 @@ def save_board(model):
 # ----------------------------------------------------------------------------------------
 # Functions Involving Deck
 # ----------------------------------------------------------------------------------------
-# @anvil.server.callable
-# def make_deck():
-#   print('Starting GameState.make_deck')
-#   global deck
-#   deck.clear()
-#   deck = Cards.make_decks()
-#   # _deck = Deck()
-#   # convert _deck to something serializable (deck, a list of strings)
-#   # for item in _deck.cards:
-#     # deck.append(item)
-#   update_cell(1,"Deck",deck)
-#   return deck 
     
 @anvil.server.callable
 def get_deck():
   print('Starting GameState.get_deck')
-  global deck
+  deck=[]
   data_table=app_tables.board_state.get(id=1)
   if data_table['Deck'] is None:
     deck = Cards.make_decks()
