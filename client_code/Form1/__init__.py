@@ -152,6 +152,7 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
+    print('mouse down')
     if self.is_green_turn and self.player_color=="blue":
       alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
       return
