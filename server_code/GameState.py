@@ -62,11 +62,11 @@ def make_deck():
 @anvil.server.callable
 def get_deck():
   global deck
-  data_table=app_tables.board_state.search()
-  if data_table[0]['Deck'] is None:
+  data_table=app_tables.board_state.get(id=1)
+  if data_table['Deck'] is None:
     deck = make_deck()
   else:
-    deck = data_table[0]['Deck']
+    deck = data_table['Deck']
   return deck
 
 # ----------------------------------------------------------------------------------------
@@ -162,12 +162,12 @@ def update_hand(player_color, hand):
 @anvil.server.callable
 def green_turn():
   # global is_green_turn
-  data_table=app_tables.board_state.search()
-  if data_table[0]['IsGreenTurn'] is None:
+  data_table=app_tables.board_state.get(id=1)
+  if data_table['IsGreenTurn'] is None:
     is_green_turn = True
-    data_table[0]['IsGreenTurn'] = True
+    data_table['IsGreenTurn'] = True
   else:
-    is_green_turn = data_table[0]['IsGreenTurn']
+    is_green_turn = data_table['IsGreenTurn']
   return is_green_turn
 
 @anvil.server.callable

@@ -22,8 +22,6 @@ class Form1(Form1Template):
       'green_chip': URLMedia('_/theme/chipGreen_border.png'),
       'blue_chip': URLMedia('_/theme/chipBlue_border.png')
     }
-    # turn off update during __init__
-    # self.timer_1.interval=constants.TIMER_INTERVAL
     
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
@@ -104,19 +102,10 @@ class Form1(Form1Template):
     # Draw board ... board's always drawn (first)
     self.canvas_1.draw_image((URLMedia('_/theme/sequence_board.png')),0,0)
     for item in self.model:
-      # if item['url']=='flag':
-      #   path = '_/theme/flag.png'
-      #   x=item['col']*constants.IMAGE_WIDTH+7
-      #   y=item['row']*constants.IMAGE_HEIGHT+7
       if item['url']=='green_chip' or item['url']=='blue_chip':
         path = self.images['green_chip'] if item['url']=='green_chip' else self.images['blue_chip']
         x=item['col']*constants.IMAGE_WIDTH+7
         y=item['row']*constants.IMAGE_HEIGHT+7
-      # elif item['url']=='board':
-      #   path = '_/theme/sequence_board.png'
-      #   x=0
-      #   y=0
-      # self.canvas_1.draw_image(URLMedia(self.images[item['url']]), x, y)
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
     path=None #re-initialize variable
@@ -127,7 +116,6 @@ class Form1(Form1Template):
         y=item['row']*constants.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
-    # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
@@ -163,7 +151,6 @@ class Form1(Form1Template):
             if item['url'] in ['green_chip', 'blue_chip']:
                 return True
     return False
-    # Thank you again, duck.ai
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
@@ -192,7 +179,6 @@ class Form1(Form1Template):
     green_chip = {'url':'green_chip', 'col':col, 'row':row}
     blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
     
-    # hand=self.green_hand if self.is_green_turn else self.blue_hand
     # Cannot play corners
     if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
       alert("You cannot put a chip on a corner square")
@@ -277,26 +263,18 @@ class Form1(Form1Template):
       return
     
     self.remove_all_flags()
-    #Let's turn off update() while contacting server
-    # self.timer_1.interval=0
     # Save self.model to database, redraw board
     anvil.server.call_s('save_board',self.model)
     self.canvas_1_reset()
     # Save hand to database, redraw hand
     self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
     self.update_hand_display(self.hand)
-    
     self.change_player()
-
-    # self.timer_1.interval=constants.TIMER_INTERVAL
-
+    
   def change_player(self, **event_args):
-    # self.timer_1.interval=0
     self.is_green_turn = not self.is_green_turn
     anvil.server.call_s('update_turn',self.is_green_turn)
-    # player_color="green" if self.is_green_turn else "blue"
     self.display_turn_message()
-    # self.timer_1.interval=constants.TIMER_INTERVAL
 
   def display_turn_message(self):
     if self.is_green_turn and self.player_color=="green":
@@ -320,9 +298,6 @@ class Form1(Form1Template):
 
   def btn_dead_card_click(self, **event_args):
     """This method is called when players claim they have a dead card"""
-    # Whose turn is it?
-    # player_color="green" if self.is_green_turn else "blue"
-    # hand=self.green_hand if self.is_green_turn else self.blue_hand
     isDeadCard=False
     # Go through each card in player's hand
     for card in self.hand:
@@ -350,17 +325,11 @@ class Form1(Form1Template):
 
   def btn_new_game_click(self, **event_args):
     """This method is called when the button is clicked"""
-    # Pause self.update() while this method taking place
-    # self.timer_1.interval = 0
     anvil.server.call('new_game') # clears board, creates new row, includes empty board
-    # self.model = [{'url':'board', 'col':0, 'row':0}]
     self.model=[]
-    # self.update()
     self.hand = anvil.server.call('get_hand',self.player_color)
     self.update_hand_display(self.hand)
     self.canvas_1.reset_context()
-    # Turn timer back on 
-    # self.timer_1.interval=constants.TIMER_INTERVAL
     
 
   def update(self):
@@ -380,10 +349,6 @@ class Form1(Form1Template):
         self.is_green_turn = game_state['IsGreenTurn']
     
     self.display_turn_message()
-    # if self.player_color=="green" and self.is_green_turn:
-    #   self.draw_flags_for_hand(self.player_color) # add flags back to board
-    # if self.player_color=="blue" and not self.is_green_turn:
-    #   self.draw_flags_for_hand((self.player_color))
     self.update_hand_display(self.hand)
     self.canvas_1_reset()
     

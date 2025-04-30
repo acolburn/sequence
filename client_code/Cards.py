@@ -5,17 +5,6 @@ import anvil.server
 import random
 import constants
 
-# class Card:
-#     suits = [constants.HEARTS, constants.DIAMONDS, constants.CLUBS, constants.SPADES]
-#     ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-
-#     def __init__(self, suit, rank):
-#         self.suit = suit
-#         self.rank = rank
-
-#     def __str__(self):
-#         return f"{self.rank}{self.suit}"
-
 # class Deck:
 suits = [constants.HEARTS, constants.DIAMONDS, constants.CLUBS, constants.SPADES]
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -52,23 +41,6 @@ def make_new_hand(deck):
       hand.append(card)
   return hand
 
-  # def deal_card(self):
-  #   """Removes a card from the deck
-  #   Returns card (rank+suit)"""
-  #   # card=self.deck.deal()
-  #   card=self.deck.pop() if len(self.deck)>0 else None
-  #   # End of deck? Start over
-  #   if card is None:
-  #     self.deck = Deck()
-  #     card=self.deck.deal()
-  #   return card
-
-# def deal_hand(self):
-#   self.hand.clear()
-#   for i in range(self.hand_length):
-#     card=self.deal_card()
-#     self.hand.append(card)
-
 def update_hand(hand, deck):
   """Adds card(s) after a play.
   Hand and deck lists are parameters,
@@ -85,10 +57,3 @@ def update_hand(hand, deck):
         card=deal_card(deck)
         hand[i]=card
   return hand
-
-  # def remove_card(self,card):
-  #   if card in self.hand:
-  #     self.hand.remove(card)
-
-  # def card_in_hand(self,card):
-  #   return card in self.hand
