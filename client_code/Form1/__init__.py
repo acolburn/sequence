@@ -332,6 +332,9 @@ class Form1(Form1Template):
     
 
   def update(self):
+    #I made some changes here when I realized at the start of a game, e.g., after calling GameState.new_game, that the
+    #hands are empty, so game_state['xxxHame'] will be different from self.hand (since self.hand is empty)
+    #and the code was creating new hands. All it really needed to do was retrieve the hands from the data_table
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
       if game_state is None:

@@ -62,12 +62,16 @@ def save_board(model):
     
 @anvil.server.callable
 def get_deck():
+  print('Starting GameState.get_deck')
   global deck
   data_table=app_tables.board_state.get(id=1)
   if data_table['Deck'] is None:
-    deck = make_deck()
+    deck = Cards.make_decks()
+    update_cell(1,'Deck',deck)
+    print(f'GameState.get_deck called make_decks. Length: {len(deck)}')
   else:
     deck = data_table['Deck']
+    print(f'GameState.get_deck called data_table[Deck]. Length: {len(deck)}')
   return deck
 
 # ----------------------------------------------------------------------------------------
@@ -75,6 +79,7 @@ def get_deck():
 # ----------------------------------------------------------------------------------------
 # @anvil.server.callable
 def make_hand(player):
+  print('Starting GameState.make_hand')
   # global green_hand
   # global blue_hand
   global deck
@@ -86,25 +91,32 @@ def make_hand(player):
 
   # Cards.make_new_hand returns hand; if deck doesn't have 7 cards, returns []
   if len(deck)<7:
-    deck = Cards.make_decks() #updates data_table
+    deck = Cards.make_decks()
+    update_cell(1,'Deck',deck)
+    print(f'GameState.make_hand called Cards.make_decks. Length: {len(deck)}')
+  print(f'GameState.make_hand about to create hand. Length: {len(deck)}')
   hand = Cards.make_new_hand(deck)
   col_name="GreenHand" if player=="green" else "BlueHand"
   update_cell(1,col_name,hand)
   # deck has also changed now, so it too needs to be updated
   update_cell(1,"Deck",deck)
+  print(f'GameState.make_hand has created {col_name}. Deck length: {len(deck)}')
   return hand
   
 @anvil.server.callable
 def get_hand(player):
+  print('GameState.get_hand started')
   # global green_hand
   # global blue_hand
   global deck
   deck = get_deck()
+  print(f'GameState.get_hand deck length: {len(deck)}')
   # data_table=app_tables.board_state.search()
   data_table=app_tables.board_state.get(id=1)
   if player=="green":
     if data_table['GreenHand'] is None:
       green_hand = make_hand("green")
+      print('GameState.get_hand just created a green_hand')
     else:
       green_hand = data_table['GreenHand']
       # green_hand = Cards.update_hand(green_hand,deck)
@@ -123,23 +135,17 @@ def update_hand(player_color, hand):
   param string player = 'green' or 'blue', player color
   param list hand = player's hand, probably needing update at end of a play"""
   # global green_hand, blue_hand, deck
+  print('GameState.update_hand started')
   global deck
   deck = get_deck()
+  print(f'GameState.update_hand deck length: {len(deck)}')
   hand = Cards.update_hand(hand, deck)
+  print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}')
   if len(hand)<7:
     deck=Cards.make_decks()
+    # update_cell(1,"Deck",deck) # deck is updated below
+    print(f'GameState.update_hand called make_decks. Length: {len(deck)}')
     Cards.update_hand(hand, deck)
-  # while len(hand)<7:
-  #   # Remove card from deck
-  #   print(f'Length of deck: {len(deck)}')
-  #   card=deck.pop() if len(deck)>0 else None
-  #   # End of deck? Start over
-  #   if card is None:
-  #     print('Making deck, line 129')
-  #     deck = make_deck()
-  #     card=deck.pop()
-  #   # Add card to hand
-  #   hand.append(card)
   if player_color=="green":
     # green_hand=hand
     column_name="GreenHand"
@@ -205,6 +211,7 @@ def new_game():
   deck.clear()
   deck = Cards.make_decks()
   update_cell(1,'Deck',deck)
+  print(f'new_game called make_decks. Length: {len(deck)}')
   make_hand("green") #update_cell() part of this method
   make_hand("blue") #update_cell() part of this method
   update_cell(1,'IsGreenTurn',True)
