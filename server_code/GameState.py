@@ -2,12 +2,41 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-import Cards
+# import Cards
+import random
+import constants
 
-# deck = []
-# green_hand=[]
-# blue_hand=[]
-# is_green_turn=True
+suits = [constants.HEARTS, constants.DIAMONDS, constants.CLUBS, constants.SPADES]
+ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+
+def make_decks():
+  """ Makes two decks, shuffles the cards, returns deck.
+  Cards are string objects, self.rank+self.suit"""
+  cards=[]
+  for suit in suits:
+    for rank in ranks:
+      card=f"{rank}{suit}"
+      cards.append(card)
+  # Two decks
+  deck = cards + cards
+  # random.shuffle(cards)
+  update_cell(1,"Deck",deck)
+
+# def make_hand(player_color):
+  # """param deck is list of cards
+  # returns list of cards
+  # If deck doesn't have at least [hand_length] cards, returns []"""
+  # deck=get_deck()
+  # hand=[]
+  # hand_length=7
+  # if len(deck)<7:
+  #   deck=make_decks()
+  # for i in range(hand_length):
+  #     card=deck.pop()
+  #     hand.append(card)
+  # update_cell(1,"Deck",deck)
+  # update_cell(1,"GreenHand",hand) if player_color=="green" else update_cell(1,"BlueHand",hand)
+  
 
 # ----------------------------------------------------------------------------------------
 # Functions Involving Playing Board
@@ -44,12 +73,9 @@ def get_deck():
   print('Starting GameState.get_deck')
   data_table=app_tables.board_state.get(id=1)
   if data_table['Deck'] is None:
-    deck = Cards.make_decks()
-    update_cell(1,'Deck',deck)
-    print(f'GameState.get_deck made a new deck. Length: {len(deck)}')
-  else:
-    deck = data_table['Deck']
-    print(f'GameState.get_deck retrieved a deck. Length: {len(deck)}')
+    make_decks() # updates data_table
+  deck = data_table['Deck']
+  print(f'GameState.get_deck retrieved a deck. Length: {len(deck)}')
   return deck
 
 # ----------------------------------------------------------------------------------------
@@ -58,14 +84,25 @@ def get_deck():
 # @anvil.server.callable
 def make_hand(player):
   print('Starting GameState.make_hand')
-  deck = get_deck()
-  print(f'GameState.make_hand about to create hand. Length: {len(deck)}')
-  hand, deck = Cards.make_new_hand(deck)  
-  col_name="GreenHand" if player=="green" else "BlueHand"
-  update_cell(1,col_name,hand)
+  # deck = get_deck()
+  # print(f'GameState.make_hand about to create hand. Length: {len(deck)}')
+  # hand, deck = Cards.make_new_hand(deck)  
+  # col_name="GreenHand" if player=="green" else "BlueHand"
+  # make_hand(player)
+  # update_cell(1,col_name,hand)
   # deck has also changed now, so it too needs to be updated
+  # update_cell(1,"Deck",deck)
+  deck=get_deck()
+  hand=[]
+  hand_length=7
+  if len(deck)<7:
+    deck=make_decks()
+  for i in range(hand_length):
+      card=deck.pop()
+      hand.append(card)
   update_cell(1,"Deck",deck)
-  print(f'GameState.make_hand has created {col_name}. Deck length: {len(deck)}')
+  update_cell(1,"GreenHand",hand) if player=="green" else update_cell(1,"BlueHand",hand)
+  print(f'GameState.make_hand has created {player} hand. Deck length: {len(deck)}')
   return hand
   
 @anvil.server.callable
@@ -96,7 +133,7 @@ def update_hand(player_color, hand):
   deck = get_deck()
   # Make sure there's a card in the deck
   if len(deck)==0:
-    deck = Cards.make_decks()
+    deck = make_decks()
   print(f'GameState.update_hand deck length: {len(deck)}')
   while len(hand)<7:
     # Pop a card from the deck, add it to the hand
@@ -156,7 +193,7 @@ def new_game():
   model = []
   update_cell(1,'Board',model)
   deck=[]
-  deck = Cards.make_decks()
+  deck = make_decks()
   update_cell(1,'Deck',deck)
   print(f'new_game called make_decks. Length: {len(deck)}')
   make_hand("green") #update_cell() part of this method
