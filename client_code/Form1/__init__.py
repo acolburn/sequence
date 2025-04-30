@@ -327,20 +327,19 @@ class Form1(Form1Template):
     self.model=[]
     self.hand.clear()
     self.hand = anvil.server.call('get_hand',self.player_color)
+    print(f'btn_new_game_click, self.hand={self.hand}')
     self.update_hand_display(self.hand)
     self.canvas_1.reset_context()
     
 
   def update(self):
-    #I made some changes here when I realized at the start of a game, e.g., after calling GameState.new_game, that the
-    #hands are empty, so game_state['xxxHame'] will be different from self.hand (since self.hand is empty)
-    #and the code was creating new hands. All it really needed to do was retrieve the hands from the data_table
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
       if game_state is None:
         return
       if self.player_color=="green":
         if game_state['GreenHand']!=self.hand:
+          print(f"game_state[GreenHand] is {game_state['GreenHand']}. self.hand is {self.hand}")
           self.hand = anvil.server.call('update_hand',"green",self.hand)
       else:
         if game_state['BlueHand']!=self.hand:

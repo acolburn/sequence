@@ -108,9 +108,9 @@ def get_hand(player):
   print('GameState.get_hand started')
   # global green_hand
   # global blue_hand
-  global deck
-  deck = get_deck()
-  print(f'GameState.get_hand deck length: {len(deck)}')
+  # global deck
+  # deck = get_deck()
+  # print(f'GameState.get_hand deck length: {len(deck)}')
   # data_table=app_tables.board_state.search()
   data_table=app_tables.board_state.get(id=1)
   if player=="green":
