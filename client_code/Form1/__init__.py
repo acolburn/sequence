@@ -186,6 +186,8 @@ class Form1(Form1Template):
     # If player has card in hand matching square with chip, and there's no chip
     # already in the spot, remove the card from hand
     # and then play the chip
+        # [Now that we're at code that might start changing self.hand, let's turn off update til the method's done]
+    self.timer_1.interval=0
     if card in self.hand and not cell_occupied:
       self.hand.remove(card)
       self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
@@ -203,6 +205,7 @@ class Form1(Form1Template):
         self.hand.remove('J'+constants.DIAMONDS)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
       else:
+        self.timer_1.interval=constants.TIMER_INTERVAL
         return
     elif 'J'+constants.HEARTS in self.hand and not cell_occupied:
       result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
@@ -216,6 +219,7 @@ class Form1(Form1Template):
         self.hand.remove('J'+constants.HEARTS)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
       else:
+        self.timer_1.interval=constants.TIMER_INTERVAL
         return
     # Black Jacks used to remove chips; no chips _added_
     elif 'J'+constants.SPADES in self.hand and cell_occupied:
@@ -234,6 +238,7 @@ class Form1(Form1Template):
               if item['url'] in ['green_chip', 'blue_chip']:
                   self.model.remove(item)
       else:
+        self.timer_1.interval=constants.TIMER_INTERVAL
         return   
     elif 'J'+constants.CLUBS in self.hand and cell_occupied:
       result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
@@ -251,15 +256,18 @@ class Form1(Form1Template):
               if item['url'] in ['green_chip', 'blue_chip']:
                   self.model.remove(item) 
       else:
+        self.timer_1.interval=constants.TIMER_INTERVAL
         return
     elif card in self.hand and cell_occupied:
       alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
+      self.timer_1.interval=constants.TIMER_INTERVAL
       return
     else:
       # If player's trying to put chip in an illegal spot, alert
       # them and then exit the method. Nothing else will happen, it'll still
       # be their turn.
       alert('You cannot put a piece in this square.')
+      self.timer_1.interval=constants.TIMER_INTERVAL
       return
     
     self.remove_all_flags()
@@ -270,6 +278,7 @@ class Form1(Form1Template):
     self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
     self.update_hand_display(self.hand)
     self.change_player()
+    self.timer_1.interval=constants.TIMER_INTERVAL
     
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn

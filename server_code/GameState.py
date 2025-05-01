@@ -107,7 +107,7 @@ def make_hand(player):
   
 @anvil.server.callable
 def get_hand(player):
-  print('GameState.get_hand started')
+  print('Starting GameState.get_hand')
   data_table=app_tables.board_state.get(id=1)
   if player=="green":
     if data_table['GreenHand'] is None:
@@ -129,7 +129,7 @@ def update_hand(player_color, hand):
   """Adds card to hand, update data_table
   param (string) player_color = 'green' or 'blue'
   param (list) hand = player's hand, needing update at end of a play"""
-  print('GameState.update_hand started')
+  print('Starting GameState.update_hand')
   deck = get_deck()
   # Make sure there's a card in the deck
   if len(deck)==0:
@@ -197,7 +197,6 @@ def new_game():
   model = []
   update_cell(1,'Board',model)
   # deck=[]
-  make_decks() #updates cell
   # update_cell(1,'Deck',deck)
   # print(f'new_game called make_decks. Length: {len(deck)}')
   make_hand("green") #update_cell() part of this method
