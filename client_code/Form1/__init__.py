@@ -346,6 +346,7 @@ class Form1(Form1Template):
   def update(self):
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
+      # game_state.update()
       if game_state is None:
         return
       if self.player_color=="green":
