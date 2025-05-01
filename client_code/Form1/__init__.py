@@ -344,6 +344,7 @@ class Form1(Form1Template):
     
 
   def update(self):
+    # print('update() starting')
     with anvil.server.no_loading_indicator: 
       game_state = anvil.server.call('update')
       # game_state.update()
@@ -372,6 +373,7 @@ class Form1(Form1Template):
     self.display_turn_message()
     self.update_hand_display(self.hand)
     self.canvas_1_reset()
+    # print('update done')
     
 
   def timer_1_tick(self, **event_args):
