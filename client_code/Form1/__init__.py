@@ -23,7 +23,6 @@ class Form1(Form1Template):
       'green_chip': URLMedia('_/theme/chipGreen_border.png'),
       'blue_chip': URLMedia('_/theme/chipBlue_border.png')
     }
-    
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
       'their_turn': 'Waiting for your opponent to play ...'
@@ -60,6 +59,7 @@ class Form1(Form1Template):
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
     self.timer_1.interval=constants.TIMER_INTERVAL
+    
 
   def is_within_clickable_area(self, x, y):
     """
@@ -153,6 +153,8 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
+    # [ let's turn off update til the method's done]
+    self.timer_1.interval=0
     print('mouse down')
     if self.is_green_turn and self.player_color=="blue":
       alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
@@ -186,8 +188,7 @@ class Form1(Form1Template):
     # If player has card in hand matching square with chip, and there's no chip
     # already in the spot, remove the card from hand
     # and then play the chip
-        # [Now that we're at code that might start changing self.hand, let's turn off update til the method's done]
-    self.timer_1.interval=0
+
     if card in self.hand and not cell_occupied:
       self.hand.remove(card)
       self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
@@ -275,9 +276,12 @@ class Form1(Form1Template):
     anvil.server.call_s('save_board',self.model)
     self.canvas_1_reset()
     # Save hand to database, redraw hand
-    self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
+    anvil.server.call_s('update_hand',self.player_color,self.hand)
+    # self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
+    self.hand = anvil.server.call_s('get_hand',self.player_color)
     self.update_hand_display(self.hand)
     self.change_player()
+    print('mouse down done')
     self.timer_1.interval=constants.TIMER_INTERVAL
     
   def change_player(self, **event_args):
@@ -326,7 +330,9 @@ class Form1(Form1Template):
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
             self.hand.remove(card)
-            self.hand =anvil.server.call('update_hand',self.player_color,self.hand)
+            # self.hand =anvil.server.call('update_hand',self.player_color,self.hand)
+            anvil.server.call('update_hand',self.player_color,self.hand)
+            self.hand=anvil.server.call('get_hand',self.player_color)
             self.update_hand_display(self.hand)
             isDeadCard=True
     if not isDeadCard:
@@ -353,11 +359,15 @@ class Form1(Form1Template):
       if self.player_color=="green":
         if game_state['GreenHand']!=self.hand:
           print(f"game_state[GreenHand] is {game_state['GreenHand']}. self.hand is {self.hand}")
-          self.hand = anvil.server.call('update_hand',"green",self.hand)
+          # self.hand = anvil.server.call('update_hand',"green",self.hand)
+          anvil.server.call('update_hand',"green",self.hand)
+          self.hand = anvil.server.call('get_hand',"green")
       if self.player_color=="blue":
         if game_state['BlueHand']!=self.hand:
           print(f"game_state[BlueHand] is {game_state['BlueHand']}. self.hand is {self.hand}")
-          self.hand = anvil.server.call('update_hand',"blue",self.hand)
+          # self.hand = anvil.server.call('update_hand',"blue",self.hand)
+          anvil.server.call('update_hand',"blue",self.hand)
+          self.hand = anvil.server.call('get_hand',"blue")
       if game_state['Board'] != self.model:
         self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
       if game_state['IsGreenTurn']!=self.is_green_turn:
