@@ -19,7 +19,7 @@ def make_decks():
       cards.append(card)
   # Two decks
   deck = cards + cards
-  # random.shuffle(cards)
+  random.shuffle(cards)
   update_cell(1,"Deck",deck)
 
 # def make_hand(player_color):
