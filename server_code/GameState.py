@@ -196,6 +196,7 @@ def new_game():
   """Starting new game"""
   model = []
   update_cell(1,'Board',model)
+  make_decks()
   # deck=[]
   # update_cell(1,'Deck',deck)
   # print(f'new_game called make_decks. Length: {len(deck)}')
