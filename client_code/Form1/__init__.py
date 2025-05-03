@@ -304,6 +304,8 @@ class Form1(Form1Template):
       self.change_player()
       self.timer_1.interval=constants.TIMER_INTERVAL
       # self.is_mouse_down=False
+   
+  
       
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn
