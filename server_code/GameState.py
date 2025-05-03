@@ -20,7 +20,7 @@ def make_decks():
       cards.append(card)
   # Two decks
   deck = cards + cards
-  # random.shuffle(deck)
+  random.shuffle(deck)
   update_cell(1,"Deck",deck)
 
 # def make_hand(player_color):
@@ -71,12 +71,10 @@ def save_board(model):
 @anvil.server.callable
 def get_deck():
   """Gets deck (list) from data_table. If it can't find one, it creates a new deck."""
-  print('Starting GameState.get_deck')
   data_table=app_tables.board_state.get(id=1)
   if data_table['Deck'] is None:
     make_decks() # updates data_table
   deck = data_table['Deck']
-  print(f'GameState.get_deck retrieved a deck. Length: {len(deck)}')
   return deck
 
 # ----------------------------------------------------------------------------------------
@@ -84,9 +82,7 @@ def get_deck():
 # ----------------------------------------------------------------------------------------
 # @anvil.server.callable
 def make_hand(player):
-  print('Starting GameState.make_hand')
   # deck = get_deck()
-  # print(f'GameState.make_hand about to create hand. Length: {len(deck)}')
   # hand, deck = Cards.make_new_hand(deck)  
   # col_name="GreenHand" if player=="green" else "BlueHand"
   # make_hand(player)
@@ -103,24 +99,20 @@ def make_hand(player):
       hand.append(card)
   update_cell(1,"Deck",deck)
   update_cell(1,"GreenHand",hand) if player=="green" else update_cell(1,"BlueHand",hand)
-  print(f'GameState.make_hand has created {player} hand. Deck length: {len(deck)}')
   return hand
   
 @anvil.server.callable
 def get_hand(player):
-  print('Starting GameState.get_hand')
   data_table=app_tables.board_state.get(id=1)
   if player=="green":
     if data_table['GreenHand'] is None:
       green_hand = make_hand("green")
-      print('GameState.get_hand just created a green_hand')
     else:
       green_hand = data_table['GreenHand']
     return green_hand
   if player=="blue":
     if data_table['BlueHand'] is None:
       blue_hand = make_hand("blue")
-      print('GameState.get_hand just created a blue_hand')
     else:
       blue_hand = data_table['BlueHand']
     return blue_hand
@@ -130,12 +122,10 @@ def update_hand(player_color, hand):
   """Adds card to hand, update data_table
   param (string) player_color = 'green' or 'blue'
   param (list) hand = player's hand, needing update at end of a play"""
-  print('Starting GameState.update_hand')
   deck = get_deck()
   # Make sure there's a card in the deck
   if len(deck)==0:
     deck = make_decks()
-  print(f'GameState.update_hand deck length: {len(deck)}') if len(deck)>0 else print('Deck is empty')
   #Python counts None as part of hand; first make sure there's seven slots
   while len(hand)<7:
     hand.append(None)
@@ -143,7 +133,6 @@ def update_hand(player_color, hand):
   for i in range(7):
     if hand[i] is None:
       hand[i] = deck.pop()
-  print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}') if len(deck)>0 else print('Deck is empty')
   if player_color=="green":
     column_name="GreenHand"
   else:
@@ -200,7 +189,6 @@ def new_game():
   make_decks()
   # deck=[]
   # update_cell(1,'Deck',deck)
-  # print(f'new_game called make_decks. Length: {len(deck)}')
   make_hand("green") #update_cell() part of this method
   make_hand("blue") #update_cell() part of this method
   update_cell(1,'IsGreenTurn',True)

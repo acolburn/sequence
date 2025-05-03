@@ -137,7 +137,6 @@ class Form1(Form1Template):
 
   def draw_flags_for_hand(self, player_color):
     # hand is a list of card.ranks+card.suits in a player's hand
-    # print(f'Drawing: {player.hand}')
     # hand=self.green_hand if player_color=="green" else self.blue_hand
     for card in self.hand:
       self.draw_flag_by_card(card)
@@ -161,7 +160,6 @@ class Form1(Form1Template):
       # [ let's turn off update til the method's done]
       self.timer_1.interval=0
       self.is_mouse_down=True
-      print('mouse down')
       if self.is_green_turn and self.player_color=="blue":
         alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
         self.is_mouse_down=False
@@ -301,7 +299,6 @@ class Form1(Form1Template):
       self.hand = anvil.server.call_s('get_hand',self.player_color)
       self.update_hand_display(self.hand)
       self.change_player()
-      print('mouse down done')
       self.timer_1.interval=constants.TIMER_INTERVAL
       self.is_mouse_down=False
       
@@ -337,6 +334,8 @@ class Form1(Form1Template):
     for card in self.hand:
       match1=False
       # ID the board cells for the given card
+      if card[0]=='J':
+        continue # ignore Jacks; they're never dead cards
       if card[0]!='J':
         cell1=constants.locations[card][0]
         cell2=constants.locations[card][1]
@@ -365,13 +364,11 @@ class Form1(Form1Template):
     self.model=[]
     self.hand.clear()
     self.hand = anvil.server.call('get_hand',self.player_color)
-    print(f'btn_new_game_click, self.hand={self.hand}')
     self.update_hand_display(self.hand)
     self.update() 
     
 
   def update(self):
-    # print('update() starting')
     if not self.is_mouse_down:
       self.is_updating = True
       with anvil.server.no_loading_indicator: 
@@ -381,13 +378,11 @@ class Form1(Form1Template):
           return
         if self.player_color=="green":
           if game_state['GreenHand']!=self.hand:
-            print(f"game_state[GreenHand] is {game_state['GreenHand']}. self.hand is {self.hand}")
             # self.hand = anvil.server.call('update_hand',"green",self.hand)
             # anvil.server.call('update_hand',"green",self.hand)
             self.hand = anvil.server.call('get_hand',"green")
         if self.player_color=="blue":
           if game_state['BlueHand']!=self.hand:
-            print(f"game_state[BlueHand] is {game_state['BlueHand']}. self.hand is {self.hand}")
             # self.hand = anvil.server.call('update_hand',"blue",self.hand)
             # anvil.server.call('update_hand',"blue",self.hand)
             self.hand = anvil.server.call('get_hand',"blue")
@@ -407,7 +402,6 @@ class Form1(Form1Template):
       self.update_hand_display(self.hand)
       self.canvas_1_reset()
       self.is_updating = False
-      # print('update done')
       
 
   def timer_1_tick(self, **event_args):
