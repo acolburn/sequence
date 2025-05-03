@@ -61,8 +61,9 @@ class Form1(Form1Template):
     # all these variables are here to try to prevent mouse_down and update from happening
     # at the same time, interfering with each other
     self.timer_1.interval=constants.TIMER_INTERVAL
-    self.is_mouse_down = False
-    self.is_updating = False
+    # self.is_mouse_down = False
+    # self.is_updating = False
+    self.is_new_game = False
     
 
   def is_within_clickable_area(self, x, y):
@@ -156,23 +157,25 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
-    if not self.is_updating:
+    # if not self.is_updating:
       # [ let's turn off update til the method's done]
+    # Players can only play when it's their turn
+    if (self.is_green_turn and self.player_color=="green") or (not self.is_green_turn and self.player_color=="blue"):
       self.timer_1.interval=0
-      self.is_mouse_down=True
+      # self.is_mouse_down=True
       if self.is_green_turn and self.player_color=="blue":
         alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
-        self.is_mouse_down=False
+        # self.is_mouse_down=False
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
       if not self.is_green_turn and self.player_color=="green":
         alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
-        self.is_mouse_down=False
+        # self.is_mouse_down=False
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
       # self.timer_1.interval=0
       if not self.is_within_clickable_area(x,y):
-        self.is_mouse_down=False
+        # self.is_mouse_down=False
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
       # row and col are 0-based; upper left corner is (0,0)
@@ -195,7 +198,7 @@ class Form1(Form1Template):
       if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
         alert("You cannot put a chip on a corner square")
         self.timer_1.interval=constants.TIMER_INTERVAL
-        self.is_mouse_down=False
+        # self.is_mouse_down=False
         return
       # If player has card in hand matching square with chip, and there's no chip
       # already in the spot, remove the card from hand
@@ -219,7 +222,7 @@ class Form1(Form1Template):
           self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          self.is_mouse_down=False
+          # self.is_mouse_down=False
           return
       elif 'J'+constants.HEARTS in self.hand and not cell_occupied:
         result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
@@ -234,7 +237,7 @@ class Form1(Form1Template):
           self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          self.is_mouse_down=False
+          # self.is_mouse_down=False
           return
       # Black Jacks used to remove chips; no chips _added_
       elif 'J'+constants.SPADES in self.hand and cell_occupied:
@@ -254,7 +257,7 @@ class Form1(Form1Template):
                     self.model.remove(item)
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          self.is_mouse_down=False
+          # self.is_mouse_down=False
           return   
       elif 'J'+constants.CLUBS in self.hand and cell_occupied:
         result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
@@ -273,12 +276,12 @@ class Form1(Form1Template):
                     self.model.remove(item) 
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          self.is_mouse_down=False
+          # self.is_mouse_down=False
           return
       elif card in self.hand and cell_occupied:
         alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
         self.timer_1.interval=constants.TIMER_INTERVAL
-        self.is_mouse_down=False
+        # self.is_mouse_down=False
         return
       else:
         # If player's trying to put chip in an illegal spot, alert
@@ -286,7 +289,7 @@ class Form1(Form1Template):
         # be their turn.
         alert('You cannot put a piece in this square.')
         self.timer_1.interval=constants.TIMER_INTERVAL
-        self.is_mouse_down=False
+        # self.is_mouse_down=False
         return
       
       self.remove_all_flags()
@@ -300,7 +303,7 @@ class Form1(Form1Template):
       self.update_hand_display(self.hand)
       self.change_player()
       self.timer_1.interval=constants.TIMER_INTERVAL
-      self.is_mouse_down=False
+      # self.is_mouse_down=False
       
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn
@@ -365,12 +368,17 @@ class Form1(Form1Template):
     self.hand.clear()
     self.hand = anvil.server.call('get_hand',self.player_color)
     self.update_hand_display(self.hand)
+    self.is_new_game = True # set this for one time exception re: running self.update() whether or not it's your turn
     self.update() 
     
 
   def update(self):
-    if not self.is_mouse_down:
-      self.is_updating = True
+    # if not self.is_mouse_down:
+      # self.is_updating = True
+    # Update only happens when it's not your turn
+    if (self.is_green_turn and self.player_color=="blue") or (not self.is_green_turn and self.player_color=="green") or (self.is_new_game):
+      if self.is_new_game:
+        self.is_new_game = False
       with anvil.server.no_loading_indicator: 
         game_state = anvil.server.call('update')
         # game_state.update()
@@ -401,7 +409,7 @@ class Form1(Form1Template):
       self.display_turn_message()
       self.update_hand_display(self.hand)
       self.canvas_1_reset()
-      self.is_updating = False
+      # self.is_updating = False
       
 
   def timer_1_tick(self, **event_args):
