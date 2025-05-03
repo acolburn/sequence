@@ -64,6 +64,7 @@ class Form1(Form1Template):
     # self.is_mouse_down = False
     # self.is_updating = False
     self.is_new_game = False
+  
     
 
   def is_within_clickable_area(self, x, y):
@@ -304,6 +305,8 @@ class Form1(Form1Template):
       self.change_player()
       self.timer_1.interval=constants.TIMER_INTERVAL
       # self.is_mouse_down=False
+    else:
+      pass
    
   
       
