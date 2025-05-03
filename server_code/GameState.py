@@ -6,6 +6,7 @@ import anvil.server
 import random
 import constants
 
+
 suits = [constants.HEARTS, constants.DIAMONDS, constants.CLUBS, constants.SPADES]
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
@@ -134,7 +135,7 @@ def update_hand(player_color, hand):
   # Make sure there's a card in the deck
   if len(deck)==0:
     deck = make_decks()
-  print(f'GameState.update_hand deck length: {len(deck)}')
+  print(f'GameState.update_hand deck length: {len(deck)}') if len(deck)>0 else print('Deck is empty')
   #Python counts None as part of hand; first make sure there's seven slots
   while len(hand)<7:
     hand.append(None)
@@ -142,7 +143,7 @@ def update_hand(player_color, hand):
   for i in range(7):
     if hand[i] is None:
       hand[i] = deck.pop()
-  print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}')
+  print(f'GameState.update_hand just updated_hand. Deck length: {len(deck)}') if len(deck)>0 else print('Deck is empty')
   if player_color=="green":
     column_name="GreenHand"
   else:
