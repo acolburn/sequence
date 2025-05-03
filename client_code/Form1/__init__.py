@@ -157,153 +157,154 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
-    # [ let's turn off update til the method's done]
-    self.timer_1.interval=0
-    self.is_mouse_down=True
-    print('mouse down')
-    if self.is_green_turn and self.player_color=="blue":
-      alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
-      self.is_mouse_down=False
-      self.timer_1.interval=constants.TIMER_INTERVAL
-      return
-    if not self.is_green_turn and self.player_color=="green":
-      alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
-      self.is_mouse_down=False
-      self.timer_1.interval=constants.TIMER_INTERVAL
-      return
-    # self.timer_1.interval=0
-    if not self.is_within_clickable_area(x,y):
-      self.is_mouse_down=False
-      self.timer_1.interval=constants.TIMER_INTERVAL
-      return
-    # row and col are 0-based; upper left corner is (0,0)
-    row = y//constants.IMAGE_HEIGHT
-    col = x//constants.IMAGE_WIDTH
-    # Which cell was clicked?
-    location=(col,row)
-    # What card.rank+card.suit was clicked?
-    for key,value in constants.locations.items():
-      if location in value:
-        card=key
-    # We need to check whether there's already a chip at the selected location
-    cell_occupied = self.is_cell_occupied(col, row)
-    # Here are the dictionary entries for self.model representing where
-    # the green or blue chips will go
-    green_chip = {'url':'green_chip', 'col':col, 'row':row}
-    blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
-    
-    # Cannot play corners
-    if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
-      alert("You cannot put a chip on a corner square")
-      self.timer_1.interval=constants.TIMER_INTERVAL
-      self.is_mouse_down=False
-      return
-    # If player has card in hand matching square with chip, and there's no chip
-    # already in the spot, remove the card from hand
-    # and then play the chip
-
-    if card in self.hand and not cell_occupied:
-      self.hand.remove(card)
-      self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
-    # If player's using a wild card in an empty square, remove the card from hand
-    # and then play the chip
-    elif 'J'+constants.DIAMONDS in self.hand and not cell_occupied:
-      result = alert(content='You are playing the J of Diamonds as a wild card. Continue?',
-               title="Wild Card",
-               large=True,
-               buttons=[
-                 ("Yes", True),
-                 ("No", False),
-               ])
-      if result:
-        self.hand.remove('J'+constants.DIAMONDS)
+    if not self.is_updating:
+      # [ let's turn off update til the method's done]
+      self.timer_1.interval=0
+      self.is_mouse_down=True
+      print('mouse down')
+      if self.is_green_turn and self.player_color=="blue":
+        alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
+        self.is_mouse_down=False
+        self.timer_1.interval=constants.TIMER_INTERVAL
+        return
+      if not self.is_green_turn and self.player_color=="green":
+        alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
+        self.is_mouse_down=False
+        self.timer_1.interval=constants.TIMER_INTERVAL
+        return
+      # self.timer_1.interval=0
+      if not self.is_within_clickable_area(x,y):
+        self.is_mouse_down=False
+        self.timer_1.interval=constants.TIMER_INTERVAL
+        return
+      # row and col are 0-based; upper left corner is (0,0)
+      row = y//constants.IMAGE_HEIGHT
+      col = x//constants.IMAGE_WIDTH
+      # Which cell was clicked?
+      location=(col,row)
+      # What card.rank+card.suit was clicked?
+      for key,value in constants.locations.items():
+        if location in value:
+          card=key
+      # We need to check whether there's already a chip at the selected location
+      cell_occupied = self.is_cell_occupied(col, row)
+      # Here are the dictionary entries for self.model representing where
+      # the green or blue chips will go
+      green_chip = {'url':'green_chip', 'col':col, 'row':row}
+      blue_chip = {'url':'blue_chip', 'col':col, 'row':row}
+      
+      # Cannot play corners
+      if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
+        alert("You cannot put a chip on a corner square")
+        self.timer_1.interval=constants.TIMER_INTERVAL
+        self.is_mouse_down=False
+        return
+      # If player has card in hand matching square with chip, and there's no chip
+      # already in the spot, remove the card from hand
+      # and then play the chip
+  
+      if card in self.hand and not cell_occupied:
+        self.hand.remove(card)
         self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
-      else:
+      # If player's using a wild card in an empty square, remove the card from hand
+      # and then play the chip
+      elif 'J'+constants.DIAMONDS in self.hand and not cell_occupied:
+        result = alert(content='You are playing the J of Diamonds as a wild card. Continue?',
+                title="Wild Card",
+                large=True,
+                buttons=[
+                  ("Yes", True),
+                  ("No", False),
+                ])
+        if result:
+          self.hand.remove('J'+constants.DIAMONDS)
+          self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+        else:
+          self.timer_1.interval=constants.TIMER_INTERVAL
+          self.is_mouse_down=False
+          return
+      elif 'J'+constants.HEARTS in self.hand and not cell_occupied:
+        result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
+                title="Wild Card",
+                large=True,
+                buttons=[
+                  ("Yes", True),
+                  ("No", False),
+                ])
+        if result:
+          self.hand.remove('J'+constants.HEARTS)
+          self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
+        else:
+          self.timer_1.interval=constants.TIMER_INTERVAL
+          self.is_mouse_down=False
+          return
+      # Black Jacks used to remove chips; no chips _added_
+      elif 'J'+constants.SPADES in self.hand and cell_occupied:
+        result = alert(content='You are playing the J of Spades to remove a chip. Bastard! Continue?',
+                title="Remove a Chip",
+                large=True,
+                buttons=[
+                  ("Yes", True),
+                  ("No", False),
+                ])
+        if result:
+          self.hand.remove('J'+constants.SPADES)
+          # Need to remove chip at [location]
+          for item in self.model:
+            if item['col'] == col and item['row'] == row:
+                if item['url'] in ['green_chip', 'blue_chip']:
+                    self.model.remove(item)
+        else:
+          self.timer_1.interval=constants.TIMER_INTERVAL
+          self.is_mouse_down=False
+          return   
+      elif 'J'+constants.CLUBS in self.hand and cell_occupied:
+        result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
+                title="Remove a Chip",
+                large=True,
+                buttons=[
+                  ("Yes", True),
+                  ("No", False),
+                ])
+        if result:
+          self.hand.remove('J'+constants.CLUBS)
+          # Need to remove chip at [location]
+          for item in self.model:
+            if item['col'] == col and item['row'] == row:
+                if item['url'] in ['green_chip', 'blue_chip']:
+                    self.model.remove(item) 
+        else:
+          self.timer_1.interval=constants.TIMER_INTERVAL
+          self.is_mouse_down=False
+          return
+      elif card in self.hand and cell_occupied:
+        alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
         self.timer_1.interval=constants.TIMER_INTERVAL
         self.is_mouse_down=False
         return
-    elif 'J'+constants.HEARTS in self.hand and not cell_occupied:
-      result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
-               title="Wild Card",
-               large=True,
-               buttons=[
-                 ("Yes", True),
-                 ("No", False),
-               ])
-      if result:
-        self.hand.remove('J'+constants.HEARTS)
-        self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
       else:
+        # If player's trying to put chip in an illegal spot, alert
+        # them and then exit the method. Nothing else will happen, it'll still
+        # be their turn.
+        alert('You cannot put a piece in this square.')
         self.timer_1.interval=constants.TIMER_INTERVAL
         self.is_mouse_down=False
         return
-    # Black Jacks used to remove chips; no chips _added_
-    elif 'J'+constants.SPADES in self.hand and cell_occupied:
-      result = alert(content='You are playing the J of Spades to remove a chip. Bastard! Continue?',
-               title="Remove a Chip",
-               large=True,
-               buttons=[
-                 ("Yes", True),
-                 ("No", False),
-               ])
-      if result:
-        self.hand.remove('J'+constants.SPADES)
-        # Need to remove chip at [location]
-        for item in self.model:
-          if item['col'] == col and item['row'] == row:
-              if item['url'] in ['green_chip', 'blue_chip']:
-                  self.model.remove(item)
-      else:
-        self.timer_1.interval=constants.TIMER_INTERVAL
-        self.is_mouse_down=False
-        return   
-    elif 'J'+constants.CLUBS in self.hand and cell_occupied:
-      result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
-               title="Remove a Chip",
-               large=True,
-               buttons=[
-                 ("Yes", True),
-                 ("No", False),
-               ])
-      if result:
-        self.hand.remove('J'+constants.CLUBS)
-        # Need to remove chip at [location]
-        for item in self.model:
-          if item['col'] == col and item['row'] == row:
-              if item['url'] in ['green_chip', 'blue_chip']:
-                  self.model.remove(item) 
-      else:
-        self.timer_1.interval=constants.TIMER_INTERVAL
-        self.is_mouse_down=False
-        return
-    elif card in self.hand and cell_occupied:
-      alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
+      
+      self.remove_all_flags()
+      # Save self.model to database, redraw board
+      anvil.server.call_s('save_board',self.model)
+      self.canvas_1_reset()
+      # Save hand to database, redraw hand
+      anvil.server.call_s('update_hand',self.player_color,self.hand)
+      # self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
+      self.hand = anvil.server.call_s('get_hand',self.player_color)
+      self.update_hand_display(self.hand)
+      self.change_player()
+      print('mouse down done')
       self.timer_1.interval=constants.TIMER_INTERVAL
       self.is_mouse_down=False
-      return
-    else:
-      # If player's trying to put chip in an illegal spot, alert
-      # them and then exit the method. Nothing else will happen, it'll still
-      # be their turn.
-      alert('You cannot put a piece in this square.')
-      self.timer_1.interval=constants.TIMER_INTERVAL
-      self.is_mouse_down=False
-      return
-    
-    self.remove_all_flags()
-    # Save self.model to database, redraw board
-    anvil.server.call_s('save_board',self.model)
-    self.canvas_1_reset()
-    # Save hand to database, redraw hand
-    anvil.server.call_s('update_hand',self.player_color,self.hand)
-    # self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
-    self.hand = anvil.server.call_s('get_hand',self.player_color)
-    self.update_hand_display(self.hand)
-    self.change_player()
-    print('mouse down done')
-    self.timer_1.interval=constants.TIMER_INTERVAL
-    self.is_mouse_down=False
-    
+      
   def change_player(self, **event_args):
     self.is_green_turn = not self.is_green_turn
     anvil.server.call_s('update_turn',self.is_green_turn)
