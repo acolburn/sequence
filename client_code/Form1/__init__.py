@@ -295,9 +295,9 @@ class Form1(Form1Template):
       # Save self.model to database, redraw board
       anvil.server.call_s('save_board',self.model)
       self.canvas_1_reset()
-      # Save hand to database, redraw hand
+      # Save hand to database, after adding new card
       anvil.server.call_s('update_hand',self.player_color,self.hand)
-      # self.hand = anvil.server.call_s('update_hand',self.player_color,self.hand)
+      # Get updated hand
       self.hand = anvil.server.call_s('get_hand',self.player_color)
       self.update_hand_display(self.hand)
       self.change_player()
