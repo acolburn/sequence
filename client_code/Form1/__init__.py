@@ -58,8 +58,11 @@ class Form1(Form1Template):
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
+    # all these variables are here to try to prevent mouse_down and update from happening
+    # at the same time, interfering with each other
     self.timer_1.interval=constants.TIMER_INTERVAL
-    self.is_mouse_down=False
+    self.is_mouse_down = False
+    self.is_updating = False
     
 
   def is_within_clickable_area(self, x, y):
@@ -369,6 +372,7 @@ class Form1(Form1Template):
   def update(self):
     # print('update() starting')
     if not self.is_mouse_down:
+      self.is_updating = True
       with anvil.server.no_loading_indicator: 
         game_state = anvil.server.call('update')
         # game_state.update()
@@ -401,6 +405,7 @@ class Form1(Form1Template):
       self.display_turn_message()
       self.update_hand_display(self.hand)
       self.canvas_1_reset()
+      self.is_updating = False
       # print('update done')
       
 
