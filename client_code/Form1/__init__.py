@@ -39,7 +39,6 @@ class Form1(Form1Template):
                ])
     self.model = anvil.server.call('load_board') # creates new board if not existing
     self.flag_model = [] # local variable to hold flag locations
-    # self.deck = anvil.server.call('get_deck') # creates and shuffles deck, or loads current game deck state
     if self.player_color=="green":
       self.hand = anvil.server.call('get_hand','green') # creates hand if not existing
     else:
@@ -55,6 +54,7 @@ class Form1(Form1Template):
     # iPad 5th gen is 2048x1536, 9th gen is larger
     self.canvas_size = 650
     self.canvas_1.height = 650 #64 px/cell, 10 cells
+
     
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
@@ -62,8 +62,6 @@ class Form1(Form1Template):
     # all these variables are here to try to prevent mouse_down and update from happening
     # at the same time, interfering with each other
     self.timer_1.interval=constants.TIMER_INTERVAL
-    # self.is_mouse_down = False
-    # self.is_updating = False
     self.is_new_game = False
   
     
@@ -84,7 +82,6 @@ class Form1(Form1Template):
 
   def update_hand_display(self, hand):
     hand_length = len(hand)
-    # for i in range(7):
     # (made this change b/c every once in awhile there's an error
     # IndexError: list index out of range. I think maybe this method is called
     # before data_table has fully updated hand?)
@@ -96,15 +93,14 @@ class Form1(Form1Template):
     
   def canvas_1_reset(self, **event_args):
     # Adjust these coordinates if you want the drawing area to not be centered
-    # self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
-    # self.canvas_1.translate(self.canvas_offset, 0)
+    self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
+    self.canvas_1.translate(self.canvas_offset, 0)
 
     # self.model is list of everything that needs to be drawn on canvas
     # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
     path = None # at start of game, when self.model=[], the for loop below goes through
     # an empty list, so the draw_image() method would generate an error without this line
     # and the code below because the variable path is unassigned
-    # self.timer_1.interval=0
     # Draw board ... board's always drawn (first)
     self.canvas_1.draw_image((URLMedia('_/theme/sequence_board.png')),0,0)
     for item in self.model:
@@ -164,20 +160,15 @@ class Form1(Form1Template):
     # Players can only play when it's their turn
     if (self.is_green_turn and self.player_color=="green") or (not self.is_green_turn and self.player_color=="blue"):
       self.timer_1.interval=0
-      # self.is_mouse_down=True
       if self.is_green_turn and self.player_color=="blue":
         alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
-        # self.is_mouse_down=False
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
       if not self.is_green_turn and self.player_color=="green":
         alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
-        # self.is_mouse_down=False
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
-      # self.timer_1.interval=0
       if not self.is_within_clickable_area(x,y):
-        # self.is_mouse_down=False
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
       # row and col are 0-based; upper left corner is (0,0)
@@ -200,7 +191,6 @@ class Form1(Form1Template):
       if location==(0,0) or location==(9,0) or location==(0,9) or location==(9,9):
         alert("You cannot put a chip on a corner square")
         self.timer_1.interval=constants.TIMER_INTERVAL
-        # self.is_mouse_down=False
         return
       # If player has card in hand matching square with chip, and there's no chip
       # already in the spot, remove the card from hand
@@ -224,7 +214,6 @@ class Form1(Form1Template):
           self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          # self.is_mouse_down=False
           return
       elif 'J'+constants.HEARTS in self.hand and not cell_occupied:
         result = alert(content='You are playing the J of Hearts as a wild card. Continue?',
@@ -239,7 +228,6 @@ class Form1(Form1Template):
           self.model.append(green_chip) if self.player_color=="green" else self.model.append(blue_chip)
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          # self.is_mouse_down=False
           return
       # Black Jacks used to remove chips; no chips _added_
       elif 'J'+constants.SPADES in self.hand and cell_occupied:
@@ -259,7 +247,6 @@ class Form1(Form1Template):
                     self.model.remove(item)
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          # self.is_mouse_down=False
           return   
       elif 'J'+constants.CLUBS in self.hand and cell_occupied:
         result = alert(content='You are playing the J of Clubs to remove a chip. Bastard! Continue?',
@@ -271,19 +258,16 @@ class Form1(Form1Template):
                 ])
         if result:
           self.hand.remove('J'+constants.CLUBS)
-          # Need to remove chip at [location]
           for item in self.model:
             if item['col'] == col and item['row'] == row:
                 if item['url'] in ['green_chip', 'blue_chip']:
                     self.model.remove(item) 
         else:
           self.timer_1.interval=constants.TIMER_INTERVAL
-          # self.is_mouse_down=False
           return
       elif card in self.hand and cell_occupied:
         alert('You have a card in your hand matching this cell, but the cell\'s already occupied')
         self.timer_1.interval=constants.TIMER_INTERVAL
-        # self.is_mouse_down=False
         return
       else:
         # If player's trying to put chip in an illegal spot, alert
@@ -291,7 +275,6 @@ class Form1(Form1Template):
         # be their turn.
         alert('You cannot put a piece in this square.')
         self.timer_1.interval=constants.TIMER_INTERVAL
-        # self.is_mouse_down=False
         return
       
       self.remove_all_flags()
@@ -305,7 +288,6 @@ class Form1(Form1Template):
       self.update_hand_display(self.hand)
       self.change_player()
       self.timer_1.interval=constants.TIMER_INTERVAL
-      # self.is_mouse_down=False
     else:
       pass
    
@@ -359,7 +341,6 @@ class Form1(Form1Template):
           if item['col']==cell2[0] and item['row']==cell2[1] and item['url'] in ['green_chip','blue_chip']:
             alert(f'{card} is a dead card')
             self.hand.remove(card)
-            # self.hand =anvil.server.call('update_hand',self.player_color,self.hand)
             anvil.server.call('update_hand',self.player_color,self.hand)
             self.hand=anvil.server.call('get_hand',self.player_color)
             self.update_hand_display(self.hand)
@@ -379,43 +360,30 @@ class Form1(Form1Template):
     
 
   def update(self):
-    # if not self.is_mouse_down:
-      # self.is_updating = True
     # Update only happens when it's not your turn
     if (self.is_green_turn and self.player_color=="blue") or (not self.is_green_turn and self.player_color=="green") or (self.is_new_game):
+      #is_new_game exists so we can run update() at the start of the game, for both players, to update their displays
+      #but after that one update, we don't want it to run when it's a player's turn
       if self.is_new_game:
         self.is_new_game = False
       with anvil.server.no_loading_indicator: 
         game_state = anvil.server.call('update')
-        # game_state.update()
         if game_state is None:
           return
         if self.player_color=="green":
           if game_state['GreenHand']!=self.hand:
-            # self.hand = anvil.server.call('update_hand',"green",self.hand)
-            # anvil.server.call('update_hand',"green",self.hand)
             self.hand = anvil.server.call('get_hand',"green")
         if self.player_color=="blue":
           if game_state['BlueHand']!=self.hand:
-            # self.hand = anvil.server.call('update_hand',"blue",self.hand)
-            # anvil.server.call('update_hand',"blue",self.hand)
             self.hand = anvil.server.call('get_hand',"blue")
         if game_state['Board'] != self.model:
           self.model = game_state['Board'] # doing this clears flags, too, even if it's mid-play
         if game_state['IsGreenTurn']!=self.is_green_turn:
           self.is_green_turn = game_state['IsGreenTurn']
-  
-      # # when starting new game, need to update hand display for opponent, too
-      # if is_new_game:
-      #   _temp_color="blue" if self.player_color=="green" else "green"
-      #   _temp_hand=anvil.server.call('get_hand',_temp_color)
-      #   self.update_hand_display(_temp_hand)    
-      #   self.canvas_1.reset_context()
       
       self.display_turn_message()
       self.update_hand_display(self.hand)
       self.canvas_1_reset()
-      # self.is_updating = False
       
 
   def timer_1_tick(self, **event_args):
