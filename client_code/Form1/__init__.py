@@ -93,8 +93,8 @@ class Form1(Form1Template):
     
   def canvas_1_reset(self, **event_args):
     # Adjust these coordinates if you want the drawing area to not be centered
-    self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
-    self.canvas_1.translate(self.canvas_offset, 0)
+    # self.canvas_offset = (self.canvas_1.get_width() - self.canvas_size)/2
+    # self.canvas_1.translate(self.canvas_offset, 0)
 
     # self.model is list of everything that needs to be drawn on canvas
     # 'url' codes what kind of image is being drawn (the board, a flag, or a chip)
