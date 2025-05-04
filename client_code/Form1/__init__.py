@@ -55,6 +55,7 @@ class Form1(Form1Template):
     # iPad 5th gen is 2048x1536, 9th gen is larger
     self.canvas_size = 650
     self.canvas_1.height = 650 #64 px/cell, 10 cells
+    
 
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
