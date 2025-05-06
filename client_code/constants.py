@@ -4,12 +4,12 @@ from anvil.tables import app_tables
 import anvil.server
 
 TIMER_INTERVAL = 1.0
-IMAGE_WIDTH  = 64*0.5
-IMAGE_HEIGHT = 64*0.5
+IMAGE_WIDTH  = 64
+IMAGE_HEIGHT = 64
 # canvas_size is width. 
 # iPad 5th gen is 2048x1536, 9th gen is larger
-CANVAS_WIDTH = 650*0.5
-CANVAS_HEIGHT = 650*0.5 #64 px/cell, 10 cells
+CANVAS_WIDTH = 650
+CANVAS_HEIGHT = 650 #64 px/cell, 10 cells
 
 GREEN = '#8fef8f'
 BLUE = '#a8c2e1'

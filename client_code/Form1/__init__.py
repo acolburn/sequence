@@ -5,6 +5,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from .. import constants
+from .. import responsive
 
 # from ..Cards import *
 # from ..Player import *
@@ -12,18 +13,18 @@ import random
 
 
 class Form1(Form1Template):
-  
+  @responsive.form
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
     # Preloading images helps prevent flicker when they're rendered on the Canvas
-    self.images = {
-      'board': URLMedia('_/theme/sequence_board_320.png'),
-      # 'flag': URLMedia('_/theme/flag.png'),
-      'flag': URLMedia('_/theme/green_check_mark_small.png'),
-      'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
-      'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
-    }
+    # self.images = {
+    #   'board': URLMedia('_/theme/sequence_board_320.png'),
+    #   # 'flag': URLMedia('_/theme/flag.png'),
+    #   'flag': URLMedia('_/theme/green_check_mark_small.png'),
+    #   'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
+    #   'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
+    # }
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
       'their_turn': 'Waiting for your opponent to play ...'
@@ -65,7 +66,23 @@ class Form1(Form1Template):
     self.timer_1.interval=constants.TIMER_INTERVAL
     self.is_new_game = False
   
-    
+  def on_mobile(self):
+   self.images = {
+     'board': URLMedia('_/theme/sequence_board_320.png'),
+     # 'flag': URLMedia('_/theme/flag.png'),
+     'flag': URLMedia('_/theme/green_check_mark_small.png'),
+     'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
+     'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
+   }
+
+  def on_pc(self):
+    self.images = {
+      'board': URLMedia('_/theme/sequence_board.png'),
+      # 'flag': URLMedia('_/theme/flag.png'),
+      'flag': URLMedia('_/theme/green_check_mark.png'),
+      'green_chip': URLMedia('_/theme/chipGreen_border.png'),
+      'blue_chip': URLMedia('_/theme/chipBlue_border.png')
+    }
 
   def is_within_clickable_area(self, x, y):
     """
