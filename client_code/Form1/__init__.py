@@ -19,7 +19,8 @@ class Form1(Form1Template):
     # Preloading images helps prevent flicker when they're rendered on the Canvas
     self.images = {
       'board': URLMedia('_/theme/sequence_board.png'),
-      'flag': URLMedia('_/theme/flag.png'),
+      # 'flag': URLMedia('_/theme/flag.png'),
+      'flag': URLMedia('_/theme/green_check_mark.png'),
       'green_chip': URLMedia('_/theme/chipGreen_border.png'),
       'blue_chip': URLMedia('_/theme/chipBlue_border.png')
     }
