@@ -5,31 +5,46 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from .. import constants
-from .. import responsive
+# from .. import responsive
 
-# from ..Cards import *
-# from ..Player import *
 import random
 
-
+# @responsive.form
 class Form1(Form1Template):
-  @responsive.form
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
-    # Preloading images helps prevent flicker when they're rendered on the Canvas
-    # self.images = {
-    #   'board': URLMedia('_/theme/sequence_board_320.png'),
-    #   # 'flag': URLMedia('_/theme/flag.png'),
-    #   'flag': URLMedia('_/theme/green_check_mark_small.png'),
-    #   'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
-    #   'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
-    # }
+    #using self.labels in self.mobile_screen_dimensions()
+    self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
+    # Find screen size for responsive layout
+    # Load different size board and pieces if player is using small screen
+    _mobile_screen_width=650
+    self.is_mobile=True if anvil.js.window.innerWidth<_mobile_screen_width else False
+    if self.is_mobile:
+      self.mobile_screen_dimensions()
+    else:
+      # Preloading images helps prevent flicker when they're rendered on the Canvas
+      self.images = {
+          'board': URLMedia('_/theme/sequence_board.png'),
+          # 'flag': URLMedia('_/theme/flag.png'),
+          'flag': URLMedia('_/theme/green_check_mark.png'),
+          'green_chip': URLMedia('_/theme/chipGreen_border.png'),
+          'blue_chip': URLMedia('_/theme/chipBlue_border.png')
+        }
+      self.IMAGE_WIDTH  = 64
+      self.IMAGE_HEIGHT = 64
+      # canvas_size is width. 
+      # iPad 5th gen is 2048x1536, 9th gen is larger
+      self.CANVAS_WIDTH = 650
+      self.CANVAS_HEIGHT = 650 #64 px/cell, 10 cells
+      self.canvas_size = self.CANVAS_WIDTH
+      self.canvas_1.height = self.CANVAS_HEIGHT
+    
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
       'their_turn': 'Waiting for your opponent to play ...'
     }
-    self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
+    
     
     # Select whether player is green or blue; players must agree to choose different colors
     self.player_color = alert(content="Will you be the GREEN or BLUE player?",
@@ -52,10 +67,7 @@ class Form1(Form1Template):
     for label in self.labels:
         label.background=constants.GREEN if self.player_color=="green" else constants.BLUE
 
-    # canvas_size is width. 
-    # iPad 5th gen is 2048x1536, 9th gen is larger
-    self.canvas_size = constants.CANVAS_WIDTH
-    self.canvas_1.height = constants.CANVAS_HEIGHT
+
 
     
 
@@ -65,25 +77,30 @@ class Form1(Form1Template):
     # at the same time, interfering with each other
     self.timer_1.interval=constants.TIMER_INTERVAL
     self.is_new_game = False
+
   
-  def on_mobile(self):
-   self.images = {
-     'board': URLMedia('_/theme/sequence_board_320.png'),
-     # 'flag': URLMedia('_/theme/flag.png'),
-     'flag': URLMedia('_/theme/green_check_mark_small.png'),
-     'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
-     'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
-   }
-
-  def on_pc(self):
+  def mobile_screen_dimensions(self):
     self.images = {
-      'board': URLMedia('_/theme/sequence_board.png'),
+      'board': URLMedia('_/theme/sequence_board_320.png'),
       # 'flag': URLMedia('_/theme/flag.png'),
-      'flag': URLMedia('_/theme/green_check_mark.png'),
-      'green_chip': URLMedia('_/theme/chipGreen_border.png'),
-      'blue_chip': URLMedia('_/theme/chipBlue_border.png')
+      'flag': URLMedia('_/theme/green_check_mark_small.png'),
+      'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
+      'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
     }
-
+    self.IMAGE_WIDTH  = 32
+    self.IMAGE_HEIGHT = 32
+    # canvas_size is width. 
+    # iPad 5th gen is 2048x1536, 9th gen is larger
+    self.CANVAS_WIDTH = 320
+    self.CANVAS_HEIGHT = 320 #64 px/cell, 10 cells
+    self.canvas_size = self.CANVAS_WIDTH
+    self.canvas_1.height = self.CANVAS_HEIGHT
+    self.btn_dead_card.font_size=12
+    self.btn_new_game.font_size=12
+    self.btn_playable_cells.font_size=12
+    for label in self.labels:
+      label.font_size=16
+    
   def is_within_clickable_area(self, x, y):
     """
     Checks whether click is within canvas bounds
@@ -124,16 +141,16 @@ class Form1(Form1Template):
     for item in self.model:
       if item['url']=='green_chip' or item['url']=='blue_chip':
         path = self.images['green_chip'] if item['url']=='green_chip' else self.images['blue_chip']
-        x=item['col']*constants.IMAGE_WIDTH+7
-        y=item['row']*constants.IMAGE_HEIGHT+7
+        x=item['col']*self.IMAGE_WIDTH+7
+        y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
     path=None #re-initialize variable
     for item in self.flag_model:
       if item['url']=='flag':
         path = self.images['flag']
-        x=item['col']*constants.IMAGE_WIDTH+7
-        y=item['row']*constants.IMAGE_HEIGHT+7
+        x=item['col']*self.IMAGE_WIDTH+7
+        y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
 
@@ -190,8 +207,8 @@ class Form1(Form1Template):
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
       # row and col are 0-based; upper left corner is (0,0)
-      row = y//constants.IMAGE_HEIGHT
-      col = x//constants.IMAGE_WIDTH
+      row = y//self.IMAGE_HEIGHT
+      col = x//self.IMAGE_WIDTH
       # Which cell was clicked?
       location=(col,row)
       # What card.rank+card.suit was clicked?

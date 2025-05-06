@@ -19,15 +19,6 @@ components:
     properties: {text: This is a test message ...}
     type: Label
   - components:
-    - event_bindings: {click: btn_playable_cells_click}
-      layout_properties: {}
-      name: btn_playable_cells
-      properties:
-        role: outlined-button
-        spacing:
-          padding: [null, '20', null, '20']
-        text: Playable Spots
-      type: Button
     - data_bindings:
       - {code: '', property: border, writeback: false}
       layout_properties: {expand: false}
@@ -35,7 +26,7 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: [null, '3', null, '3']
@@ -48,7 +39,7 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: [null, '3', null, '3']
@@ -61,7 +52,7 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: [null, '3', null, '3']
@@ -74,7 +65,7 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: [null, '3', null, '3']
@@ -87,7 +78,7 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: [null, '3', null, '3']
@@ -100,7 +91,7 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: [null, '3', null, '3']
@@ -113,12 +104,21 @@ components:
       properties:
         align: center
         bold: true
-        font_size: 28
+        font_size: 26
         foreground: '#000000'
         spacing:
           padding: ['4', '3', '4', '3']
         text: '----'
       type: Label
+    - event_bindings: {click: btn_playable_cells_click}
+      layout_properties: {}
+      name: btn_playable_cells
+      properties:
+        role: outlined-button
+        spacing:
+          padding: [null, '4', null, '4']
+        text: Playable Spots
+      type: Button
     - event_bindings: {click: btn_dead_card_click}
       layout_properties: {}
       name: btn_dead_card
@@ -131,7 +131,11 @@ components:
     - event_bindings: {click: btn_new_game_click}
       layout_properties: {}
       name: btn_new_game
-      properties: {role: outlined-button, text: New Game}
+      properties:
+        role: outlined-button
+        spacing:
+          padding: [null, '4', null, '4']
+        text: New Game
       type: Button
     layout_properties: {grid_position: 'JAJXQF,NVCOBY'}
     name: flow_panel_1
