@@ -2,10 +2,13 @@ unique_ids:
   assets:
     cardHeartsA.png: '1744919287036921366666867.1791'
     chipBlue_border.png: '1744672003916151779545640.777'
+    chipBlue_border_small.png: '1746547764387898128952326.1726'
     chipGreen_border.png: '1744672015561678786399686.0874'
-    flag.png: '174474981739497121449955.15271'
+    chipGreen_border_small.png: '1746547751289366804741492.8881'
     green_check_mark.png: '1746546474772431539596597.1378'
+    green_check_mark_small.png: '1746547777647463455974954.44446'
     sequence_board.png: '1744671213918903863351748.6531'
+    sequence_board_320.png: '1746547737441998565049321.9745'
     standard-page.html: GW7SPAYHLFWIDCWBWHQH65XYXYN6UBY3
     theme.css: 4S7ZFYX6U56M5RP2OHX3OT7VIQSGYLZY
   forms:

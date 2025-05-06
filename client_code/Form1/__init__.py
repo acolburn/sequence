@@ -18,11 +18,11 @@ class Form1(Form1Template):
     self.init_components(**properties)
     # Preloading images helps prevent flicker when they're rendered on the Canvas
     self.images = {
-      'board': URLMedia('_/theme/sequence_board.png'),
+      'board': URLMedia('_/theme/sequence_board_320.png'),
       # 'flag': URLMedia('_/theme/flag.png'),
-      'flag': URLMedia('_/theme/green_check_mark.png'),
-      'green_chip': URLMedia('_/theme/chipGreen_border.png'),
-      'blue_chip': URLMedia('_/theme/chipBlue_border.png')
+      'flag': URLMedia('_/theme/green_check_mark_small.png'),
+      'green_chip': URLMedia('_/theme/chipGreen_border_small.png'),
+      'blue_chip': URLMedia('_/theme/chipBlue_border_small.png')
     }
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
@@ -53,8 +53,8 @@ class Form1(Form1Template):
 
     # canvas_size is width. 
     # iPad 5th gen is 2048x1536, 9th gen is larger
-    self.canvas_size = 650
-    self.canvas_1.height = 650 #64 px/cell, 10 cells
+    self.canvas_size = constants.CANVAS_WIDTH
+    self.canvas_1.height = constants.CANVAS_HEIGHT
 
     
 
@@ -103,7 +103,7 @@ class Form1(Form1Template):
     # an empty list, so the draw_image() method would generate an error without this line
     # and the code below because the variable path is unassigned
     # Draw board ... board's always drawn (first)
-    self.canvas_1.draw_image((URLMedia('_/theme/sequence_board.png')),0,0)
+    self.canvas_1.draw_image(self.images['board'],0,0)
     for item in self.model:
       if item['url']=='green_chip' or item['url']=='blue_chip':
         path = self.images['green_chip'] if item['url']=='green_chip' else self.images['blue_chip']
