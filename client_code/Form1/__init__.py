@@ -424,6 +424,38 @@ class Form1(Form1Template):
   def timer_1_tick(self, **event_args):
     """This method is called Every [interval] seconds. Does not trigger if [interval] is 0."""
     self.update() 
+
+  def btn_sequence_check_click(self, **event_args):
+    """This method is called when the button is clicked"""
+    matches=[]
+    chip='green_chip' if self.player_color=="green" else 'blue_chip'
+    # Find all the squares with player's color chips
+    for item in self.model:
+      if item['url']==chip:
+        matches.append(item)
+    # Search for horizontal sequences
+    # Row same, columns sequential
+    # Working L to R, col 5 is last possible starting place (cols 5-9 sequence)
+    row_matches=[] 
+    for row in range(10): # want to group and examine all the row=1's, then 2's, etc.
+      for item in matches:
+        if item['row']==row: 
+          row_matches.append(item) 
+      # at this point, row_matches has items from a single row, e.g., row 0
+      # we only need to consider a row if it has at least 5 items
+      if len(row_matches)>=5:
+        cols=[] #will hold column numbers
+        for item in row_matches:
+          cols.append(item['col']) # cols from the row
+        # Are there 5 sequential cols?
+        cols=sorted(cols)
+        for i in range(6):
+          if i in cols and i+1 in cols and i+2 in cols and i+3 in cols and i+4 in cols:
+            print(f'Match found for row {row}, starting at col {i}')
+        cols.clear()
+      row_matches.clear() # start over for next row
+    
+    
             
         
           
