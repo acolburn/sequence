@@ -434,14 +434,15 @@ class Form1(Form1Template):
       if item['url']==chip:
         _matches.append(item)
 
-    # _locations contains the (col, row) for each _matches entry
-    # e.g., [(0,5),(0,8),(1,2),(1,5), etc.]...sorted by first num (col), then second num (row)
+    # _locations reduces _matches to [col, row] for each entry
+    # e.g., [[0,5],[0,8],[1,2],[1,5], etc.]...sorted by first num (col), then second num (row)
     _locations = []
     for item in _matches:
-      loc=(item['col'], item['row'])
+      loc=[item['col'], item['row']]
       _locations.append(loc)
     _locations=sorted(_locations)
 
+    #_col_count_dict describes how many chips there are in each column, e.g., {0:2, 1:4, 2:4, etc.}
     _col_count_dict={}
     for item in _locations:
       col=item[0]
@@ -449,34 +450,36 @@ class Form1(Form1Template):
         _col_count_dict[col]+=1 #increment the count
       else:
         _col_count_dict[col]=1 #initialize the count
-    #_col_count_dict describes how many chips there are in each column, e.g., {0:2, 1:4, 2:4, etc.}
-    # we only care about columns with at least 5 chips
+    
     _col_matches=[]
     for key, value in _col_count_dict.items():
-      if value>=5: # number of chips in a column
-        # key is column with at least 5 chips
+      if value>=5: # number of chips in a column; we only care about columns with at least 5 chips
+        # so key is column with at least 5 chips
         for item in _locations:
           if item[0] == key: # if the item's col value==column with at least 5 chips
             _col_matches.append(item)
-        # _col_matches has all the entries for a col that might have a sequence
-        # Are there 5 sequential rows?
+        # _col_matches has all the entries for a cols with at least 5 chips
+        # Are there 5 sequential rows for the column?
+        # Make a list with just the rows for the given column
         _rows=[]
         for item in _col_matches:
           _rows.append(item[1])
         # Now see if _rows has 5 sequential numbers (note: rows is already sorted)
-        if len(_rows)==5: # yes, this is from SO :-)
-          if _rows==list(range(_rows[0], _rows[-1] + 1)):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-        if len(_rows)==6:
-          if _rows==list(range(_rows[0], _rows[-2]+1)):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-          elif _rows==list(range(_rows[1], _rows[-1]+1})):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-        if len(_rows)==7:
-          if _rows==list(range(_rows[0], _rows[-3]+1)):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-          elif _rows==list(range(_rows[1], _rows[-1]+1})):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
+        result=[]
+        for i in range(len(_rows)-4): # ensure
+        # if len(_rows)==5: # yes, this is from SO :-)
+        #   if _rows==list(range(_rows[0], _rows[-1] + 1)):
+        #     print(f'found a sequence, column {key}, starting at row {_rows[0]}')
+        # if len(_rows)==6:
+        #   if _rows==list(range(_rows[0], _rows[-2]+1)):
+        #     print(f'found a sequence, column {key}, starting at row {_rows[0]}')
+        #   elif _rows==list(range(_rows[1], _rows[-1]+1})):
+        #     print(f'found a sequence, column {key}, starting at row {_rows[0]}')
+        # if len(_rows)==7:
+        #   if _rows==list(range(_rows[0], _rows[-3]+1)):
+        #     print(f'found a sequence, column {key}, starting at row {_rows[0]}')
+        #   elif _rows==list(range(_rows[1], _rows[-1]+1})):
+        #     print(f'found a sequence, column {key}, starting at row {_rows[0]}')
           
         
           
