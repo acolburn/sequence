@@ -434,14 +434,17 @@ class Form1(Form1Template):
       if item['url']==chip:
         _matches.append(item)
 
-    # _locations contains the (col, row) for each _matches entry
-    # e.g., [(0,5),(0,8),(1,2),(1,5), etc.]...sorted by first num (col), then second num (row)
-    _locations = []
+    # _locations reduces _matches to [col, row] for each entry
+    # e.g., [[0,5],[0,8],[1,2],[1,5], etc.]...sorted by first num (col), then second num (row)
+    # start with corners
+    _locations = [[0,0], [9,0], [9,9], [0,9]]
     for item in _matches:
-      loc=(item['col'], item['row'])
+      loc=[item['col'], item['row']]
       _locations.append(loc)
     _locations=sorted(_locations)
+    # print(f"_locations: {_locations}")
 
+    #_col_count_dict describes how many chips there are in each column, e.g., {0:2, 1:4, 2:4, etc.}
     _col_count_dict={}
     for item in _locations:
       col=item[0]
@@ -449,77 +452,74 @@ class Form1(Form1Template):
         _col_count_dict[col]+=1 #increment the count
       else:
         _col_count_dict[col]=1 #initialize the count
-    #_col_count_dict describes how many chips there are in each column, e.g., {0:2, 1:4, 2:4, etc.}
-    # we only care about columns with at least 5 chips
+    # print(f"_col_count_dict: {_col_count_dict}")
+    
     _col_matches=[]
     for key, value in _col_count_dict.items():
-      if value>=5: # number of chips in a column
-        # key is column with at least 5 chips
+      if value>=5: # number of chips in a column; we only care about columns with at least 5 chips
+        # so key is column with at least 5 chips
         for item in _locations:
           if item[0] == key: # if the item's col value==column with at least 5 chips
             _col_matches.append(item)
-        # _col_matches has all the entries for a col that might have a sequence
-        # Are there 5 sequential rows?
+        # print(f"_col_matches: {_col_matches}")
+        # _col_matches has all the entries for a cols with at least 5 chips
+        # Are there 5 sequential rows for the column?
+        # Make a list with just the rows for the given column
         _rows=[]
         for item in _col_matches:
           _rows.append(item[1])
+        # print(f"_rows: {_rows}")
         # Now see if _rows has 5 sequential numbers (note: rows is already sorted)
-        if len(_rows)==5: # yes, this is from SO :-)
-          if _rows==list(range(_rows[0], _rows[-1] + 1)):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-        if len(_rows)==6:
-          if _rows==list(range(_rows[0], _rows[-2]+1)):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-          elif _rows==list(range(_rows[1], _rows[-1]+1})):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-        if len(_rows)==7:
-          if _rows==list(range(_rows[0], _rows[-3]+1)):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-          elif _rows==list(range(_rows[1], _rows[-1]+1})):
-            print(f'found a sequence, column {key}, starting at row {_rows[0]}')
-          
-        
-          
-            
-          
+        result=[]
+        for i in range(0,len(_rows)-4): # ensure 5 elements left
+          if all(_rows[i+j]+1 == _rows[i+j+1] for j in range(0,4)):
+            result.append(_rows[i:i+5])
+        if result: # result==True if it's not empty
+          print(f"Sequence in col {key}, rows {result}")
+        _col_matches.clear()
+        _rows.clear()
+        result.clear()
 
-    
-    
-    # # Search for horizontal sequences
-    # # Row same, columns sequential
-    # # Working L to R, col 5 is last possible starting place (cols 5-9 sequence)
-    # row_matches=[] 
-    # for row in range(10): # want to group and examine all the row=1's, then 2's, etc.
-    #   for item in matches:
-    #     if item['row']==row: 
-    #       row_matches.append(item) 
-    #   # at this point, row_matches has items from a single row, e.g., row 0
-    #   # we only need to consider a row if it has at least 5 items
-    #   if len(row_matches)>=5:
-    #     cols=[] #will hold column numbers
-    #     for item in row_matches:
-    #       cols.append(item['col']) # cols from the row
-    #     # Are there 5 sequential cols?
-    #     cols=sorted(cols)
-    #     for i in range(6):
-    #       if i in cols and i+1 in cols and i+2 in cols and i+3 in cols and i+4 in cols:
-    #         print(f'Match found for row {row}, starting at col {i}')
-    #     cols.clear()
-    #   row_matches.clear() # start over for next row
-    
-    
-            
-        
-          
-    
+    # -----------------Now repeat for rows ------------------------------------------
+    _locations = [[0,0], [9,0], [9,9], [0,9]]
+    for item in _matches:
+      loc=[item['row'], item['col']] # reversed order from column matching code above
+      _locations.append(loc)
+    _locations=sorted(_locations)
+    # print(f"_locations: {_locations}")
 
+    #_row_count_dict describes how many chips there are in each row, e.g., {0:6, 1:5, etc.}
+    _row_count_dict={}
+    for item in _locations:
+      row=item[0]
+      if row in _row_count_dict:
+        _row_count_dict[row]+=1 #increment the count
+      else:
+        _row_count_dict[row]=1 #initialize the count
+    # print(f"_col_count_dict: {_col_count_dict}")
 
-
-    
-   
-    
-  
-    
-  
-
-  
+    _row_matches=[]
+    for key, value in _row_count_dict.items():
+      if value>=5: # number of chips in a row; we only care about rows with at least 5 chips
+        # so key is a row with at least 5 chips
+        for item in _locations:
+          if item[0] == key: # if the item's col value==column with at least 5 chips
+            _row_matches.append(item)
+        # print(f"_col_matches: {_col_matches}")
+        # _row_matches has all the entries for a row with at least 5 chips
+        # Are there 5 sequential columns for the row?
+        # Make a list with just the cols for the given row
+        _cols=[]
+        for item in _row_matches:
+          _cols.append(item[1])
+        # print(f"_rows: {_rows}")
+        # Now see if _cols has 5 sequential numbers (note: cols is already sorted)
+        result=[]
+        for i in range(0,len(_cols)-4): # ensure 5 elements left
+          if all(_cols[i+j]+1 == _cols[i+j+1] for j in range(0,4)):
+            result.append(_cols[i:i+5])
+        if result: # result==True if it's not empty
+          print(f"Sequence in row {key}, cols {result}")
+        _row_matches.clear()
+        _cols.clear()
+        result.clear()
