@@ -153,6 +153,14 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
+    # practice line drawing
+    # self.canvas_1.begin_path()
+    # self.canvas_1.move_to(0*self.IMAGE_WIDTH+15, 5*self.IMAGE_HEIGHT+15)
+    # self.canvas_1.line_to(4*self.IMAGE_WIDTH+15, 5*self.IMAGE_HEIGHT+15)
+    # self.canvas_1.close_path()
+    # self.canvas_1.line_width=10
+    # # self.canvas_1.stroke_style="DodgerBlue"
+    # self.canvas_1.stroke()
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
@@ -475,7 +483,10 @@ class Form1(Form1Template):
           if all(_rows[i+j]+1 == _rows[i+j+1] for j in range(0,4)):
             result.append(_rows[i:i+5])
         if result: # result==True if it's not empty
-          print(f"Sequence in col {key}, rows {result}")
+          result_locations=[]
+          for item in result[0]:
+            result_locations.append([key,item])
+          print(f"Column sequence: {result_locations}")
         _col_matches.clear()
         _rows.clear()
         result.clear()
@@ -519,7 +530,49 @@ class Form1(Form1Template):
           if all(_cols[i+j]+1 == _cols[i+j+1] for j in range(0,4)):
             result.append(_cols[i:i+5])
         if result: # result==True if it's not empty
-          print(f"Sequence in row {key}, cols {result}")
+          result_locations=[]
+          for item in result[0]: # result has form [[0,1,2,3,4]]
+            result_locations.append([item,key]) # item is col, key is row
+          print(f"Row sequence: {result_locations}")
         _row_matches.clear()
         _cols.clear()
         result.clear()
+
+    #-------------Now look for diagonals (thank you AI for your help :-)------------------------
+    # Make _locations be in form [col, row] again
+    # Convert to set for faster lookup operations
+    _locations = [[0,0], [9,0], [9,9], [0,9]]
+    for item in _matches:
+      loc=[item['col'], item['row']]
+      _locations.append(loc)
+    _locations=sorted(_locations)
+    _locations_set = set(tuple(loc) for loc in _locations)
+    diagonals = []
+
+    # Check for top-left to bottom-right diagonals
+    for col in range(10):  # Columns from 0 to 9
+      for row in range(10):  # Rows from 0 to 9
+        # Check if we can form a diagonal starting from (col, row)
+        diagonal = []
+        for i in range(5):
+          if (col + i, row + i) in _locations_set:
+            diagonal.append([col + i, row + i])
+          else:
+            break
+          if len(diagonal) == 5:
+            diagonals.append(diagonal)
+
+    # Check for bottom-left to top-right diagonals
+    for col in range(10):  # Columns from 0 to 9
+      for row in range(10):  # Rows from 0 to 9
+        # Check if we can form a diagonal starting from (col, row)
+        diagonal = []
+        for i in range(5):
+          if (col + i, row - i) in _locations_set:
+            diagonal.append([col + i, row - i])
+          else:
+            break
+          if len(diagonal) == 5:
+            diagonals.append(diagonal)
+
+    print(f'Diagonal sequence: {diagonals}')
