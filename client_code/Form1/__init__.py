@@ -442,110 +442,26 @@ class Form1(Form1Template):
       if item['url']==chip:
         _matches.append(item)
 
-    # _locations reduces _matches to [col, row] for each entry
-    # e.g., [[0,5],[0,8],[1,2],[1,5], etc.]...sorted by first num (col), then second num (row)
+    # _locations (inside methods) reduces _matches to [col, row] for each entry
     # start with corners
     _locations = [[0,0], [9,0], [9,9], [0,9]]
-    # ---------------------
-    print('start test functions')
-    self.find_sequences(_matches, _locations, 5, True)
-    self.find_sequences(_matches, _locations, 5, False)
-    print('end test functions')
-    #-----------------------
-    for item in _matches:
-      loc=[item['col'], item['row']]
-      _locations.append(loc)
-    _locations=sorted(_locations)
-    # print(f"_locations: {_locations}")
-
-
-    #_col_count_dict describes how many chips there are in each column, e.g., {0:2, 1:4, 2:4, etc.}
-    _col_count_dict={}
-    for item in _locations:
-      col=item[0]
-      if col in _col_count_dict:
-        _col_count_dict[col]+=1 #increment the count
-      else:
-        _col_count_dict[col]=1 #initialize the count
-    # print(f"_col_count_dict: {_col_count_dict}")
+    _row_sequences = self.find_sequences(_matches, _locations, 5, True)
+    _col_sequences = self.find_sequences(_matches, _locations, 5, False)
+    _diag_sequences = self.find_diagonal_sequences(_matches)
+    _total = [_row_sequences]+[_col_sequences]+[_diag_sequences]
+    # _total has nested structure, lists inside lists ... unpack:
+    for item in _total: # one item for rows, one for cols, one for diags
+      if len(item)==1:
+        print(f'start: {item[0][0]}, end: {item[0][-1]}')
+      elif len(item)>1: # more than one set of rows, or cols, or diags sequences
+        for subitem in item:
+          print(f'start: {subitem[0]}, end: {subitem[-1]}')
+   
     
-    _col_matches=[]
-    for key, value in _col_count_dict.items():
-      if value>=5: # number of chips in a column; we only care about columns with at least 5 chips
-        # so key is column with at least 5 chips
-        for item in _locations:
-          if item[0] == key: # if the item's col value==column with at least 5 chips
-            _col_matches.append(item)
-        # print(f"_col_matches: {_col_matches}")
-        # _col_matches has all the entries for a cols with at least 5 chips
-        # Are there 5 sequential rows for the column?
-        # Make a list with just the rows for the given column
-        _rows=[]
-        for item in _col_matches:
-          _rows.append(item[1])
-        # print(f"_rows: {_rows}")
-        # Now see if _rows has 5 sequential numbers (note: rows is already sorted)
-        result=[]
-        for i in range(0,len(_rows)-4): # ensure 5 elements left
-          if all(_rows[i+j]+1 == _rows[i+j+1] for j in range(0,4)):
-            result.append(_rows[i:i+5])
-        if result: # result==True if it's not empty
-          result_locations=[]
-          for item in result[0]:
-            result_locations.append([key,item])
-          print(f"Column sequence: {result_locations}")
-        _col_matches.clear()
-        _rows.clear()
-        result.clear()
 
-    # -----------------Now repeat for rows ------------------------------------------
-    _locations = [[0,0], [9,0], [9,9], [0,9]]
-    for item in _matches:
-      loc=[item['row'], item['col']] # reversed order from column matching code above
-      _locations.append(loc)
-    _locations=sorted(_locations)
-    # print(f"_locations: {_locations}")
-
-    #_row_count_dict describes how many chips there are in each row, e.g., {0:6, 1:5, etc.}
-    _row_count_dict={}
-    for item in _locations:
-      row=item[0]
-      if row in _row_count_dict:
-        _row_count_dict[row]+=1 #increment the count
-      else:
-        _row_count_dict[row]=1 #initialize the count
-    # print(f"_col_count_dict: {_col_count_dict}")
-
-    _row_matches=[]
-    for key, value in _row_count_dict.items():
-      if value>=5: # number of chips in a row; we only care about rows with at least 5 chips
-        # so key is a row with at least 5 chips
-        for item in _locations:
-          if item[0] == key: # if the item's col value==column with at least 5 chips
-            _row_matches.append(item)
-        # print(f"_col_matches: {_col_matches}")
-        # _row_matches has all the entries for a row with at least 5 chips
-        # Are there 5 sequential columns for the row?
-        # Make a list with just the cols for the given row
-        _cols=[]
-        for item in _row_matches:
-          _cols.append(item[1])
-        # print(f"_rows: {_rows}")
-        # Now see if _cols has 5 sequential numbers (note: cols is already sorted)
-        result=[]
-        for i in range(0,len(_cols)-4): # ensure 5 elements left
-          if all(_cols[i+j]+1 == _cols[i+j+1] for j in range(0,4)):
-            result.append(_cols[i:i+5])
-        if result: # result==True if it's not empty
-          result_locations=[]
-          for item in result[0]: # result has form [[0,1,2,3,4]]
-            result_locations.append([item,key]) # item is col, key is row
-          print(f"Row sequence: {result_locations}")
-        _row_matches.clear()
-        _cols.clear()
-        result.clear()
-
-    #-------------Now look for diagonals (thank you AI for your help :-)------------------------
+    
+  #-------------Now look for diagonals (thank you AI for your help :-)------------------------
+  def find_diagonal_sequences(self,_matches):
     # Make _locations be in form [col, row] again
     # Convert to set for faster lookup operations
     _locations = [[0,0], [9,0], [9,9], [0,9]]
@@ -583,15 +499,19 @@ class Form1(Form1Template):
             diagonals.append(diagonal)
 
     print(f'Diagonal sequence: {diagonals}')
+    return diagonals
 
-  """I wrote code to find row sequences and code sequences, then asked AI to refactor to [this] single function
+    """
+    I wrote code to find row sequences and code sequences, then asked AI to refactor to [this] single function
     Parameters
-      matches: The list of matches to process.
-      initial_locations: The initial list of locations.
+    ----------
+      matches: The list of matches to process (will always be _matches).
+      initial_locations: The initial list of locations (will be the four corners).
       count_threshold: The minimum number of chips required to consider a row or column (will always be 5)
       is_row_check: A boolean indicating whether to check for rows (True) or columns (False).
-   """
+    """
   def find_sequences(self, matches, initial_locations, count_threshold, is_row_check):
+    return_list=[]
     # Initialize locations
     _locations = initial_locations.copy()
   
@@ -601,38 +521,50 @@ class Form1(Form1Template):
       _locations.append(loc)
   
       # Sort locations
-      _locations = sorted(_locations)
+    _locations = sorted(_locations)
+    # print(f'_locations: {_locations}')
   
     # Count occurrences in either rows or columns
     # Only need to pay attention to rows/cols with at least 5 chips
     count_dict = {}
     for item in _locations:
       key = item[0]  # row if is_row_check is True, else column
-      count_dict[key] = count_dict.get(key, 0) + 1
-  
+      count_dict[key] = count_dict.get(key, 0) + 1 # creates dict with chip count for each col/row, e.g., {0:2, 1:3, 2:3, etc.}
+    # print(f'count_dict: {count_dict}')
     matches_list = []
     for key, value in count_dict.items():
+      # print(f'Key: {key}, value: {value}')
       if value >= count_threshold: # if there's more than 5 chips in row/col
         for item in _locations: # go through all the chip locations
           if item[0] == key: # and if a location is in a row/col with at least 5 chips
             matches_list.append(item) # add it to this list
-  
+        # print(f'matches_list: {matches_list}')
       # Make a list with just the col values (for a row with 5 chips) or row values (for a col with 5 chips)
       sequence_check_list = [item[1] for item in matches_list]
         # Now find out if they're sequential
+      # print(f'sequence_check_list: {sequence_check_list}')
       result = []
       for i in range(len(sequence_check_list) - 4):
         if all(sequence_check_list[i + j] + 1 == sequence_check_list[i + j + 1] for j in range(4)):
           result.append(sequence_check_list[i:i + 5])
-  
+          matches_list.clear()
+      
       if result:
         if is_row_check:
           result_locations = [[item, key] for item in result[0]]
+          return_list.append(result_locations)
           print(f"Row sequence: {result_locations}")
+          # return result_locations
         else:
           result_locations = [[key, item] for item in result[0]]
+          return_list.append((result_locations))
           print(f"Column sequence: {result_locations}")
+          # return result_locations
+      
+
+    return return_list 
+
   
-      matches_list.clear()
+      
   
   
