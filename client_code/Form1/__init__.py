@@ -169,7 +169,10 @@ class Form1(Form1Template):
     self.canvas_1.close_path()
     width=5 if self.is_mobile else 10
     self.canvas_1.line_width=width
-    # self.canvas_1.stroke_style="DodgerBlue"
+    if self.player_color=="blue":
+      self.canvas_1.stroke_style="SteelBlue"
+    else:
+      self.canvas_1.stroke_style="SeaGreen"
     self.canvas_1.stroke()
 
   def draw_flag(self, location):
