@@ -158,9 +158,9 @@ class Form1(Form1Template):
         self.canvas_1.draw_image(path,x,y)
     # Draw lines
     for item in self.lines_model:
-      self.draw_line(item[0],item[1])
+      self.draw_line(item[0],item[1], item[2]) #start coordinate, end coordinate, player color to draw (green or blue)
 
-  def draw_line(self, start_location, end_location):
+  def draw_line(self, start_location, end_location, player_color):
     #start_ and end_location are lists, e.g., [0,5] and [4,5]
     displacement=15 if self.is_mobile else 30
     self.canvas_1.begin_path()
@@ -169,10 +169,11 @@ class Form1(Form1Template):
     self.canvas_1.close_path()
     width=5 if self.is_mobile else 10
     self.canvas_1.line_width=width
-    if self.player_color=="blue":
-      self.canvas_1.stroke_style="SteelBlue"
-    else:
-      self.canvas_1.stroke_style="SeaGreen"
+    # if self.player_color=="blue":
+    #   self.canvas_1.stroke_style="SteelBlue"
+    # else:
+    #   self.canvas_1.stroke_style="SeaGreen"
+    self.canvas_1.stroke_style="SteelBlue" if player_color=="blue" else "SeaGreen"
     self.canvas_1.stroke()
 
   def draw_flag(self, location):
@@ -439,6 +440,8 @@ class Form1(Form1Template):
       
       self.display_turn_message()
       self.update_hand_display(self.hand)
+      self.sequence_check("green")
+      self.sequence_check("blue")
       self.canvas_1_reset()
       
 
@@ -446,11 +449,13 @@ class Form1(Form1Template):
     """This method is called Every [interval] seconds. Does not trigger if [interval] is 0."""
     self.update() 
 
-  def btn_sequence_check_click(self, **event_args):
-    """This method is called when the button is clicked"""
-    self.lines_model.clear()
+  def sequence_check(self, player_color):
+    """Checks for row, column, and diagonal Sequences for one player color, green or blue"""
+    # Check green first!!
+    if player_color=="green":
+      self.lines_model.clear()
     _matches=[]
-    chip='green_chip' if self.player_color=="green" else 'blue_chip'
+    chip='green_chip' if player_color=="green" else 'blue_chip'
     # _matches lists all the self.model entries for the player's chips
     for item in self.model:
       if item['url']==chip:
@@ -467,20 +472,19 @@ class Form1(Form1Template):
     for item in _total: # one item for rows, one for cols, one for diags
       if len(item)==1:
         # print(f'start: {item[0][0]}, end: {item[0][-1]}')
-        t=(item[0][0],item[0][-1])
+        t=(item[0][0],item[0][-1],player_color) # tuple with coordinates to start drawing, end drawing, and color to draw
         self.lines_model.append(t)
       elif len(item)>1: # more than one set of rows, or cols, or diags sequences
         for subitem in item:
           # print(f'start: {subitem[0]}, end: {subitem[-1]}')
-          t=(subitem[0],subitem[-1])
+          t=(subitem[0],subitem[-1],player_color) # tuple with coordinates to start drawing, end drawing, and color to draw
           self.lines_model.append(t)
 
-    self.canvas_1.reset_context()
+    # Check green first!!
+    # if player_color=="blue":
+      # self.canvas_1.reset_context()
    
-    
 
-    
-  #-------------Now look for diagonals (thank you AI for your help :-)------------------------
   def find_diagonal_sequences(self,_matches):
     # Make _locations be in form [col, row] again
     # Convert to set for faster lookup operations
@@ -518,7 +522,7 @@ class Form1(Form1Template):
           if len(diagonal) == 5:
             diagonals.append(diagonal)
 
-    print(f'Diagonal sequence: {diagonals}')
+    # print(f'Diagonal sequence: {diagonals}')
     return diagonals
 
     """
