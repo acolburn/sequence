@@ -145,6 +145,7 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
+        
     path=None #re-initialize variable
     for item in self.flag_model:
       if item['url']=='flag':
@@ -153,6 +154,8 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
+
+    # TODO If user clicked btn_sequence_check, draw lines for any sequences here
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
