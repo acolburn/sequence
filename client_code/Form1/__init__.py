@@ -14,6 +14,8 @@ class Form1(Form1Template):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
+    self.flag_model = [] # local variable to hold flag locations
+    self.lines_model=[] # local variable to hold lines showing Sequences
     #using self.labels in self.mobile_screen_dimensions()
     self.labels=[self.label_1,self.label_2,self.label_3,self.label_4,self.label_5,self.label_6,self.label_7]
     # Find screen size for responsive layout
@@ -23,28 +25,12 @@ class Form1(Form1Template):
     if self.is_mobile:
       self.mobile_screen_dimensions()
     else:
-      # Preloading images helps prevent flicker when they're rendered on the Canvas
-      self.images = {
-          'board': URLMedia('_/theme/sequence_board.png'),
-          # 'flag': URLMedia('_/theme/flag.png'),
-          'flag': URLMedia('_/theme/green_check_mark.png'),
-          'green_chip': URLMedia('_/theme/chipGreen_border.png'),
-          'blue_chip': URLMedia('_/theme/chipBlue_border.png')
-        }
-      self.IMAGE_WIDTH  = 64
-      self.IMAGE_HEIGHT = 64
-      # canvas_size is width. 
-      # iPad 5th gen is 2048x1536, 9th gen is larger
-      self.CANVAS_WIDTH = 650
-      self.CANVAS_HEIGHT = 650 #64 px/cell, 10 cells
-      self.canvas_size = self.CANVAS_WIDTH
-      self.canvas_1.height = self.CANVAS_HEIGHT
-    
+      self.desktop_screen_dimensions()
+      
     self.message = {
       'your_turn': 'It\'s your turn. Play whenever you\'re ready ...',
       'their_turn': 'Waiting for your opponent to play ...'
     }
-    
     
     # Select whether player is green or blue; players must agree to choose different colors
     self.player_color = alert(content="Will you be the GREEN or BLUE player?",
@@ -55,12 +41,7 @@ class Form1(Form1Template):
                  ("BLUE", "blue"),
                ])
     self.model = anvil.server.call('load_board') # creates new board if not existing
-    self.flag_model = [] # local variable to hold flag locations
-    self.lines_model=[] # local variable to hold lines showing Sequences
-    if self.player_color=="green":
-      self.hand = anvil.server.call('get_hand','green') # creates hand if not existing
-    else:
-      self.hand = anvil.server.call('get_hand','blue')
+    self.hand = anvil.server.call('get_hand','green') if self.player_color=="green" else anvil.server.call('get_hand','blue') # creates new hand if not existing
     self.is_green_turn = anvil.server.call('green_turn')
     self.display_turn_message()
     self.update_hand_display(self.hand)
@@ -68,14 +49,10 @@ class Form1(Form1Template):
     for label in self.labels:
         label.background=constants.GREEN if self.player_color=="green" else constants.BLUE
 
-
-
-    
-
     self.canvas_1.reset_context() # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
-    # all these variables are here to try to prevent mouse_down and update from happening
-    # at the same time, interfering with each other
+    # variables are here to prevent mouse_down and update from happening
+    # at same time, interfering with each other
     self.timer_1.interval=constants.TIMER_INTERVAL
     self.is_new_game = False
 
@@ -101,6 +78,24 @@ class Form1(Form1Template):
     self.btn_playable_cells.font_size=12
     for label in self.labels:
       label.font_size=16
+
+  def desktop_screen_dimensions(self):
+    # Preloading images helps prevent flicker when they're rendered on the Canvas
+    self.images = {
+      'board': URLMedia('_/theme/sequence_board.png'),
+      # 'flag': URLMedia('_/theme/flag.png'),
+      'flag': URLMedia('_/theme/green_check_mark.png'),
+      'green_chip': URLMedia('_/theme/chipGreen_border.png'),
+      'blue_chip': URLMedia('_/theme/chipBlue_border.png')
+    }
+    self.IMAGE_WIDTH  = 64
+    self.IMAGE_HEIGHT = 64
+    # canvas_size is width. 
+    # iPad 5th gen is 2048x1536, 9th gen is larger
+    self.CANVAS_WIDTH = 650
+    self.CANVAS_HEIGHT = 650 #64 px/cell, 10 cells
+    self.canvas_size = self.CANVAS_WIDTH
+    self.canvas_1.height = self.CANVAS_HEIGHT
     
   def is_within_clickable_area(self, x, y):
     """
@@ -158,7 +153,10 @@ class Form1(Form1Template):
         self.canvas_1.draw_image(path,x,y)
     # Draw lines
     for item in self.lines_model:
-      self.draw_line(item[0],item[1], item[2]) #start coordinate, end coordinate, player color to draw (green or blue)
+      #item[0] = start coordinate, 
+      #item[1] = end coordinate, 
+      #item[2] = player color to draw (green or blue)
+      self.draw_line(item[0],item[1], item[2]) 
 
   def draw_line(self, start_location, end_location, player_color):
     #start_ and end_location are lists, e.g., [0,5] and [4,5]
@@ -169,10 +167,6 @@ class Form1(Form1Template):
     self.canvas_1.close_path()
     width=5 if self.is_mobile else 10
     self.canvas_1.line_width=width
-    # if self.player_color=="blue":
-    #   self.canvas_1.stroke_style="SteelBlue"
-    # else:
-    #   self.canvas_1.stroke_style="SeaGreen"
     self.canvas_1.stroke_style="SteelBlue" if player_color=="blue" else "SeaGreen"
     self.canvas_1.stroke()
 
@@ -212,19 +206,17 @@ class Form1(Form1Template):
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
-    # if not self.is_updating:
-      # [ let's turn off update til the method's done]
     # Players can only play when it's their turn
     if (self.is_green_turn and self.player_color=="green") or (not self.is_green_turn and self.player_color=="blue"):
       self.timer_1.interval=0
-      if self.is_green_turn and self.player_color=="blue":
-        alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
-        self.timer_1.interval=constants.TIMER_INTERVAL
-        return
-      if not self.is_green_turn and self.player_color=="green":
-        alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
-        self.timer_1.interval=constants.TIMER_INTERVAL
-        return
+      # if self.is_green_turn and self.player_color=="blue":
+      #   alert("It looks like you are the blue player, and it's green's turn. Sorry, blue dude. You gotta' wait.")
+      #   self.timer_1.interval=constants.TIMER_INTERVAL
+      #   return
+      # if not self.is_green_turn and self.player_color=="green":
+      #   alert("It looks like you are the green player, and it's blue's turn. Sorry, green dude. You gotta' wait.")
+      #   self.timer_1.interval=constants.TIMER_INTERVAL
+      #   return
       if not self.is_within_clickable_area(x,y):
         self.timer_1.interval=constants.TIMER_INTERVAL
         return
