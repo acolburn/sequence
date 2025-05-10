@@ -138,6 +138,7 @@ class Form1(Form1Template):
     # and the code below because the variable path is unassigned
     # Draw board ... board's always drawn (first)
     self.canvas_1.draw_image(self.images['board'],0,0)
+    # Draw chips
     for item in self.model:
       if item['url']=='green_chip' or item['url']=='blue_chip':
         path = self.images['green_chip'] if item['url']=='green_chip' else self.images['blue_chip']
@@ -145,6 +146,7 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
+    # Draw flags
     path=None #re-initialize variable
     for item in self.flag_model:
       if item['url']=='flag':
@@ -153,14 +155,21 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
-    # practice line drawing
-    # self.canvas_1.begin_path()
-    # self.canvas_1.move_to(0*self.IMAGE_WIDTH+15, 5*self.IMAGE_HEIGHT+15)
-    # self.canvas_1.line_to(4*self.IMAGE_WIDTH+15, 5*self.IMAGE_HEIGHT+15)
-    # self.canvas_1.close_path()
-    # self.canvas_1.line_width=10
-    # # self.canvas_1.stroke_style="DodgerBlue"
-    # self.canvas_1.stroke()
+    # Draw lines
+    self.draw_line([0,5],[4,5])
+    self.draw_line([0,5],[4,9])
+    self.draw_line([2,7],[6,3])
+    self.draw_line([3,6],[7,2])
+
+  def draw_line(self, start_location, end_location):
+    #start_ and end_location are lists, e.g., [0,5] and [4,5]
+    self.canvas_1.begin_path()
+    self.canvas_1.move_to(start_location[0]*self.IMAGE_WIDTH+15, start_location[1]*self.IMAGE_HEIGHT+15)
+    self.canvas_1.line_to(end_location[0]*self.IMAGE_WIDTH+15, end_location[1]*self.IMAGE_HEIGHT+15)
+    self.canvas_1.close_path()
+    self.canvas_1.line_width=10
+    # self.canvas_1.stroke_style="DodgerBlue"
+    self.canvas_1.stroke()
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
