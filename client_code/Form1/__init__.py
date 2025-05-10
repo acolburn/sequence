@@ -56,6 +56,7 @@ class Form1(Form1Template):
                ])
     self.model = anvil.server.call('load_board') # creates new board if not existing
     self.flag_model = [] # local variable to hold flag locations
+    self.lines_model=[] # local variable to hold lines showing Sequences
     if self.player_color=="green":
       self.hand = anvil.server.call('get_hand','green') # creates hand if not existing
     else:
@@ -138,6 +139,7 @@ class Form1(Form1Template):
     # and the code below because the variable path is unassigned
     # Draw board ... board's always drawn (first)
     self.canvas_1.draw_image(self.images['board'],0,0)
+    # Draw chips
     for item in self.model:
       if item['url']=='green_chip' or item['url']=='blue_chip':
         path = self.images['green_chip'] if item['url']=='green_chip' else self.images['blue_chip']
@@ -145,6 +147,7 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
+    # Draw flags
     path=None #re-initialize variable
     for item in self.flag_model:
       if item['url']=='flag':
@@ -153,14 +156,21 @@ class Form1(Form1Template):
         y=item['row']*self.IMAGE_HEIGHT+7
       if path is not None:
         self.canvas_1.draw_image(path,x,y)
-    # practice line drawing
-    # self.canvas_1.begin_path()
-    # self.canvas_1.move_to(0*self.IMAGE_WIDTH+15, 5*self.IMAGE_HEIGHT+15)
-    # self.canvas_1.line_to(4*self.IMAGE_WIDTH+15, 5*self.IMAGE_HEIGHT+15)
-    # self.canvas_1.close_path()
-    # self.canvas_1.line_width=10
-    # # self.canvas_1.stroke_style="DodgerBlue"
-    # self.canvas_1.stroke()
+    # Draw lines
+    for item in self.lines_model:
+      self.draw_line(item[0],item[1])
+
+  def draw_line(self, start_location, end_location):
+    #start_ and end_location are lists, e.g., [0,5] and [4,5]
+    displacement=15 if self.is_mobile else 30
+    self.canvas_1.begin_path()
+    self.canvas_1.move_to(start_location[0]*self.IMAGE_WIDTH+displacement, start_location[1]*self.IMAGE_HEIGHT+displacement)
+    self.canvas_1.line_to(end_location[0]*self.IMAGE_WIDTH+displacement, end_location[1]*self.IMAGE_HEIGHT+displacement)
+    self.canvas_1.close_path()
+    width=5 if self.is_mobile else 10
+    self.canvas_1.line_width=width
+    # self.canvas_1.stroke_style="DodgerBlue"
+    self.canvas_1.stroke()
 
   def draw_flag(self, location):
     # location is a tuple with two coordinates, one for column, one for row
@@ -435,6 +445,7 @@ class Form1(Form1Template):
 
   def btn_sequence_check_click(self, **event_args):
     """This method is called when the button is clicked"""
+    self.lines_model.clear()
     _matches=[]
     chip='green_chip' if self.player_color=="green" else 'blue_chip'
     # _matches lists all the self.model entries for the player's chips
@@ -452,10 +463,16 @@ class Form1(Form1Template):
     # _total has nested structure, lists inside lists ... unpack:
     for item in _total: # one item for rows, one for cols, one for diags
       if len(item)==1:
-        print(f'start: {item[0][0]}, end: {item[0][-1]}')
+        # print(f'start: {item[0][0]}, end: {item[0][-1]}')
+        t=(item[0][0],item[0][-1])
+        self.lines_model.append(t)
       elif len(item)>1: # more than one set of rows, or cols, or diags sequences
         for subitem in item:
-          print(f'start: {subitem[0]}, end: {subitem[-1]}')
+          # print(f'start: {subitem[0]}, end: {subitem[-1]}')
+          t=(subitem[0],subitem[-1])
+          self.lines_model.append(t)
+
+    self.canvas_1.reset_context()
    
     
 
@@ -553,12 +570,12 @@ class Form1(Form1Template):
         if is_row_check:
           result_locations = [[item, key] for item in result[0]]
           return_list.append(result_locations)
-          print(f"Row sequence: {result_locations}")
+          # print(f"Row sequence: {result_locations}")
           # return result_locations
         else:
           result_locations = [[key, item] for item in result[0]]
           return_list.append((result_locations))
-          print(f"Column sequence: {result_locations}")
+          # print(f"Column sequence: {result_locations}")
           # return result_locations
       
 
