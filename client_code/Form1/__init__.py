@@ -33,10 +33,7 @@ class Form1(Form1Template):
     self.is_mobile = (
       True if anvil.js.window.innerWidth < _mobile_screen_width else False
     )
-    if self.is_mobile:
-      self.mobile_screen_dimensions()
-    else:
-      self.desktop_screen_dimensions()
+    self.is_mobile if self.mobile_screen_dimensions() else self.desktop_screen_dimensions()
 
     self.message = {
       "your_turn": "It's your turn. Play whenever you're ready ...",
@@ -54,6 +51,8 @@ class Form1(Form1Template):
       ],
     )
     self.model = anvil.server.call("load_board")  # creates new board if not existing
+    self.sequence_check("green")
+    self.sequence_check("blue")
     self.hand = (
       anvil.server.call("get_hand", "green")
       if self.player_color == "green"
@@ -69,7 +68,7 @@ class Form1(Form1Template):
       label.background = (
         constants.GREEN if self.player_color == "green" else constants.BLUE
       )
-    
+
     self.canvas_1.reset_context()  # must be called whenever canvas needs to be redrawn
     # turn timer ticker back on
     # variables are here to prevent mouse_down and update from happening
@@ -117,7 +116,7 @@ class Form1(Form1Template):
     self.canvas_size = self.CANVAS_WIDTH
     self.canvas_1.height = self.CANVAS_HEIGHT
 
-  def is_within_clickable_area(self, x, y):
+  def is_within_clickable_area(self, x: int, y: int) -> bool:
     """
     Checks whether click is within canvas bounds
     param x: x-coordinate
@@ -125,13 +124,14 @@ class Form1(Form1Template):
     """
     return (0 <= x <= self.canvas_size) and (0 <= y <= self.canvas_1.height)
 
-  def card_color(self, card):
-    if card[-1] == constants.SPADES or card[-1] == constants.CLUBS:
-      return "black"
-    if card[-1] == constants.HEARTS or card[-1] == constants.DIAMONDS:
-      return "red"
+  def card_color(self, card: str):
+    return "black" if card[-1] in [constants.SPADES, constants.CLUBS] else "red"
+    # if card[-1] == constants.SPADES or card[-1] == constants.CLUBS:
+    #   return "black"
+    # if card[-1] == constants.HEARTS or card[-1] == constants.DIAMONDS:
+    # return "red"
 
-  def update_hand_display(self, hand):
+  def update_hand_display(self, hand: list[str]):
     hand_length = len(hand)
     # (made this change b/c every once in awhile there's an error
     # IndexError: list index out of range. I think maybe this method is called
@@ -156,14 +156,14 @@ class Form1(Form1Template):
     self.canvas_1.draw_image(self.images["board"], 0, 0)
     # Draw chips
     for item in self.model:
-      if item["url"] == "green_chip" or item["url"] == "blue_chip":
+      # if item["url"] == "green_chip" or item["url"] == "blue_chip":
+      if item["url"] in ["green_chip", "blue_chip"]:
         path = (
           self.images["green_chip"]
           if item["url"] == "green_chip"
           else self.images["blue_chip"]
         )
-        x = item["col"] * self.IMAGE_WIDTH + 7
-        y = item["row"] * self.IMAGE_HEIGHT + 7
+        x, y = item["col"] * self.IMAGE_WIDTH + 7, item["row"] * self.IMAGE_HEIGHT + 7
       if path is not None:
         self.canvas_1.draw_image(path, x, y)
     # Draw flags
@@ -171,8 +171,7 @@ class Form1(Form1Template):
     for item in self.flag_model:
       if item["url"] == "flag":
         path = self.images["flag"]
-        x = item["col"] * self.IMAGE_WIDTH + 7
-        y = item["row"] * self.IMAGE_HEIGHT + 7
+        x, y = item["col"] * self.IMAGE_WIDTH + 7, item["row"] * self.IMAGE_HEIGHT + 7
       if path is not None:
         self.canvas_1.draw_image(path, x, y)
     # Draw lines
@@ -182,9 +181,11 @@ class Form1(Form1Template):
       # item[2] = player color to draw (green or blue)
       self.draw_line(item[0], item[1], item[2])
 
-  def draw_line(self, start_location, end_location, player_color):
-    # start_ and end_location are lists, e.g., [0,5] and [4,5]
+  def draw_line(self, start_location: list, end_location: list, player_color: str):
     displacement = 15 if self.is_mobile else 30
+    line_width = 5 if self.is_mobile else 10
+    self.canvas_1.stroke_style = "SteelBlue" if player_color == "blue" else "SeaGreen"
+
     self.canvas_1.begin_path()
     self.canvas_1.move_to(
       start_location[0] * self.IMAGE_WIDTH + displacement,
@@ -195,12 +196,10 @@ class Form1(Form1Template):
       end_location[1] * self.IMAGE_HEIGHT + displacement,
     )
     self.canvas_1.close_path()
-    width = 5 if self.is_mobile else 10
-    self.canvas_1.line_width = width
-    self.canvas_1.stroke_style = "SteelBlue" if player_color == "blue" else "SeaGreen"
+    self.canvas_1.line_width = line_width
     self.canvas_1.stroke()
 
-  def draw_flag(self, location):
+  def draw_flag(self, location: tuple):
     # location is a tuple with two coordinates, one for column, one for row
     col = location[0]
     row = location[1]
@@ -209,7 +208,7 @@ class Form1(Form1Template):
       flag
     ) if flag not in self.model else None  # preventing duplicate entries, which could result in flags getting drawn over and over
 
-  def draw_flag_by_card(self, card):
+  def draw_flag_by_card(self, card: str):
     # card is a string representation of an individual playing card--card.rank+card.suit
     # locations (in constants) is dictionary with key=card.rank+card.suit (string), value=board locations for card (list of tuples)
     # locations[card] is the dictionary entry whose key=card parameter
@@ -217,30 +216,25 @@ class Form1(Form1Template):
     for location in constants.locations[card]:
       self.draw_flag(location)
 
-  def draw_flags_for_hand(self, player_color):
-    # hand is a list of card.ranks+card.suits in a player's hand
-    # hand=self.green_hand if player_color=="green" else self.blue_hand
+  def draw_flags_for_hand(self):
+    # hand is a string list of card.ranks+card.suits in a player's hand
     for card in self.hand:
       self.draw_flag_by_card(card)
 
   def remove_all_flags(self):
-    # Use a list comprehension to filter out entries with 'url' equal to 'flag'
-    # self.model = [entry for entry in self.model if entry['url'] != 'flag']
-    # Thank you, duck.ai :-)
     self.flag_model.clear()
 
-  def is_cell_occupied(self, col, row):
-    for item in self.model:
-      if item["col"] == col and item["row"] == row:
-        if item["url"] in ["green_chip", "blue_chip"]:
-          return True
+  def is_cell_occupied(self, col: int, row: int) -> bool:
+    for item in self.model:  # go through each item in the model
+      if item["col"] == col and item["row"] == row:  # see if you can find one matching the given (col,row); if not, return False
+        if item["url"] in ["green_chip", "blue_chip"]:  # if you do find one, make sure it's for a chip, not a flag; if it's a flag, return False
+          return True  # you found an occupied cell, with a chip, at the given (col, row)
     return False
 
   def canvas_1_mouse_down(self, x, y, button, keys, **event_args):
     """This method is called when a mouse button is pressed on this component"""
     # Players can only play when it's their turn
-    if not self.is_player_turn():
-      return
+    if not self.is_player_turn(): return
     # Turn off timer when it's your turn
     self.timer_1.interval = 0
 
@@ -268,9 +262,7 @@ class Form1(Form1Template):
     elif self.can_remove_chip(cell_occupied):
       self.remove_chip(location)  # playing black j
     elif card in self.hand and cell_occupied:
-      alert(
-        "You have a card in your hand matching this cell, but the cell's already occupied"
-      )
+      alert("You have a card in your hand matching this cell, but the cell's already occupied")
       self.reset_timer()
       return  # turn's not over, player can click elsewhere
     else:
@@ -288,33 +280,33 @@ class Form1(Form1Template):
   def reset_timer(self):
     self.timer_1.interval = constants.TIMER_INTERVAL
 
-  def get_location(self, x, y):
+  def get_location(self, x:int, y:int)->tuple:
     """Figure out the row and column values for the place on the screen that was touched/clicked"""
     row = y // self.IMAGE_HEIGHT
     col = x // self.IMAGE_WIDTH
     return (col, row)
 
-  def get_card_at_location(self, location):
+  def get_card_at_location(self, location:tuple)->str:
     """Get card rank+suit for a given square (col, row) on the board"""
     for key, value in constants.locations.items():
       if location in value:
         return key
     return None
 
-  def is_corner_square(self, location):
+  def is_corner_square(self, location:tuple)->bool:
     return location in [(0, 0), (9, 0), (0, 9), (9, 9)]
 
-  def can_play_chip(self, card, cell_occupied):
+  def can_play_chip(self, card:str, cell_occupied:bool)->bool:
     return card in self.hand and not cell_occupied
 
-  def play_chip(self, card, location):
+  def play_chip(self, card:str, location:tuple):
     self.hand.remove(card)
     # chip is the dictionary entry for self.model representing where
     # green_chip or blue_chip will go
     chip = {"url": f"{self.player_color}_chip", "col": location[0], "row": location[1]}
     self.model.append(chip)
 
-  def can_use_wild_card(self, cell_occupied):
+  def can_use_wild_card(self, cell_occupied:bool)->bool:
     red_jacks = ["J" + constants.DIAMONDS, "J" + constants.HEARTS]
     red_jack_in_hand = False
     for item in red_jacks:
@@ -323,7 +315,7 @@ class Form1(Form1Template):
         break
     return red_jack_in_hand and not cell_occupied
 
-  def use_wild_card(self, card, location):
+  def use_wild_card(self, card:str, location:tuple):
     result = alert(
       content=f"You are playing the {card} as a wild card. Continue?",
       title="Wild Card",
@@ -334,7 +326,7 @@ class Form1(Form1Template):
       self.hand.remove(card)
       self.play_chip(card, location)
 
-  def can_remove_chip(self, cell_occupied):
+  def can_remove_chip(self, cell_occupied:bool)->bool:
     black_jacks = ["J" + constants.SPADES, "J" + constants.CLUBS]
     black_jack_in_hand = False
     for item in black_jacks:
@@ -343,12 +335,8 @@ class Form1(Form1Template):
         break
     return black_jack_in_hand and cell_occupied
 
-  def remove_chip(self, location):
-    card = (
-      "J" + constants.SPADES
-      if "J" + constants.SPADES in self.hand
-      else "J" + constants.CLUBS
-    )
+  def remove_chip(self, location:tuple):
+    card = "J" + constants.SPADES if "J" + constants.SPADES in self.hand else "J" + constants.CLUBS
     result = alert(
       content=f"You are playing the {card} to remove a chip. Bastard! Continue?",
       title="Remove a Chip",
@@ -358,11 +346,7 @@ class Form1(Form1Template):
     if result:
       self.hand.remove(card)
       # keep everything in self.model except the value at location
-      self.model = [
-        item
-        for item in self.model
-        if not (item["col"] == location[0] and item["row"] == location[1])
-      ]
+      self.model = [item for item in self.model if not (item["col"] == location[0] and item["row"] == location[1])]
 
   def finalize_turn(self):
     self.remove_all_flags()
@@ -393,8 +377,7 @@ class Form1(Form1Template):
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
-    player_color = "green" if self.is_green_turn else "blue"
-    self.draw_flags_for_hand(player_color)
+    self.draw_flags_for_hand()
     self.canvas_1_reset()
 
   def btn_dead_card_click(self, **event_args):
@@ -412,11 +395,7 @@ class Form1(Form1Template):
       # See if both cells are occupied
       for item in self.model:
         # cell1[0] is col, cell1[1] is row
-        if (
-          item["col"] == cell1[0]
-          and item["row"] == cell1[1]
-          and item["url"] in ["green_chip", "blue_chip"]
-        ):
+        if item["col"] == cell1[0] and item["row"] == cell1[1] and item["url"] in ["green_chip", "blue_chip"]:
           match1 = True
       # If first cell filled, see if second one is too
       if match1:
@@ -475,7 +454,7 @@ class Form1(Form1Template):
 
       self.display_turn_message()
       self.update_hand_display(self.hand)
-      self.sequence_check("green")
+      self.sequence_check("green") #always sequence_check green before blue
       self.sequence_check("blue")
       self.canvas_1_reset()
 
@@ -483,7 +462,7 @@ class Form1(Form1Template):
     """This method is called Every [interval] seconds. Does not trigger if [interval] is 0."""
     self.update()
 
-  def sequence_check(self, player_color):
+  def sequence_check(self, player_color:str):
     """Checks for row, column, and diagonal Sequences for one player color, green or blue"""
     # Check green first!!
     if player_color == "green":
