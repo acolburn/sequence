@@ -51,8 +51,7 @@ class Form1(Form1Template):
       ],
     )
     self.model = anvil.server.call("load_board")  # creates new board if not existing
-    self.sequence_check("green")
-    self.sequence_check("blue")
+    self.mark_sequences()
     self.hand = (
       anvil.server.call("get_hand", "green")
       if self.player_color == "green"
@@ -316,15 +315,16 @@ class Form1(Form1Template):
     return red_jack_in_hand and not cell_occupied
 
   def use_wild_card(self, card:str, location:tuple):
+    # We alread know one of these cards is in hand
+    J="J" + constants.DIAMONDS if "J" + constants.DIAMONDS in self.hand else "J" + constants.HEARTS
     result = alert(
-      content=f"You are playing the {card} as a wild card. Continue?",
+      content=f"You are playing the {J} as a wild card. Continue?",
       title="Wild Card",
       large=True,
       buttons=[("Yes", True), ("No", False)],
     )
     if result:
-      self.hand.remove(card)
-      self.play_chip(card, location)
+      self.play_chip(J, location)
 
   def can_remove_chip(self, cell_occupied:bool)->bool:
     black_jacks = ["J" + constants.SPADES, "J" + constants.CLUBS]
@@ -454,19 +454,20 @@ class Form1(Form1Template):
 
       self.display_turn_message()
       self.update_hand_display(self.hand)
-      self.sequence_check("green") #always sequence_check green before blue
-      self.sequence_check("blue")
+      self.mark_sequences()
       self.canvas_1_reset()
 
   def timer_1_tick(self, **event_args):
     """This method is called Every [interval] seconds. Does not trigger if [interval] is 0."""
     self.update()
 
+  def mark_sequences(self):
+    self.lines_model.clear()
+    self.sequence_check("green")
+    self.sequence_check("blue")
+
   def sequence_check(self, player_color:str):
     """Checks for row, column, and diagonal Sequences for one player color, green or blue"""
-    # Check green first!!
-    if player_color == "green":
-      self.lines_model.clear()
     _matches = []
     chip = "green_chip" if player_color == "green" else "blue_chip"
     # _matches lists all the self.model entries for the player's chips
@@ -500,10 +501,6 @@ class Form1(Form1Template):
             player_color,
           )  # tuple with coordinates to start drawing, end drawing, and color to draw
           self.lines_model.append(t)
-
-    # Check green first!!
-    # if player_color=="blue":
-    # self.canvas_1.reset_context()
 
   def find_diagonal_sequences(self, _matches):
     # Make _locations be in form [col, row] again
