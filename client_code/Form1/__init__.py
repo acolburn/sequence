@@ -33,7 +33,7 @@ class Form1(Form1Template):
     self.is_mobile = (
       True if anvil.js.window.innerWidth < _mobile_screen_width else False
     )
-    self.is_mobile if self.mobile_screen_dimensions() else self.desktop_screen_dimensions()
+    self.mobile_screen_dimensions() if self.is_mobile else self.desktop_screen_dimensions()
 
     self.message = {
       "your_turn": "It's your turn. Play whenever you're ready ...",
@@ -553,6 +553,7 @@ class Form1(Form1Template):
     """
 
   def find_sequences(self, matches, initial_locations, count_threshold, is_row_check):
+    # if not is_row_check: print('*****************This is a column check!***************************')
     return_list = []
     # Initialize locations
     _locations = initial_locations.copy()
@@ -594,18 +595,21 @@ class Form1(Form1Template):
           for j in range(4)
         ):
           result.append(sequence_check_list[i : i + 5])
-          matches_list.clear()
+          # print(f'result.append; seq_check_list[i]={sequence_check_list[i]}, [i+5]={sequence_check_list[i+4]}')
+        matches_list.clear()
 
       if result:
-        if is_row_check:
-          result_locations = [[item, key] for item in result[0]]
-          return_list.append(result_locations)
-          # print(f"Row sequence: {result_locations}")
-          # return result_locations
-        else:
-          result_locations = [[key, item] for item in result[0]]
-          return_list.append((result_locations))
-          # print(f"Column sequence: {result_locations}")
-          # return result_locations
+        # print(f'result: {result}'), e.g., [[4,5,6,7,8],[5,6,7,8,9]] if there are two sequences in given row/column
+        # result[0]=[4,5,6,7,8,] ... result[1]=[5,6,7,8]
+        for i in range(0,len(result)):
+          if is_row_check:
+            result_locations = [[item, key] for item in result[i]]
+            return_list.append(result_locations)
+            # print(f"Row sequence: {result_locations}")
+            # return result_locations
+          else:
+            result_locations = [[key, item] for item in result[i]]
+            return_list.append((result_locations))
+            # print(f"Column sequence: {result_locations}")
 
     return return_list
