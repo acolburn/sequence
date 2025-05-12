@@ -33,7 +33,7 @@ class Form1(Form1Template):
     self.is_mobile = (
       True if anvil.js.window.innerWidth < _mobile_screen_width else False
     )
-    self.mobile_screen_dimensions() if self.is_mobile else self.desktop_screen_dimensions()
+    
 
     self.message = {
       "your_turn": "It's your turn. Play whenever you're ready ...",
@@ -50,6 +50,7 @@ class Form1(Form1Template):
         ("BLUE", "blue"),
       ],
     )
+    self.mobile_screen_dimensions() if self.is_mobile else self.desktop_screen_dimensions()
     self.model = anvil.server.call("load_board")  # creates new board if not existing
     self.mark_sequences()
     self.hand = (
@@ -76,10 +77,10 @@ class Form1(Form1Template):
     self.is_new_game = False
 
   def mobile_screen_dimensions(self):
+    flag_img_path="_/theme/green_check_mark_small.png" if self.player_color=="green" else "_/theme/blue_check_mark_small.png"
     self.images = {
       "board": URLMedia("_/theme/sequence_board_320.png"),
-      # 'flag': URLMedia('_/theme/flag.png'),
-      "flag": URLMedia("_/theme/green_check_mark_small.png"),
+      "flag": URLMedia(flag_img_path),
       "green_chip": URLMedia("_/theme/chipGreen_border_small.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border_small.png"),
     }
@@ -99,10 +100,10 @@ class Form1(Form1Template):
 
   def desktop_screen_dimensions(self):
     # Preloading images helps prevent flicker when they're rendered on the Canvas
+    flag_img_path="_/theme/green_check_mark.png" if self.player_color=="green" else "_/theme/blue_check_mark.png"
     self.images = {
       "board": URLMedia("_/theme/sequence_board.png"),
-      # 'flag': URLMedia('_/theme/flag.png'),
-      "flag": URLMedia("_/theme/green_check_mark.png"),
+      "flag": URLMedia(flag_img_path),
       "green_chip": URLMedia("_/theme/chipGreen_border.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border.png"),
     }
