@@ -257,7 +257,7 @@ class Form1(Form1Template):
     if self.can_play_chip(card, cell_occupied):
       self.play_chip(card, location)  # removes card from deck, adds chip to self.model
     elif self.can_use_wild_card(cell_occupied):
-      self.use_wild_card(card, location)  # playing red J in an empty square
+      self.use_wild_card(location)  # playing red J in an empty square
     elif self.can_remove_chip(cell_occupied):
       self.remove_chip(location)  # playing black j
     elif card in self.hand and cell_occupied:
@@ -307,46 +307,36 @@ class Form1(Form1Template):
 
   def can_use_wild_card(self, cell_occupied:bool)->bool:
     red_jacks = ["J" + constants.DIAMONDS, "J" + constants.HEARTS]
-    red_jack_in_hand = False
     for item in red_jacks:
-      if item in self.hand:
-        red_jack_in_hand = True
-        break
-    return red_jack_in_hand and not cell_occupied
+      if item in self.hand and not cell_occupied:
+        return alert(
+          content=f"You are playing the {item} as a wild card. Continue?",
+          title="Wild Card",
+          large=True,
+          buttons=[("Yes", True), ("No", False)],
+        )
 
-  def use_wild_card(self, card:str, location:tuple):
+  def use_wild_card(self, location:tuple):
     # We alread know one of these cards is in hand
     J="J" + constants.DIAMONDS if "J" + constants.DIAMONDS in self.hand else "J" + constants.HEARTS
-    result = alert(
-      content=f"You are playing the {J} as a wild card. Continue?",
-      title="Wild Card",
-      large=True,
-      buttons=[("Yes", True), ("No", False)],
-    )
-    if result:
-      self.play_chip(J, location)
+    self.play_chip(J, location)
 
   def can_remove_chip(self, cell_occupied:bool)->bool:
     black_jacks = ["J" + constants.SPADES, "J" + constants.CLUBS]
-    black_jack_in_hand = False
     for item in black_jacks:
-      if item in self.hand:
-        black_jack_in_hand = True
-        break
-    return black_jack_in_hand and cell_occupied
+      if item in self.hand and cell_occupied:
+        return alert(
+        content=f"You are playing the {item} to remove a chip. Bastard! Continue?",
+        title="Remove a Chip",
+        large=True,
+        buttons=[("Yes", True), ("No", False)],
+      )
 
   def remove_chip(self, location:tuple):
     card = "J" + constants.SPADES if "J" + constants.SPADES in self.hand else "J" + constants.CLUBS
-    result = alert(
-      content=f"You are playing the {card} to remove a chip. Bastard! Continue?",
-      title="Remove a Chip",
-      large=True,
-      buttons=[("Yes", True), ("No", False)],
-    )
-    if result:
-      self.hand.remove(card)
-      # keep everything in self.model except the value at location
-      self.model = [item for item in self.model if not (item["col"] == location[0] and item["row"] == location[1])]
+    self.hand.remove(card)
+    # keep everything in self.model except the value at location
+    self.model = [item for item in self.model if not (item["col"] == location[0] and item["row"] == location[1])]
 
   def finalize_turn(self):
     self.remove_all_flags()
