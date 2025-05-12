@@ -76,10 +76,12 @@ class Form1(Form1Template):
     self.is_new_game = False
 
   def mobile_screen_dimensions(self):
+    flag_img_path="_/theme/green_check_mark_small.png" if self.player
     self.images = {
       "board": URLMedia("_/theme/sequence_board_320.png"),
       # 'flag': URLMedia('_/theme/flag.png'),
-      "flag": URLMedia("_/theme/green_check_mark_small.png"),
+      # "flag": URLMedia("_/theme/green_check_mark_small.png"),
+      "flag": URLMedia("_/theme/blue_check_mark_small.png"),
       "green_chip": URLMedia("_/theme/chipGreen_border_small.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border_small.png"),
     }
@@ -102,7 +104,8 @@ class Form1(Form1Template):
     self.images = {
       "board": URLMedia("_/theme/sequence_board.png"),
       # 'flag': URLMedia('_/theme/flag.png'),
-      "flag": URLMedia("_/theme/green_check_mark.png"),
+      # "flag": URLMedia("_/theme/green_check_mark.png"),
+      "flag": URLMedia("_/theme/blue_check_mark.png"),
       "green_chip": URLMedia("_/theme/chipGreen_border.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border.png"),
     }
