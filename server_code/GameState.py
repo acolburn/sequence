@@ -23,21 +23,6 @@ def make_decks():
   random.shuffle(deck)
   random.shuffle(deck)
   update_cell(1,"Deck",deck)
-
-# def make_hand(player_color):
-  # """param deck is list of cards
-  # returns list of cards
-  # If deck doesn't have at least [hand_length] cards, returns []"""
-  # deck=get_deck()
-  # hand=[]
-  # hand_length=7
-  # if len(deck)<7:
-  #   deck=make_decks()
-  # for i in range(hand_length):
-  #     card=deck.pop()
-  #     hand.append(card)
-  # update_cell(1,"Deck",deck)
-  # update_cell(1,"GreenHand",hand) if player_color=="green" else update_cell(1,"BlueHand",hand)
   
 
 # ----------------------------------------------------------------------------------------
@@ -49,12 +34,12 @@ def load_board():
   If no board in DataTable, creates a new one"""
   model = []
   # If table isn't empty, load its contents into self.model
-  # data_table=app_tables.board_state.search() # data_table is a SearchIterator
   data_table=app_tables.board_state.get(id=1)
-  if data_table['Board'] is not None:
-    model = data_table['Board']
-  else: #Board is empty, create new one
-    update_cell(1,"Board",model)
+  model = data_table['Board'] if data_table['Board'] is not None else update_cell(1,"Board",model)
+  # if data_table['Board'] is not None:
+  #   model = data_table['Board']
+  # else: #Board is empty, create new one
+  #   update_cell(1,"Board",model)
   return model
       
 @anvil.server.callable
@@ -81,15 +66,7 @@ def get_deck():
 # ----------------------------------------------------------------------------------------
 # Functions Involving Hands
 # ----------------------------------------------------------------------------------------
-# @anvil.server.callable
 def make_hand(player):
-  # deck = get_deck()
-  # hand, deck = Cards.make_new_hand(deck)  
-  # col_name="GreenHand" if player=="green" else "BlueHand"
-  # make_hand(player)
-  # update_cell(1,col_name,hand)
-  # deck has also changed now, so it too needs to be updated
-  # update_cell(1,"Deck",deck)
   deck=get_deck()
   hand=[]
   hand_length=7
@@ -103,20 +80,37 @@ def make_hand(player):
   return hand
   
 @anvil.server.callable
-def get_hand(player):
-  data_table=app_tables.board_state.get(id=1)
-  if player=="green":
-    if data_table['GreenHand'] is None:
-      green_hand = make_hand("green")
+def get_hand(player_color):
+  data_table = app_tables.board_state.get(id=1)
+  player_hands = {
+    "green": "GreenHand",
+    "blue": "BlueHand"
+  }
+
+  if player_color in player_hands:
+    hand_key = player_hands[player_color]
+    if data_table[hand_key] is None:
+      return make_hand(player_color)
     else:
-      green_hand = data_table['GreenHand']
-    return green_hand
-  if player=="blue":
-    if data_table['BlueHand'] is None:
-      blue_hand = make_hand("blue")
-    else:
-      blue_hand = data_table['BlueHand']
-    return blue_hand
+      return data_table[hand_key]
+
+    return None  # or raise an exception if the player is invalid
+
+# @anvil.server.callable
+# def get_hand(player):
+#   data_table=app_tables.board_state.get(id=1)
+#   if player=="green":
+#     if data_table['GreenHand'] is None:
+#       green_hand = make_hand("green")
+#     else:
+#       green_hand = data_table['GreenHand']
+#     return green_hand
+#   if player=="blue":
+#     if data_table['BlueHand'] is None:
+#       blue_hand = make_hand("blue")
+#     else:
+#       blue_hand = data_table['BlueHand']
+#     return blue_hand
 
 @anvil.server.callable
 def update_hand(player_color, hand):
