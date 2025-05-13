@@ -5,7 +5,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from .. import constants
-# from .. import responsive
+
 
 import random
 
