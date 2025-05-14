@@ -563,9 +563,9 @@ class Form1(Form1Template):
     count_dict = {}
     for item in _locations:
       key = item[0]  # row if is_row_check is True, else column
-      count_dict[key] = (
-        count_dict.get(key, 0) + 1
-      )  # creates dict with chip count for each col/row, e.g., {0:2, 1:3, 2:3, etc.}
+      if key not in count_dict:
+        count_dict[key]=0
+      count_dict[key]+=1
     # print(f'count_dict: {count_dict}')
     matches_list = []
     for key, value in count_dict.items():
@@ -593,14 +593,16 @@ class Form1(Form1Template):
         # print(f'result: {result}'), e.g., [[4,5,6,7,8],[5,6,7,8,9]] if there are two sequences in given row/column
         # result[0]=[4,5,6,7,8,] ... result[1]=[5,6,7,8]
         for i in range(0,len(result)):
-          if is_row_check:
-            result_locations = [[item, key] for item in result[i]]
-            return_list.append(result_locations)
-            # print(f"Row sequence: {result_locations}")
-            # return result_locations
-          else:
-            result_locations = [[key, item] for item in result[i]]
-            return_list.append((result_locations))
-            # print(f"Column sequence: {result_locations}")
+          result_locations = [[item, key] for item in result[i]] if is_row_check else [[key, item] for item in result[i]]
+          return_list.append(result_locations)
+          # if is_row_check:
+          #   result_locations = [[item, key] for item in result[i]]
+          #   return_list.append(result_locations)
+          #   # print(f"Row sequence: {result_locations}")
+          #   # return result_locations
+          # else:
+          #   result_locations = [[key, item] for item in result[i]]
+          #   return_list.append((result_locations))
+          #   # print(f"Column sequence: {result_locations}")
 
     return return_list
