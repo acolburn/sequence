@@ -218,6 +218,7 @@ class Form1(Form1Template):
 
   def draw_flags_for_hand(self):
     # hand is a string list of card.ranks+card.suits in a player's hand
+    self.remove_all_flags()
     for card in self.hand:
       self.draw_flag_by_card(card)
 
