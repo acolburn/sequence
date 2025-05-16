@@ -84,12 +84,12 @@ class Form1(Form1Template):
       "green_chip": URLMedia("_/theme/chipGreen_border_small.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border_small.png"),
     }
-    self.IMAGE_WIDTH = 32
-    self.IMAGE_HEIGHT = 32
+    self.IMAGE_WIDTH = 28
+    self.IMAGE_HEIGHT = 28
     # canvas_size is width.
     # iPad 5th gen is 2048x1536, 9th gen is larger
-    self.CANVAS_WIDTH = 320
-    self.CANVAS_HEIGHT = 320  # 64 px/cell, 10 cells
+    self.CANVAS_WIDTH = 288
+    self.CANVAS_HEIGHT = 288
     self.canvas_size = self.CANVAS_WIDTH
     self.canvas_1.height = self.CANVAS_HEIGHT
     self.btn_dead_card.font_size = 12
