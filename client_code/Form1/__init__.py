@@ -245,6 +245,11 @@ class Form1(Form1Template):
 
     # Where did the player touch/click?
     location = self.get_location(x, y)  # location=(col,row) that were clicked
+    # Validate location
+    # if location is None:
+    #   alert("Invalid location clicked; try again")
+    #   self.reset_timer()
+    #   return
     # What card is in that square?
     card = self.get_card_at_location(location)
     # Is something already in the square?
@@ -255,22 +260,26 @@ class Form1(Form1Template):
       self.reset_timer()
       return
 
-    if self.can_play_chip(card, cell_occupied):
-      self.play_chip(card, location)  # removes card from deck, adds chip to self.model
-    elif self.can_use_wild_card(cell_occupied):
-      self.use_wild_card(location)  # playing red J in an empty square
-    elif self.can_remove_chip(cell_occupied):
-      self.remove_chip(location)  # playing black j
-    elif card in self.hand and cell_occupied:
-      alert("You have a card in your hand matching this cell, but the cell's already occupied")
+    try:
+      if self.can_play_chip(card, cell_occupied):
+        self.play_chip(card, location)  # removes card from deck, adds chip to self.model
+      elif self.can_use_wild_card(cell_occupied):
+        self.use_wild_card(location)  # playing red J in an empty square
+      elif self.can_remove_chip(cell_occupied):
+        self.remove_chip(location)  # playing black j
+      elif card in self.hand and cell_occupied:
+        alert("You have a card in your hand matching this cell, but the cell's already occupied")
+        self.reset_timer()
+        return  # turn's not over, player can click elsewhere
+      else:
+        alert("You cannot put a piece in this square.")
+        self.reset_timer()
+        return  # turn's not over, player can click elsewhere
+    
+        self.finalize_turn()
+    except Exception as e:
+      alert(f"An error occurred: {str(e)}")
       self.reset_timer()
-      return  # turn's not over, player can click elsewhere
-    else:
-      alert("You cannot put a piece in this square.")
-      self.reset_timer()
-      return  # turn's not over, player can click elsewhere
-
-    self.finalize_turn()
 
   def is_player_turn(self):
     return (self.is_green_turn and self.player_color == "green") or (
