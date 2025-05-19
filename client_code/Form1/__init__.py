@@ -465,7 +465,7 @@ class Form1(Form1Template):
             self.is_green_turn = game_state["IsGreenTurn"]
       except Exception as e:
         alert(
-          title="Don't Panic",
+          title="Don't Panic!",
           content="An error occurred. It's most likely a hiccup in the internet connection. You can probably ignore it. If necessary, though, just refresh the page. Nothing will be lost.")
 
       self.display_turn_message()
