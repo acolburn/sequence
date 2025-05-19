@@ -428,6 +428,8 @@ class Form1(Form1Template):
       anvil.server.call("new_game")  # clears board, creates new row, includes empty board
       self.model = []
       self.hand.clear()
+      self.remove_all_flags()
+      self.can_display_flags
       self.hand = anvil.server.call("get_hand", self.player_color)
       self.update_hand_display(self.hand)
       self.is_new_game = True  # set this for one time exception re: running self.update() whether or not it's your turn
@@ -444,22 +446,27 @@ class Form1(Form1Template):
       # but after that one update, we don't want it to run when it's a player's turn
       if self.is_new_game:
         self.is_new_game = False
-      with anvil.server.no_loading_indicator:
-        game_state = anvil.server.call("update")
-        if game_state is None:
-          return
-        if self.player_color == "green":
-          if game_state["GreenHand"] != self.hand:
-            self.hand = anvil.server.call("get_hand", "green")
-        if self.player_color == "blue":
-          if game_state["BlueHand"] != self.hand:
-            self.hand = anvil.server.call("get_hand", "blue")
-        if game_state["Board"] != self.model:
-          self.model = game_state[
-            "Board"
-          ]  # doing this clears flags, too, even if it's mid-play
-        if game_state["IsGreenTurn"] != self.is_green_turn:
-          self.is_green_turn = game_state["IsGreenTurn"]
+      try:
+        with anvil.server.no_loading_indicator:
+          game_state = anvil.server.call("update")
+          if game_state is None:
+            return
+          if self.player_color == "green":
+            if game_state["GreenHand"] != self.hand:
+              self.hand = anvil.server.call("get_hand", "green")
+          if self.player_color == "blue":
+            if game_state["BlueHand"] != self.hand:
+              self.hand = anvil.server.call("get_hand", "blue")
+          if game_state["Board"] != self.model:
+            self.model = game_state[
+              "Board"
+            ]  # doing this clears flags, too, even if it's mid-play
+          if game_state["IsGreenTurn"] != self.is_green_turn:
+            self.is_green_turn = game_state["IsGreenTurn"]
+      except Exception as e:
+        alert(
+          title="Don't Panic",
+          content="An error occurred. It's most likely a hiccup in the internet connection. You can probably ignore it. If necessary, though, just refresh the page. Nothing will be lost.")
 
       self.display_turn_message()
       self.update_hand_display(self.hand)
