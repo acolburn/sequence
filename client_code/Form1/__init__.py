@@ -17,6 +17,7 @@ class Form1(Form1Template):
     self.init_components(**properties)
     self.flag_model = []  # local variable to hold flag locations
     self.lines_model = []  # local variable to hold lines showing Sequences
+    self.can_display_flags = True #toggles on and off when player clicks button
     # using self.labels in self.mobile_screen_dimensions()
     self.labels = [
       self.label_1,
@@ -36,8 +37,8 @@ class Form1(Form1Template):
     
 
     self.message = {
-      "your_turn": "It's your turn. Play whenever you're ready ...",
-      "their_turn": "Waiting for your opponent to play ...",
+      "your_turn": "YOUR TURN",
+      "their_turn": "Waiting for your opponent.",
     }
 
     # Select whether player is green or blue; players must agree to choose different colors
@@ -218,9 +219,13 @@ class Form1(Form1Template):
 
   def draw_flags_for_hand(self):
     # hand is a string list of card.ranks+card.suits in a player's hand
-    self.remove_all_flags()
-    for card in self.hand:
-      self.draw_flag_by_card(card)
+    if not self.can_display_flags:
+      self.remove_all_flags()
+      self.can_display_flags=True
+    else:
+      for card in self.hand:
+        self.draw_flag_by_card(card)
+      self.can_display_flags=False
 
   def remove_all_flags(self):
     self.flag_model.clear()
@@ -357,15 +362,20 @@ class Form1(Form1Template):
 
   def display_turn_message(self):
     if self.is_green_turn and self.player_color == "green":
-      self.lbl_turn_message.text = self.message["your_turn"]
+      # self.lbl_turn_message.text = self.message["your_turn"]
+      self.rich_text_1.content=f"<h1 style='color:green'>{self.message['your_turn']}</h2>"
     elif self.is_green_turn and self.player_color == "blue":
-      self.lbl_turn_message.text = self.message["their_turn"]
+      # self.lbl_turn_message.text = self.message["their_turn"]
+      self.rich_text_1.content=f"<h4 style='color:green'>{self.message['their_turn']}</h2>"
     elif not self.is_green_turn and self.player_color == "green":
-      self.lbl_turn_message.text = self.message["their_turn"]
+      # self.lbl_turn_message.text = self.message["their_turn"]
+      self.rich_text_1.content=f"<h4 style='color:blue'>{self.message['their_turn']}</h2>"
     elif not self.is_green_turn and self.player_color == "blue":
-      self.lbl_turn_message.text = self.message["your_turn"]
+      # self.lbl_turn_message.text = self.message["your_turn"]
+      self.rich_text_1.content=f"<h1 style='color:blue'>{self.message['your_turn']}</h2>"
     else:
-      self.lbl_turn_message = "It's no one's turn right now. Hmm ..."
+      # self.lbl_turn_message = "It's no one's turn right now. Hmm ..."
+      self.rich_text_1.content="It's no one's turn right now. Hmm ..."
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
@@ -408,13 +418,20 @@ class Form1(Form1Template):
 
   def btn_new_game_click(self, **event_args):
     """This method is called when the button is clicked"""
-    anvil.server.call("new_game")  # clears board, creates new row, includes empty board
-    self.model = []
-    self.hand.clear()
-    self.hand = anvil.server.call("get_hand", self.player_color)
-    self.update_hand_display(self.hand)
-    self.is_new_game = True  # set this for one time exception re: running self.update() whether or not it's your turn
-    self.update()
+    new_game = alert(
+      content="Do you want to start a new game?",
+      title="New Game",
+      large=True,
+      buttons=[("Yes", True), ("No", False)],
+    )
+    if new_game:
+      anvil.server.call("new_game")  # clears board, creates new row, includes empty board
+      self.model = []
+      self.hand.clear()
+      self.hand = anvil.server.call("get_hand", self.player_color)
+      self.update_hand_display(self.hand)
+      self.is_new_game = True  # set this for one time exception re: running self.update() whether or not it's your turn
+      self.update()
 
   def update(self):
     # Update only happens when it's not your turn

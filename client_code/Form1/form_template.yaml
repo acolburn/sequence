@@ -14,10 +14,10 @@ components:
     name: timer_1
     properties: {interval: 0}
     type: Timer
-  - layout_properties: {grid_position: 'XOOOYY,VEIHWY'}
-    name: lbl_turn_message
-    properties: {text: This is a test message ...}
-    type: Label
+  - layout_properties: {grid_position: 'YTFCJF,FSYUBF'}
+    name: rich_text_1
+    properties: {content: this is a test, format: restricted_html}
+    type: RichText
   - components:
     - data_bindings:
       - {code: '', property: border, writeback: false}
