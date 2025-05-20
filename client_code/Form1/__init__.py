@@ -76,7 +76,7 @@ class Form1(Form1Template):
     # at same time, interfering with each other
     self.timer_1.interval = constants.TIMER_INTERVAL
     self.is_new_game = False
-
+  
   def mobile_screen_dimensions(self):
     flag_img_path="_/theme/green_check_mark_small.png" if self.player_color=="green" else "_/theme/blue_check_mark_small.png"
     self.images = {
