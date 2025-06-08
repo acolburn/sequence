@@ -105,11 +105,15 @@ class Form1(Form1Template):
     self.images = {
       "board": URLMedia("_/theme/sequence_board.png"),
       "flag": URLMedia(flag_img_path),
-      "green_chip": URLMedia("_/theme/chipGreen_border.png"),
-      "blue_chip": URLMedia("_/theme/chipBlue_border.png"),
+      # "green_chip": URLMedia("_/theme/chipGreen_border.png"),
+      # "blue_chip": URLMedia("_/theme/chipBlue_border.png"),
+      "green_chip": URLMedia("_/theme/chipGreen_border_small.png"),
+      "blue_chip": URLMedia("_/theme/chipBlue_border_small.png"),
     }
-    self.IMAGE_WIDTH = 64
-    self.IMAGE_HEIGHT = 64
+    # self.IMAGE_WIDTH = 64
+    # self.IMAGE_HEIGHT = 64
+    self.IMAGE_WIDTH = 66
+    self.IMAGE_HEIGHT = 66
     # canvas_size is width.
     # iPad 5th gen is 2048x1536, 9th gen is larger
     self.CANVAS_WIDTH = 650
