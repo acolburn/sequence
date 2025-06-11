@@ -249,9 +249,6 @@ class Form1(Form1Template):
     if not self.is_player_turn(): return
     # Turn off timer when it's your turn
     self.timer_1.interval = 0
-    # reset these variables, which exist for the sake of displaying a message 
-    self.played_red_jack=False
-    self.played_black_jack=False 
 
     # Only respond to clicks/touches on the board itself, i.e., the clickable area
     if not self.is_within_clickable_area(x, y):
@@ -270,6 +267,10 @@ class Form1(Form1Template):
       self.reset_timer()
       return
 
+    # at this point, reset these variables, which exist for the sake of displaying a message 
+    # self.played_red_jack=False
+    # self.played_black_jack=False 
+    
     if self.can_play_chip(card, cell_occupied):
       self.play_chip(card, location)  # removes card from deck, adds chip to self.model
     elif self.can_use_wild_card(cell_occupied):
@@ -390,8 +391,10 @@ class Form1(Form1Template):
 
     # if self.played_red_jack:
       # self.rich_text_1.content+="NOTE: A RED JACK WAS JUST PLAYED!"
+      # print('red jack')
     # if self.played_black_jack:
       # self.rich_text_1.content+="NOTE: A BLACK JACK WAS JUST PLAYED!"
+      # print('black jack')
 
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
