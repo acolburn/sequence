@@ -15,6 +15,8 @@ class Form1(Form1Template):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
+    # self.played_black_jack=False 
+    # self.played_red_jack=False 
     self.flag_model = []  # local variable to hold flag locations
     self.lines_model = []  # local variable to hold lines showing Sequences
     self.can_display_flags = True #toggles on and off when player clicks button
@@ -176,7 +178,7 @@ class Form1(Form1Template):
     for item in self.flag_model:
       if item["url"] == "flag":
         path = self.images["flag"]
-        x, y = item["col"] * self.IMAGE_WIDTH + 7, item["row"] * self.IMAGE_HEIGHT + 7
+        x, y = item["col"] * self.IMAGE_WIDTH + 7, item["row"] * self.IMAGE_HEIGHT - 7
       if path is not None:
         self.canvas_1.draw_image(path, x, y)
     # Draw lines
@@ -247,6 +249,9 @@ class Form1(Form1Template):
     if not self.is_player_turn(): return
     # Turn off timer when it's your turn
     self.timer_1.interval = 0
+    # reset these variables, which exist for the sake of displaying a message 
+    self.played_red_jack=False
+    self.played_black_jack=False 
 
     # Only respond to clicks/touches on the board itself, i.e., the clickable area
     if not self.is_within_clickable_area(x, y):
@@ -269,8 +274,10 @@ class Form1(Form1Template):
       self.play_chip(card, location)  # removes card from deck, adds chip to self.model
     elif self.can_use_wild_card(cell_occupied):
       self.use_wild_card(location)  # playing red J in an empty square
+      # self.played_red_jack=True
     elif self.can_remove_chip(cell_occupied):
       self.remove_chip(location)  # playing black j
+      # self.played_black_jack=True
     elif card in self.hand and cell_occupied:
       alert("You have a card in your hand matching this cell, but the cell's already occupied")
       self.reset_timer()
@@ -381,6 +388,11 @@ class Form1(Form1Template):
       # self.lbl_turn_message = "It's no one's turn right now. Hmm ..."
       self.rich_text_1.content="It's no one's turn right now. Hmm ..."
 
+    # if self.played_red_jack:
+      # self.rich_text_1.content+="NOTE: A RED JACK WAS JUST PLAYED!"
+    # if self.played_black_jack:
+      # self.rich_text_1.content+="NOTE: A BLACK JACK WAS JUST PLAYED!"
+
   def btn_playable_cells_click(self, **event_args):
     """This method is called when the button is clicked"""
     self.draw_flags_for_hand()
@@ -473,6 +485,10 @@ class Form1(Form1Template):
           content="An error occurred. It's most likely a hiccup in the internet connection. You can probably ignore it. If necessary, though, just refresh the page. Nothing will be lost.")
 
       self.display_turn_message()
+      # if self.played_red_jack:
+      #   self.rich_text_1.content+="NOTE: A RED JACK WAS JUST PLAYED!"
+      # if self.played_black_jack:
+      #   self.rich_text_1.content+="NOTE: A BLACK JACK WAS JUST PLAYED!"
       self.update_hand_display(self.hand)
       self.mark_sequences()
       self.canvas_1_reset()
