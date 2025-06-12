@@ -112,14 +112,14 @@ class Form1(Form1Template):
       "green_chip": URLMedia("_/theme/chipGreen_border_small.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border_small.png"),
     }
-    # self.IMAGE_WIDTH = 64
-    # self.IMAGE_HEIGHT = 64
-    self.IMAGE_WIDTH = 66
-    self.IMAGE_HEIGHT = 66
+    self.IMAGE_WIDTH = 64
+    self.IMAGE_HEIGHT = 64
+    # self.IMAGE_WIDTH = 66
+    # self.IMAGE_HEIGHT = 66
     # canvas_size is width.
     # iPad 5th gen is 2048x1536, 9th gen is larger
-    self.CANVAS_WIDTH = 650
-    self.CANVAS_HEIGHT = 650  # 64 px/cell, 10 cells
+    self.CANVAS_WIDTH = 660
+    self.CANVAS_HEIGHT = 660 # 64 px/cell, 10 cells
     self.canvas_size = self.CANVAS_WIDTH
     self.canvas_1.height = self.CANVAS_HEIGHT
 
@@ -170,7 +170,7 @@ class Form1(Form1Template):
           if item["url"] == "green_chip"
           else self.images["blue_chip"]
         )
-        x, y = item["col"] * self.IMAGE_WIDTH + 7, item["row"] * self.IMAGE_HEIGHT + 7
+        x, y = item["col"] * self.IMAGE_WIDTH + 10, item["row"] * self.IMAGE_HEIGHT +10
       if path is not None:
         self.canvas_1.draw_image(path, x, y)
     # Draw flags
@@ -178,7 +178,7 @@ class Form1(Form1Template):
     for item in self.flag_model:
       if item["url"] == "flag":
         path = self.images["flag"]
-        x, y = item["col"] * self.IMAGE_WIDTH + 7, item["row"] * self.IMAGE_HEIGHT - 7
+        x, y = item["col"] * self.IMAGE_WIDTH, item["row"] * self.IMAGE_HEIGHT
       if path is not None:
         self.canvas_1.draw_image(path, x, y)
     # Draw lines
