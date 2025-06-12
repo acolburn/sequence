@@ -112,10 +112,10 @@ class Form1(Form1Template):
       "green_chip": URLMedia("_/theme/chipGreen_border_small.png"),
       "blue_chip": URLMedia("_/theme/chipBlue_border_small.png"),
     }
-    self.IMAGE_WIDTH = 64
-    self.IMAGE_HEIGHT = 64
-    # self.IMAGE_WIDTH = 66
-    # self.IMAGE_HEIGHT = 66
+    # self.IMAGE_WIDTH = 64
+    # self.IMAGE_HEIGHT = 64
+    self.IMAGE_WIDTH = 66
+    self.IMAGE_HEIGHT = 66
     # canvas_size is width.
     # iPad 5th gen is 2048x1536, 9th gen is larger
     self.CANVAS_WIDTH = 660
@@ -170,7 +170,7 @@ class Form1(Form1Template):
           if item["url"] == "green_chip"
           else self.images["blue_chip"]
         )
-        x, y = item["col"] * self.IMAGE_WIDTH + 10, item["row"] * self.IMAGE_HEIGHT +10
+        x, y = item["col"] * self.IMAGE_WIDTH + 10, item["row"] * self.IMAGE_HEIGHT 
       if path is not None:
         self.canvas_1.draw_image(path, x, y)
     # Draw flags
