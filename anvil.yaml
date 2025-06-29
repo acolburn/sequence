@@ -24,7 +24,7 @@ db_schema:
     server: full
     title: Board_State
 dependencies: []
-metadata: {description: tinyurl.com/seeQuince, title: Sequence}
+metadata: {description: tinyurl.com/seeQuince and tinyurl.com/AlsSequence, title: Sequence}
 name: Sequence
 package_name: Sequence
 renamed: true
